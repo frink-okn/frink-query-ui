@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "marx-css": "^4.0.0",
+    "@comunica/query-sparql": "3.1.2"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
