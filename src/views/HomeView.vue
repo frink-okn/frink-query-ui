@@ -21,6 +21,7 @@ const columns = computed(() => {
 })
 async function executeQuery() {
   results.value = []
+  // @ts-expect-error
   bindingsStream.value = await engine.queryBindings(query.value, queryContext.value)
   running.value = true
   bindingsStream.value.on('data', (item) => results.value.push(item))
