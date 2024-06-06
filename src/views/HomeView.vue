@@ -3,13 +3,10 @@ import { computed, ref, type Ref } from 'vue'
 import { QueryEngine } from '@comunica/query-sparql'
 import { type Bindings, type BindingsStream } from '@comunica/types'
 import SourceSelector from '@/components/SourceSelector.vue'
-import { DataFactory } from 'rdf-data-factory'
-import { BindingsFactory } from '@comunica/bindings-factory'
 import { ArrayIterator } from 'asynciterator'
 import { ActorQueryResultSerializeSparqlCsv } from '@comunica/actor-query-result-serialize-sparql-csv'
+import { downloadTextAsFile, asBindings } from '@/modules/util'
 
-const DF = new DataFactory()
-const BF = new BindingsFactory(DF)
 const query = ref('')
 const engine = new QueryEngine()
 const queryContext = ref({
@@ -35,23 +32,10 @@ async function executeQuery() {
       bindingsStream.value = await result.execute()
       break
     case 'quads':
-      bindingsStream.value = (await result.execute()).map<Bindings>((quad) => {
-        return BF.fromRecord({
-          subject: quad.subject,
-          predicate: quad.predicate,
-          object: quad.predicate,
-          graph: quad.graph
-        })
-      })
+      bindingsStream.value = (await result.execute()).map(asBindings)
       break
     case 'boolean':
-      bindingsStream.value = new ArrayIterator<Bindings>([
-        BF.fromRecord({
-          result: (await result.execute())
-            ? DF.literal('true', DF.namedNode('http://www.w3.org/2001/XMLSchema#boolean'))
-            : DF.literal('false', DF.namedNode('http://www.w3.org/2001/XMLSchema#boolean'))
-        })
-      ])
+      bindingsStream.value = new ArrayIterator<Bindings>([asBindings(await result.execute())])
       break
   }
   running.value = true
@@ -76,30 +60,7 @@ function downloadResults() {
             .join(',')}\r\n`
       )
       .join('')
-    const blob = new Blob([header, body])
-    const a = document.createElement('a')
-    a.download = 'sparql-results.csv'
-    a.href = window.URL.createObjectURL(blob)
-    a.dataset.downloadurl = ['text/csv', a.download, a.href].join(':')
-    const e = document.createEvent('MouseEvents')
-    e.initMouseEvent(
-      'click',
-      true,
-      false,
-      window,
-      0,
-      0,
-      0,
-      0,
-      0,
-      false,
-      false,
-      false,
-      false,
-      0,
-      null
-    )
-    a.dispatchEvent(e)
+    downloadTextAsFile([header, body], 'sparql-results.csv', 'text/csv')
   }
 }
 </script>
