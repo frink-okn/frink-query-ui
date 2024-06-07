@@ -7,3 +7,7 @@ main {
 input + label {
   margin-left: 0.4em;
 }
+
+.yasqe_buttons {
+  display: none !important;
+}
