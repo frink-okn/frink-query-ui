@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, type Ref, watch } from 'vue'
+import { computed, ref, type Ref, watch, onMounted } from 'vue'
 import { QueryEngine } from '@comunica/query-sparql'
 import { type Bindings, type BindingsStream } from '@comunica/types'
 import SourceSelector from '@/components/SourceSelector.vue'
 import { ArrayIterator } from 'asynciterator'
 import { ActorQueryResultSerializeSparqlCsv } from '@comunica/actor-query-result-serialize-sparql-csv'
 import { downloadTextAsFile, asBindings } from '@/modules/util'
+import Yasqe from '@triply/yasqe'
 
 const query = ref('')
 const engine = new QueryEngine()
@@ -30,6 +31,15 @@ const columns = computed(() => {
 const startTime: Ref<Date | undefined> = ref()
 const stopTime: Ref<Date | undefined> = ref()
 let updateTimerHandle = setInterval(() => {}, 2147483647)
+
+const queryInput = ref(null)
+onMounted(() => {
+  if (queryInput.value !== null) {
+    const yasqe = new Yasqe(queryInput.value)
+    query.value = yasqe.getValue()
+    yasqe.on('change', () => (query.value = yasqe.getValue()))
+  }
+})
 
 async function executeQuery() {
   if (queryContext.value.sources.length < 1) return
@@ -128,11 +138,7 @@ function downloadResults() {
     />
     <div id="query-panel">
       <h2>Query</h2>
-      <textarea
-        id="query-input"
-        v-model="query"
-        placeholder="Enter your SPARQL query here"
-      ></textarea>
+      <div id="query-input" ref="queryInput"></div>
       <button v-if="running" @click="stopQuery" class="stop">Stop Query</button>
       <button v-else @click="executeQuery" :disabled="notReadyToRun">Run Query</button>
       <p v-if="errorMessage.length > 0" class="error">{{ errorMessage }}</p>
@@ -165,8 +171,6 @@ function downloadResults() {
 <style scoped>
 #query-input {
   width: 100%;
-  height: 20em;
-  font-family: monospace;
   margin-bottom: 0.5em;
 }
 .stop {
