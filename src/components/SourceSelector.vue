@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, type Ref } from 'vue'
 import { defaultSources } from '@/modules/sources'
 
 type Source = { type: 'sparql' | 'qpf' | 'file'; value: string }
+const props = defineProps<{
+  setSourcesList: string[]
+}>()
 const emit = defineEmits<{
   change: [{ sources: Source[] }]
 }>()
@@ -33,15 +36,28 @@ watch(
   },
   { deep: true }
 )
-//emit('change', { sources: [{ type: 'sparql', value: '' }] }) //FIXME
+watch(props, (newProps, oldProps) => {
+  const newSelections = newProps.setSourcesList
+  if (newSelections.length > 0) {
+    sourceSelections.value.forEach((sourceSelection) => (sourceSelection.selected = false))
+    newProps.setSourcesList.forEach((selection) =>
+      sourceSelections.value.forEach((sourceSelection) => {
+        if (sourceSelection.source.shortname === selection) {
+          sourceSelection.selected = true
+        }
+      })
+    )
+  }
+})
 </script>
 
 <template>
   <div>
+    <h2>Sources</h2>
     <div v-for="(source, index) in sourceSelections" :key="source.source.toString">
       <input
         type="checkbox"
-        id="{{ source.source.name }}{{index}}"
+        :id="source.source.name + index"
         value="{{ source.source.name }}"
         v-model="source.selected"
       />

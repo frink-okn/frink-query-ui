@@ -1,12 +1,14 @@
 type SPARQLSource = {
   type: 'sparql'
   name: string
+  shortname: string
   endpoint: string
 }
 
 type CompoundSource = {
   type: 'compound'
   name: string
+  shortname: string
   sparqlEndpoint: string
   tpfEndpoint: string
 }
@@ -26,6 +28,7 @@ const defaultSources: Source[] = [
   {
     type: 'sparql',
     name: 'FRINK Federated SPARQL',
+    shortname: 'federation',
     endpoint: 'https://frink.apps.renci.org/federation/sparql'
   }
 ]
@@ -34,6 +37,7 @@ function makeFRINKSource(name: string, slug: string): CompoundSource {
   return {
     type: 'compound',
     name: name,
+    shortname: slug,
     sparqlEndpoint: `https://frink.apps.renci.org/${slug}/sparql`,
     tpfEndpoint: `https://frink.apps.renci.org/ldf/${slug}`
   }
