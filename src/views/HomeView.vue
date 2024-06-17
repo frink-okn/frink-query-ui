@@ -6,6 +6,7 @@ import SourceSelector from '@/components/SourceSelector.vue'
 import { ArrayIterator } from 'asynciterator'
 import { ActorQueryResultSerializeSparqlCsv } from '@comunica/actor-query-result-serialize-sparql-csv'
 import { downloadTextAsFile, asBindings } from '@/modules/util'
+import { exampleQueries } from '@/modules/queries'
 import Yasqe from '@triply/yasqe'
 
 const query = ref('')
@@ -13,6 +14,7 @@ const engine = new QueryEngine()
 const queryContext = ref({
   sources: [{ type: 'sparql', value: 'https://frink.apps.renci.org/federation/sparql' }]
 })
+const setSourcesList: Ref<string[]> = ref([])
 const results: Ref<Array<Bindings>> = ref([])
 const bindingsStream = ref<BindingsStream>(new ArrayIterator<Bindings>([]))
 const running = ref(false)
@@ -33,13 +35,30 @@ const stopTime: Ref<Date | undefined> = ref()
 let updateTimerHandle = setInterval(() => {}, 2147483647)
 
 const queryInput = ref(null)
+let yasqe: Yasqe | undefined = undefined
 onMounted(() => {
   if (queryInput.value !== null) {
-    const yasqe = new Yasqe(queryInput.value)
-    query.value = yasqe.getValue()
-    yasqe.on('change', () => (query.value = yasqe.getValue()))
+    yasqe = new Yasqe(queryInput.value)
+    if (yasqe != undefined) {
+      query.value = yasqe.getValue()
+      yasqe.on('change', () => {
+        if (yasqe != undefined) query.value = yasqe.getValue()
+      })
+      yasqe.setValue(`PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT * WHERE {
+  ?sub ?pred ?obj .
+} LIMIT 10`)
+    }
   }
 })
+
+function useExampleQuery(sparql: string, sources: string[]) {
+  if (yasqe != undefined) {
+    yasqe.setValue(sparql)
+  }
+  setSourcesList.value = sources
+}
 
 async function executeQuery() {
   if (queryContext.value.sources.length < 1) return
@@ -130,12 +149,22 @@ function downloadResults() {
 <template>
   <main>
     <SourceSelector
+      :set-sources-list="setSourcesList"
       @change="
         (sources) => {
           queryContext = sources
         }
       "
     />
+    <div id="example-queries">
+      <h2>Examples</h2>
+      <div v-for="query in exampleQueries" :key="query.title">
+        <a @click="useExampleQuery(query.query, query.sources)">{{ query.title }} </a>
+        <small class="source-pill" v-for="source in query.sources" :key="source">{{
+          source
+        }}</small>
+      </div>
+    </div>
     <div id="query-panel">
       <h2>Query</h2>
       <div id="query-input" ref="queryInput"></div>
@@ -183,5 +212,8 @@ function downloadResults() {
 .error {
   color: var(--red-600);
   border-color: var(--red-600);
+}
+.source-pill {
+  margin-left: 0.5em;
 }
 </style>
