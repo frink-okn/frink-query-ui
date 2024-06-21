@@ -17,7 +17,9 @@
     "@comunica/bindings-factory": "^3.1.0",
     "@comunica/data-factory": "^3.1.0",
     "@comunica/query-sparql": "3.1.2",
+    "@primevue/themes": "^4.0.0-rc.2",
     "@triply/yasqe": "4.2.28",
+    "primevue": "^4.0.0-rc.2",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },
