@@ -6,7 +6,7 @@ type ExampleQuery = {
 
 const exampleQueries: ExampleQuery[] = [
   {
-    title: 'What is the adrenal glad part of?',
+    title: 'What is the adrenal gland part of?',
     sources: ['ubergraph'],
     query: `PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX adrenal_gland: <http://purl.obolibrary.org/obo/UBERON_0002369>
