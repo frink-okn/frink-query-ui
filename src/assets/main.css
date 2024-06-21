@@ -1,13 +1,5 @@
 @import './base.css';
 
-main {
-  margin-top: 1em;
-}
-
-input + label {
-  margin-left: 0.4em;
-}
-
 .yasqe_buttons {
   display: none !important;
 }
