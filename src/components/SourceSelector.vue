@@ -54,14 +54,13 @@ watch(props, (newProps, oldProps) => {
 <template>
   <div>
     <h2>Sources</h2>
-    <div v-for="(source, index) in sourceSelections" :key="source.source.toString">
+    <div v-for="source in sourceSelections" :key="source.source.toString">
       <input
         type="checkbox"
-        :id="source.source.name + index"
-        value="{{ source.source.name }}"
+        :id="source.source.name"
         v-model="source.selected"
       />
-      <label for="{{ source.source.name }}{{ index }}">{{ source.source.name }}</label>
+      <label :for="source.source.name">{{ source.source.name }}</label>
     </div>
   </div>
 </template>
