@@ -1,5 +1,15 @@
 <script setup lang="ts">
-import Button from "primevue/button"
+import type { Ref } from 'vue';
+import { ref } from 'vue';
+
+const value = ref("");
+const items: Ref<string[]> = ref([]);
+
+const search = (event: any) => {
+    let _items = [...Array(10).keys()].map((v) => `${v}`);
+
+    items.value = event.query ? [...Array(10).keys()].map((item) => event.query + '-' + item) : _items;
+}
 </script>
 
 <template>
@@ -13,6 +23,7 @@ import Button from "primevue/button"
   <Button v-tooltip="'Tooltip'">
     Hello
   </Button>
+  <AutoComplete v-model="value" dropdown :suggestions="items" @complete="search" />
 </template>
 
 <style scoped>

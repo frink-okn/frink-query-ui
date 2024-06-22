@@ -4,3 +4,19 @@
 .yasqe_buttons {
   display: none !important;
 }
+
+html, body, #app {
+  height: 100%;
+}
+
+body {
+  background-color: var(--p-slate-50);
+  --spacing: 10px;
+  --line-width: 1px;
+  --line-color: var(--p-neutral-200);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 calc(var(--spacing) - 1px - var(--line-width)),
+    var(--line-color) calc(var(--spacing) - var(--line-width)) var(--spacing)
+  );
+}
