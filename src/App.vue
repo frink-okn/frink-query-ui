@@ -5,9 +5,9 @@ import Sidebar from '@/components/Sidebar.vue'
 <template>
   <div class="wrapper">
     <Sidebar class="sidebar" />
-    <div>
+    <main>
       <RouterView />
-    </div>
+    </main>
   </div>
 </template>
 
@@ -20,5 +20,9 @@ import Sidebar from '@/components/Sidebar.vue'
 
 .sidebar {
   flex: 0 0 auto;
+}
+
+main {
+  flex: 1;
 }
 </style>
