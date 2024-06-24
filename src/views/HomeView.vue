@@ -7,6 +7,7 @@ import {
   PanelGroup,
   PanelResizeHandle
 } from "vue-resizable-panels";
+import MobileTabsPanel from '@/components/MobileTabsPanel.vue';
 
 const value = ref("");
 const items: Ref<string[]> = ref([]);
@@ -20,7 +21,8 @@ const search = (event: any) => {
 
 <template>
   <div class="panel-group">
-    <PanelGroup
+    <MobileTabsPanel />
+    <!-- <PanelGroup
       autoSaveId="localstorage-panels-id"
       direction="horizontal"
     >
@@ -68,7 +70,7 @@ const search = (event: any) => {
           <h6>Heading 6</h6>
         </Panel>
       </ResizablePanel>
-    </PanelGroup>
+    </PanelGroup> -->
   </div>
 </template>
 
