@@ -11,8 +11,9 @@ import Tooltip from 'primevue/tooltip';
 import Button from 'primevue/button';
 import AutoComplete from 'primevue/autocomplete';
 import Divider from 'primevue/divider';
+import { toggleablePanelsKey, toggleablePanelsProvider } from './stores/toggleablePanels';
 
-const app = createApp(App)
+const app = createApp(App);
 
 const CustomizedTheme = definePreset(LaraTheme, {
   semantic: {
@@ -31,8 +32,6 @@ const CustomizedTheme = definePreset(LaraTheme, {
     }
   }
 })
-
-app.use(router);
 app.use(PrimeVue, {
   theme: {
     preset: CustomizedTheme,
@@ -42,10 +41,16 @@ app.use(PrimeVue, {
   }
 });
 
+
+
 app.component('Button', Button);
 app.component('AutoComplete', AutoComplete);
 app.component('Divider', Divider);
 
 app.directive('tooltip', Tooltip);
+
+app.use(router);
+
+app.provide(toggleablePanelsKey, toggleablePanelsProvider);
 
 app.mount('#app');

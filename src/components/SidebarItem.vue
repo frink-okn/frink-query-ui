@@ -6,18 +6,21 @@ defineProps<{
   selected?: boolean;
   iconClass: string;
   to?: string;
+  click?: (payload: MouseEvent) => void;
 }>();
+
+defineEmits(["item-clicked"])
 </script>
 
 <template>
   <RouterLink v-if="to" :to="to" class="router-link" :aria-label="label">
-    <button class="wrapper" :class="{ selected }" tabindex="-1">
+    <button class="wrapper" :class="{ selected }" @click="$emit('item-clicked')" tabindex="-1">
       <span :class="['pi', iconClass]"></span>
       <span class="label">{{ label }}</span>
     </button>
   </RouterLink>
 
-  <button v-else class="wrapper" :class="{ selected }" :aria-label="label">
+  <button v-else class="wrapper" :class="{ selected }" :aria-label="label" @click="$emit('item-clicked')">
       <span :class="['pi', iconClass]"></span>
       <span class="label">{{ label }}</span>
   </button>

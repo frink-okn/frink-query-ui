@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { inject } from 'vue';
 import SidebarItem from '@/components/SidebarItem.vue';
-import { RouterLink } from 'vue-router';
+import { toggleablePanelsKey } from '@/stores/toggleablePanels';
 
 defineOptions({
   inheritAttrs: false
 });
+
+const { toggleablePanels, togglePanel } = inject(toggleablePanelsKey)!;
 </script>
 
 <template>
@@ -14,35 +17,20 @@ defineOptions({
     </div>
     <div class="links">
       <div class="links-spacer">
-        <SidebarItem
-          label="Home"
-          to="/"
-          icon-class="pi-home"
-        />
-        <SidebarItem
-          label="About"
-          to="/about"
-          icon-class="pi-question-circle"
-        />
+
+        <SidebarItem label="Home" to="/" icon-class="pi-home" />
+        <SidebarItem label="About" to="/about" icon-class="pi-question-circle" />
+        
         <Divider class="divider" />
-        <SidebarItem
-          label="Examples"
-          :selected="true"
-          icon-class="pi-search"
-        />
-        <SidebarItem
-          label="Saved Queries"
-          :selected="false"
-          icon-class="pi-bookmark"
-        />
+
+        <template v-for="({ label, icon, selected }, i) in toggleablePanels">
+          <SidebarItem :label="label" :iconClass="icon" :selected="selected" @item-clicked="togglePanel(i)" />
+        </template>
+
       </div>
       <div class="links-spacer">
         <Divider class="divider" />
-        <SidebarItem
-          label="Settings"
-          to="/settings"
-          icon-class="pi-cog"
-        />
+        <SidebarItem label="Settings" to="/settings" icon-class="pi-cog" />
       </div>
     </div>
   </nav>
