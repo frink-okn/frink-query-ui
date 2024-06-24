@@ -23,8 +23,8 @@ const { toggleablePanels, togglePanel } = inject(toggleablePanelsKey)!;
         
         <Divider class="divider" />
 
-        <template v-for="({ label, icon, selected }, i) in toggleablePanels">
-          <SidebarItem :label="label" :iconClass="icon" :selected="selected" @item-clicked="togglePanel(i)" />
+        <template v-for="({ label, icon, selected, id }, i) in toggleablePanels">
+          <SidebarItem :label="label" :iconClass="icon" :selected="selected" @item-clicked="togglePanel(id)" />
         </template>
 
       </div>

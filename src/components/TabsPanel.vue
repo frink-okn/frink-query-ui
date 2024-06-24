@@ -1,56 +1,63 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { toggleablePanelsKey } from '@/stores/toggleablePanels';
+import { inject } from 'vue';
+import { watch, ref, onMounted } from 'vue';
 
-const selectedTab = ref(2);
-const tabs = [
-  {
-    label: "Examples",
-    color: "var(--p-teal-400)",
-    closeable: true,
-  },
-  {
-    label: "Saved",
-    color: "var(--p-amber-400)",
-    closeable: true,
-  },
-  {
-    label: "Query",
-    color: "var(--p-blue-400)",
-    closeable: false,
-  },
-  {
-    label: "Results",
-    color: "var(--p-purple-400)",
-    closeable: false,
-  },
-]
+interface Tab {
+  id: string;
+  label: string;
+  color: string;
+  closeable: boolean;
+}
+
+const props = defineProps<{
+  tabs: Tab[]
+}>();
+defineEmits<{
+  tabClosed: [index: number]
+}>();
+
+const { togglePanel } = inject(toggleablePanelsKey)!;
+
+const selectedTabId = ref(props.tabs[0].id);
+const getTab = (id: string) => props.tabs.find((t) => t.id === id);
+
+watch(props, ({ tabs }) => {
+  if (!tabs.some((t) => t.id === selectedTabId))
+  selectedTabId.value = tabs[0].id;
+});
 </script>
 
 <template>
-  <div class="wrapper" :style="{ '--accent-color': tabs[selectedTab].color }">
+  <div class="panel" :style="{ '--accent-color': getTab(selectedTabId)?.color }">
     <header>
       <div
-        v-for="(tab, i) in tabs"
+        v-for="tab in tabs"
         class="tab"
         role="button"
-        :class="{ selected: selectedTab === i }"
+        tabindex="0"
+        :class="{ selected: selectedTabId === tab.id }"
         :style="{ '--button-accent-color': tab.color }"
-        @click="() => { selectedTab = i}"
+        @click="() => { selectedTabId = tab.id }"
+        @keydown.enter.space="() => { selectedTabId = tab.id  }"
       >
         <h2>{{ tab.label }}</h2>
-        <button v-if="tab.closeable" class="close-button" @click.stop="() => console.log('Closed tab', i)">
+        <button v-if="tab.closeable" class="close-button" @click.stop="togglePanel(tab.id)">
           <span class="pi pi-times"></span>
         </button>
       </div>
     </header>
     <div class="content">
-      <slot></slot>
+      <slot v-if="selectedTabId === 'examples'" name="examples"></slot>
+      <slot v-if="selectedTabId === 'saved'" name="saved"></slot>
+      <slot v-if="selectedTabId === 'query'" name="query"></slot>
+      <slot v-if="selectedTabId === 'results'" name="results"></slot>
     </div>
   </div>
 </template>
 
 <style scoped>
-.wrapper {
+.panel {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -156,7 +163,7 @@ header {
   border-top-left-radius: 0px;
 }
 
-@media (max-width: 450px) {
+@media (max-width: 490px) {
   .content {
     border-radius: 0px 0px 8px 8px;
   }
