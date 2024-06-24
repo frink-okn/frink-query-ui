@@ -4,12 +4,7 @@ import About from './about.md';
 </script>
 
 <template>
-  <PageWrapper
-    title="About"
-  >
+  <PageWrapper title="About">
     <About />
   </PageWrapper>
 </template>
-
-<style scoped>
-</style>

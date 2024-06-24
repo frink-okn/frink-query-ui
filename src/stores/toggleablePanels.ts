@@ -23,7 +23,7 @@ const toggleablePanels = ref<ToggleablePanel[]>([
 ]);
 
 const togglePanel = (index: number) => {
-  let current = toggleablePanels.value[index]?.selected;
+  const current = toggleablePanels.value[index]?.selected;
   if (current === undefined) return;
   toggleablePanels.value[index].selected = !current;
 }
