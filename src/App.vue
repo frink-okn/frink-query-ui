@@ -24,5 +24,6 @@ import Sidebar from '@/components/Sidebar.vue'
 
 main {
   flex: 1;
+  overflow: auto;
 }
 </style>

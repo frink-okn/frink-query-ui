@@ -5,18 +5,124 @@
   display: none !important;
 }
 
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
+}
+
+html {
+  overscroll-behavior-block: none;
 }
 
 body {
   background-color: var(--p-slate-50);
-  --spacing: 10px;
+  --spacing: 15px;
   --line-width: 1px;
-  --line-color: var(--p-neutral-200);
+  --line-color: var(--p-slate-200);
   background-image: repeating-linear-gradient(
     -45deg,
     transparent 0 calc(var(--spacing) - 1px - var(--line-width)),
     var(--line-color) calc(var(--spacing) - var(--line-width)) var(--spacing)
   );
+
+  line-height: 1.5;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+h2 {
+  font-size: 1.7818rem;
+}
+h3 {
+  font-size: 1.5874rem;
+}
+h4 {
+  font-size: 1.4142rem;
+}
+h5 {
+  font-size: 1.2599rem;
+}
+h6 {
+  font-size: 1.1225rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+  line-height: 1.2;
+  margin: 2rem 0 0.5rem 0;
+}
+
+a {
+  color: var(--p-blue-600);
+  transition: all 100ms;
+  text-decoration: none;
+}
+a:hover {
+  color: var(--p-blue-500);
+  text-decoration: underline;
+}
+a:active {
+  color: var(--p-blue-400);
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+  margin: auto
+}
+
+hr {
+  border: none;
+  border-top: 2px solid var(--p-slate-200);
+  margin: 2rem auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--p-slate-50);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0px;
+}
+
+thead {
+  background-color: var(--p-slate-200);;
+  border-bottom: 3px solid var(--p-slate-300);
+}
+
+thead th {
+  font-weight: 500;
+}
+
+thead th, tr td {
+  padding: 0.375rem 0.5rem;
+  text-align: left;
+  vertical-align: bottom;
+}
+
+tr:not(:last-of-type) > td {
+  border-bottom: 1px solid var(--p-slate-300);
+}
+
+blockquote {
+  width: 100%;
+  border-left: 5px solid var(--p-blue-400);
+  background-color: var(--p-blue-100);
+  margin: 1rem 0px;
+  padding: 0.05px 1rem;
+  border-radius: 0px 8px 8px 0px;
+}
+
+blockquote > blockquote {
+  border: 1px solid var(--p-blue-400);
+  border-left: 5px solid var(--p-blue-400);
 }

@@ -78,6 +78,12 @@ const search = (event: any) => {
   padding: 1rem;
 }
 
+@media (max-width: 800px) {
+  .panel-group {
+    padding: 0.5rem;
+  }
+}
+
 .handle {
   align-self: center;
   width: 12px;

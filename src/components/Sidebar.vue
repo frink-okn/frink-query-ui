@@ -57,6 +57,7 @@ nav {
   flex-direction: column;
   backdrop-filter: blur(2px);
   background-color: color-mix(in srgb, var(--p-slate-50) 10%, transparent);
+  box-shadow: 0px 8px 8px 0px var(--p-slate-300);
 }
 
 .links {
@@ -86,7 +87,7 @@ nav {
   padding: 1rem 0 1.3rem 0;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   .logo {
     display: none;
   }

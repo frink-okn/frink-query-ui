@@ -53,7 +53,7 @@ defineProps<{
   border: 1px solid var(--p-slate-400);
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   .wrapper {
     padding: 0.6rem;
   }
