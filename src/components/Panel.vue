@@ -61,5 +61,6 @@ h2 {
   padding: 0.75rem;
   border-radius: 8px;
   border-top-left-radius: 0px;
+  overflow: auto;
 }
 </style>

@@ -23,7 +23,7 @@ const selectedTabId = ref(props.tabs[0].id);
 const getTab = (id: string) => props.tabs.find((t) => t.id === id);
 
 watch(props, ({ tabs }) => {
-  if (!tabs.some((t) => t.id === selectedTabId))
+  if (!tabs.some((t) => t.id === selectedTabId.value))
   selectedTabId.value = tabs[0].id;
 });
 </script>
@@ -161,6 +161,7 @@ header {
   padding: 0.75rem;
   border-radius: 8px;
   border-top-left-radius: 0px;
+  overflow: auto;
 }
 
 @media (max-width: 490px) {

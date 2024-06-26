@@ -12,6 +12,7 @@ import Button from 'primevue/button';
 import AutoComplete from 'primevue/autocomplete';
 import Divider from 'primevue/divider';
 import { toggleablePanelsKey, toggleablePanelsProvider } from './stores/toggleablePanels';
+import { queryProvider, queryProvivderKey } from './stores/query';
 
 const app = createApp(App);
 
@@ -52,5 +53,6 @@ app.directive('tooltip', Tooltip);
 app.use(router);
 
 app.provide(toggleablePanelsKey, toggleablePanelsProvider);
+app.provide(queryProvivderKey, queryProvider);
 
 app.mount('#app');
