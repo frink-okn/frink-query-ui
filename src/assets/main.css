@@ -4,6 +4,17 @@
 .yasqe_buttons {
   display: none !important;
 }
+.yasqe .resizeWrapper {
+  display: none;
+}
+.yasqe {
+  height: 100%;
+}
+.yasqe .CodeMirror {
+  border: 1px solid var(--p-multiselect-border-color);
+  border-radius: 8px;
+  height: 100% !important;
+}
 
 html,
 body,

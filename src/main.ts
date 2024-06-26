@@ -9,7 +9,7 @@ import { definePreset } from '@primevue/themes';
 
 import Tooltip from 'primevue/tooltip';
 import Button from 'primevue/button';
-import AutoComplete from 'primevue/autocomplete';
+import MultiSelect from 'primevue/multiselect';
 import Divider from 'primevue/divider';
 import { toggleablePanelsKey, toggleablePanelsProvider } from './stores/toggleablePanels';
 import { queryProvider, queryProvivderKey } from './stores/query';
@@ -45,7 +45,7 @@ app.use(PrimeVue, {
 
 
 app.component('Button', Button);
-app.component('AutoComplete', AutoComplete);
+app.component('MultiSelect', MultiSelect);
 app.component('Divider', Divider);
 
 app.directive('tooltip', Tooltip);
