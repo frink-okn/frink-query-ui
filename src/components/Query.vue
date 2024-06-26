@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Yasqe from '@triply/yasqe';
 import { ref, onMounted } from 'vue';
-import About from '@/views/about/about.md';
 
 const sourcesOptions = [
   { name: "Climatepub4-KG" },
