@@ -157,6 +157,7 @@ header {
 .content {
   flex: 1;
   background-color: var(--p-slate-50);
+  background-color: white;
   border: 2px solid var(--accent-color);
   padding: 0.75rem;
   border-radius: 8px;
