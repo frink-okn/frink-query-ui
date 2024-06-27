@@ -96,7 +96,7 @@ hr {
   margin: 2rem auto;
 }
 
-/* table {
+.markdown-body table {
   width: 100%;
   border-collapse: collapse;
   background-color: var(--p-slate-50);
@@ -105,24 +105,25 @@ hr {
   margin: 1rem 0px;
 }
 
-thead {
+.markdown-body thead {
   background-color: var(--p-slate-200);;
   border-bottom: 3px solid var(--p-slate-300);
 }
 
-thead th {
+.markdown-body thead th {
   font-weight: 500;
 }
 
-thead th, tr td {
+.markdown-body thead th,
+.markdown-body td {
   padding: 0.375rem 0.5rem;
   text-align: left;
   vertical-align: bottom;
 }
 
-tr:not(:last-of-type) > td {
+.markdown-body tr:not(:last-of-type) > td {
   border-bottom: 1px solid var(--p-slate-300);
-} */
+}
 
 blockquote {
   width: 100%;

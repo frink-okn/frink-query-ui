@@ -79,7 +79,7 @@ const onToggle = (val: { name: string }[]) => {
     <DataTable
       class="table"
       :value="results"
-      size="small"
+      size="medium"
       scrollable
       removableSort
       height
@@ -105,12 +105,12 @@ const onToggle = (val: { name: string }[]) => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  gap: 1rem;
 }
 
 .table {
   flex: 1;
   min-height: 0px;
   margin: 0 -0.75rem -0.75rem -0.75rem;
+  --p-datatable-column-title-font-weight: 500;
 }
 </style>

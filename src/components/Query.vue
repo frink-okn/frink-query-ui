@@ -111,6 +111,7 @@ SELECT * WHERE {
 .label-container > h3 {
   margin: 0px;
   font-size: 1rem;
+  font-weight: 500;
   margin-bottom: 6px;
 }
 
