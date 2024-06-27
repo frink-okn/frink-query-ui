@@ -3,6 +3,7 @@ import { queryProvivderKey } from '@/stores/query'
 import { type Source } from '@/modules/sources'
 import Yasqe from '@triply/yasqe'
 import { inject, ref, onMounted } from 'vue'
+import { computed } from 'vue';
 
 const DEFAULT_QUERY = `\
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -16,7 +17,14 @@ const {
   sources,
   selectedSources,
   currentSparql,
+  running,
+  executeQuery,
+  stopQuery
 } = inject(queryProvivderKey)!;
+
+const notReadyToRun = computed(() => 
+  selectedSources.value.length < 1 || currentSparql.value.trim().length < 1
+);
 
 const onSourceSelectionChange = (nextSelection: { source: Source; selected: boolean }[]) => {
   sources.value.forEach((currentSource) => {
@@ -79,7 +87,25 @@ onMounted(() => {
         iconPos="right"
         size="small"
       />
-      <Button label="Run Query" icon="pi pi-arrow-right" iconPos="right" size="small" />
+
+      <Button
+        v-if="!running"
+        label="Run Query"
+        @click="executeQuery"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        size="small"
+      />
+      <Button
+        v-else
+        label="Stop Query"
+        @click="stopQuery"
+        :disabled="notReadyToRun"
+        severity="danger"
+        icon="pi pi-stop"
+        iconPos="right"
+        size="small"
+      />
     </div>
   </div>
 </template>
