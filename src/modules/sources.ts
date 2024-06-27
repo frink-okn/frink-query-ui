@@ -13,7 +13,7 @@ type CompoundSource = {
   tpfEndpoint: string
 }
 
-type Source = SPARQLSource | CompoundSource
+export type Source = SPARQLSource | CompoundSource
 
 const defaultSources: Source[] = [
   makeFRINKSource('Climatepub4-KG', 'climatepub4kg'),

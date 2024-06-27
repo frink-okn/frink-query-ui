@@ -1,40 +1,50 @@
 <script setup lang="ts">
-import Yasqe from '@triply/yasqe';
-import { ref, onMounted } from 'vue';
+import { queryProvivderKey } from '@/stores/query'
+import { type Source } from '@/modules/sources'
+import Yasqe from '@triply/yasqe'
+import { inject, ref, onMounted } from 'vue'
 
-const sourcesOptions = [
-  { name: "Climatepub4-KG" },
-  { name: "DREAM-KG" },
-  { name: "SCALES" },
-  { name: "Secure Chain KG" },
-  { name: "SOC-KG" },
-  { name: "SUD-OKN" },
-  { name: "Ubergraph" },
-  { name: "UF-OKN" },
-  { name: "Wikidata" },
-  { name: "FRINK Federated SPARQL" },
-];
-const selectedSources = ref<string[]>([]);
-
-const query = ref('');
-const queryElement = ref(null)
-let yasqe: Yasqe | undefined = undefined
-onMounted(() => {
-  if (queryElement.value !== null) {
-    yasqe = new Yasqe(queryElement.value)
-    if (yasqe != undefined) {
-      query.value = yasqe.getValue()
-      yasqe.on('change', () => {
-        if (yasqe != undefined) query.value = yasqe.getValue()
-      })
-      yasqe.setValue(`PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+const DEFAULT_QUERY = `\
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT * WHERE {
   ?sub ?pred ?obj .
-} LIMIT 10`)
+} LIMIT 10
+`
+
+const {
+  sources,
+  selectedSources,
+  currentSparql,
+} = inject(queryProvivderKey)!;
+
+const onSourceSelectionChange = (nextSelection: { source: Source; selected: boolean }[]) => {
+  sources.value.forEach((currentSource) => {
+    if (nextSelection.includes(currentSource)) {
+      currentSource.selected = true;
+    } else {
+      currentSource.selected = false;
+    }
+  });
+}
+
+const getSourceName = (source: { source: Source; selected: boolean }): string => {
+  return source.source.name
+}
+
+const editorElement = ref(null);
+onMounted(() => {
+  if (editorElement.value !== null) {
+    const yasqe = new Yasqe(editorElement.value);
+    currentSparql.value = yasqe.getValue();
+    yasqe.on('change', () => {
+      currentSparql.value = yasqe.getValue();
+    })
+    if (currentSparql.value === '') {
+      yasqe.setValue(DEFAULT_QUERY);
     }
   }
-})
+});
 </script>
 
 <template>
@@ -42,22 +52,23 @@ SELECT * WHERE {
     <div class="label-container">
       <h3>Sources</h3>
       <MultiSelect
-        v-model="selectedSources"
-        :options="sourcesOptions"
+        :modelValue="selectedSources"
+        @update:modelValue="onSourceSelectionChange"
+        :options="sources"
         :maxSelectedLabels="3"
         class="multiselect"
-        optionLabel="name"
+        :optionLabel="getSourceName"
         placeholder="Select Sources"
         :pt="{
           header: { style: { display: 'none' } },
-          listContainer: { style: { maxHeight: 'none' }}
+          listContainer: { style: { maxHeight: 'none' } }
         }"
       />
     </div>
 
     <div class="label-container query">
       <h3>SPARQL Query</h3>
-      <div ref="queryElement" class="editor-wrapper"></div>
+      <div ref="editorElement" class="editor-wrapper"></div>
     </div>
 
     <div class="buttons">
@@ -68,12 +79,7 @@ SELECT * WHERE {
         iconPos="right"
         size="small"
       />
-      <Button
-        label="Run Query"
-        icon="pi pi-arrow-right"
-        iconPos="right"
-        size="small"
-      />
+      <Button label="Run Query" icon="pi pi-arrow-right" iconPos="right" size="small" />
     </div>
   </div>
 </template>
