@@ -10,9 +10,12 @@ export const queryProvivderKey = Symbol() as InjectionKey<{
   sources: Ref<{ source: Source, selected: boolean }[]>
   selectedSources: ComputedRef<{ source: Source, selected: true }[]>,
   queryContext: ComputedRef<{ type: 'qpf' | 'sparql', value: string }[]>,
-  running: boolean,
+  running: Ref<boolean>,
   executeQuery: () => Promise<void>,
   stopQuery: () => void,
+  results: Ref<Bindings[]>,
+  possiblyIncomplete: Ref<boolean>,
+  errorMessage: Ref<string>,
 }>;
 
 const engine = new QueryEngine();
@@ -100,4 +103,7 @@ export const queryProvider = {
   running,
   executeQuery,
   stopQuery,
+  results,
+  possiblyIncomplete,
+  errorMessage,
 }

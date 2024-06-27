@@ -1,84 +1,69 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { queryProvivderKey } from '@/stores/query'
+import { ref, inject, computed, watch } from 'vue'
 
-const results = ref([
-  {
-    title: "Application of In Vitro Metabolism Activation in High-Throughput Screening",
-    cell_label: "hepatocyte",
-    article: "http://www.wikidata.org/entity/Q101214733",
-    cell: "http://purl.obolibrary.org/obo/CL_0000182"
-  },
-  {
-    title: "Application of In Vitro Metabolism Activation in High-Throughput Screening",
-    cell_label: "hepatocyte",
-    article: "http://www.wikidata.org/entity/Q101214733",
-    cell: "http://purl.obolibrary.org/obo/CL_0000182"
-  },
-  {
-    title: "Application of In Vitro Metabolism Activation in High-Throughput Screening",
-    cell_label: "hepatocyte",
-    article: "http://www.wikidata.org/entity/Q101214733",
-    cell: "http://purl.obolibrary.org/obo/CL_0000182"
-  },
-  {
-    title: "Application of In Vitro Metabolism Activation in High-Throughput Screening",
-    cell_label: "hepatocyte",
-    article: "http://www.wikidata.org/entity/Q101214733",
-    cell: "http://purl.obolibrary.org/obo/CL_0000182"
-  },
-  {
-    title: "Application of In Vitro Metabolism Activation in High-Throughput Screening",
-    cell_label: "hepatocyte",
-    article: "http://www.wikidata.org/entity/Q101214733",
-    cell: "http://purl.obolibrary.org/obo/CL_0000182"
-  },
-  {
-    title: "Application of In Vitro Metabolism Activation in High-Throughput Screening",
-    cell_label: "hepatocyte",
-    article: "http://www.wikidata.org/entity/Q101214733",
-    cell: "http://purl.obolibrary.org/obo/CL_0000182"
-  },
-  {
-    title: "Application of In Vitro Metabolism Activation in High-Throughput Screening",
-    cell_label: "hepatocyte",
-    article: "http://www.wikidata.org/entity/Q101214733",
-    cell: "http://purl.obolibrary.org/obo/CL_0000182"
-  },
-  {
-    title: "Application of In Vitro Metabolism Activation in High-Throughput Screening",
-    cell_label: "hepatocyte",
-    article: "http://www.wikidata.org/entity/Q101214733",
-    cell: "http://purl.obolibrary.org/obo/CL_0000182"
-  },
-  {
-    title: "Application of In Vitro Metabolism Activation in High-Throughput Screening",
-    cell_label: "hepatocyte",
-    article: "http://www.wikidata.org/entity/Q101214733",
-    cell: "http://purl.obolibrary.org/obo/CL_0000182"
-  },
-]);
+const {
+  results,
+  running,
+  possiblyIncomplete,
+  errorMessage,
+} = inject(queryProvivderKey)!
 
-const columns = Object.keys(results.value[0]).map((c) => ({ name: c }));
-const selectedColumns = ref(columns);
-const onToggle = (val: { name: string }[]) => {
-  selectedColumns.value = columns.filter(col => val.find((c) => c.name === col.name))
-};
+const columns = computed(() => {
+  if (results.value.length > 0) {
+    return Array.from(results.value[0].keys())
+  } else {
+    return []
+  }
+})
+
+const jsonResults = computed(() =>
+  results.value.map((result) =>
+    columns.value.reduce(
+      (row, currentCol) => {
+        row[currentCol.value] = result.get(currentCol)?.value ?? ''
+        return row
+      },
+      {} as Record<string, string>
+    )
+  )
+);
+
+const startTime = ref<Date | undefined>();
+const stopTime = ref<Date | undefined>();
+let updateTimerHandle = setInterval(() => {}, 2147483647);
+const startTimer = () => {
+  startTime.value = new Date();
+  stopTime.value = undefined;
+  updateTimerHandle = setInterval(() => (stopTime.value = new Date()), 100);
+}
+const stopTimer = () => {
+  clearInterval(updateTimerHandle);
+  stopTime.value = new Date();
+}
+watch(running, (newRunning) => {
+  newRunning ? startTimer() : stopTimer()
+});
+
+const progressText = computed(() => {
+  const count = results.value.length
+  const start = startTime.value
+  const end = stopTime.value
+  const elapsed = start !== undefined && end !== undefined ? end.valueOf() - start.valueOf() : 0
+  return `${count.toLocaleString()} result${count === 1 ? '' : 's'} in ${(elapsed / 1000).toFixed(1)}s`
+});
 </script>
 
 <template>
   <div class="flex">
     <div>
-      <MultiSelect 
-        :modelValue="selectedColumns"
-        :options="columns"
-        optionLabel="name"
-        @update:modelValue="onToggle"
-        placeholder="Select Columns"
-      />
+      <div>{{ progressText }}</div>
+      <div v-if="possiblyIncomplete">Possibly incomplete!</div>
+      <div v-if="errorMessage.length > 0">{{ errorMessage }}</div>
     </div>
     <DataTable
       class="table"
-      :value="results"
+      :value="jsonResults"
       size="medium"
       scrollable
       removableSort
@@ -90,10 +75,10 @@ const onToggle = (val: { name: string }[]) => {
       }"
     >
       <Column
-        v-for="col in selectedColumns"
-        :field="col.name"
-        :header="col.name"
-        :key="col.name"
+        v-for="col in columns"
+        :field="col.value"
+        :header="col.value"
+        :key="col.value"
         sortable
       />
     </DataTable>

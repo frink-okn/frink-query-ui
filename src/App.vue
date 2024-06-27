@@ -6,7 +6,11 @@ import Sidebar from '@/components/Sidebar.vue';
   <div class="wrapper">
     <Sidebar class="sidebar" />
     <main>
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <KeepAlive>
+          <component :is="Component" />
+        </KeepAlive>
+      </RouterView>
     </main>
   </div>
 </template>

@@ -2,8 +2,7 @@
 import { queryProvivderKey } from '@/stores/query'
 import { type Source } from '@/modules/sources'
 import Yasqe from '@triply/yasqe'
-import { inject, ref, onMounted } from 'vue'
-import { computed } from 'vue';
+import { inject, ref, onMounted, computed } from 'vue'
 
 const DEFAULT_QUERY = `\
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
