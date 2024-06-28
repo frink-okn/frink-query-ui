@@ -49,36 +49,40 @@ const allTabs = computed(() => [
 <template>
   <PanelGroup
     v-if="width > 700"
-    autoSaveId="localstorage-panels-id"
+    autoSaveId="localstorage-panels-horiz"
     direction="horizontal"
   >
-    <ResizablePanel
-      v-if="toggleablePanelTabs.length > 0"
-      :defaultSize="30"
-      :order="1"
-    >
-      <TabsPanel :tabs="toggleablePanelTabs">
-        <template v-slot:examples><slot name="examples"></slot></template>
-        <template v-slot:saved><slot name="saved"></slot></template>
-        <template v-slot:query><slot name="query"></slot></template>
-        <template v-slot:results><slot name="results"></slot></template>
-      </TabsPanel>
-    </ResizablePanel>
-
-    <PanelResizeHandle v-if="toggleablePanelTabs.length > 0" class="handle" />
-
-    <ResizablePanel :defaultSize="40" :order="2">
-      <Panel 
-        title="Query"
-        color="var(--p-blue-400)"
-      >
-        <slot name="query"></slot>
-      </Panel>
+    <ResizablePanel :defaultSize="50">
+      <PanelGroup direction="vertical" autoSaveId="localstorage-panels-vert">
+        <ResizablePanel :defaultSize="60" :order="1">
+          <Panel 
+            title="Query"
+            color="var(--p-blue-400)"
+          >
+            <slot name="query"></slot>
+          </Panel>
+        </ResizablePanel>
+    
+        <PanelResizeHandle v-if="toggleablePanelTabs.length > 0" class="handle vertical" />
+    
+        <ResizablePanel
+          v-if="toggleablePanelTabs.length > 0"
+          :defaultSize="40"
+          :order="2"
+        >
+          <TabsPanel :tabs="toggleablePanelTabs">
+            <template v-slot:examples><slot name="examples"></slot></template>
+            <template v-slot:saved><slot name="saved"></slot></template>
+            <template v-slot:query><slot name="query"></slot></template>
+            <template v-slot:results><slot name="results"></slot></template>
+          </TabsPanel>
+        </ResizablePanel>
+      </PanelGroup>
     </ResizablePanel>
 
     <PanelResizeHandle class="handle" />
 
-    <ResizablePanel :defaultSize="30" :order="3">
+    <ResizablePanel :defaultSize="50">
       <Panel 
         title="Results"
         color="var(--p-purple-400)"
@@ -118,6 +122,16 @@ const allTabs = computed(() => [
 
 .handle[data-resize-handle-active="pointer"] {
   height: 96px;
+  transition: all 250ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.handle.vertical {
+  width: 64px;
+  height: 12px;
+  margin: 4px 0;
+}
+.handle.vertical[data-resize-handle-active="pointer"] {
+  width: 96px;
   transition: all 250ms cubic-bezier(0.19, 1, 0.22, 1);
 }
 </style>
