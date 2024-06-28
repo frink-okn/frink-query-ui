@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { queryProvivderKey } from '@/stores/query'
-import { ref, inject, computed, watch } from 'vue'
+import { inject, computed } from 'vue'
 
 const {
   results,
-  running,
   possiblyIncomplete,
   errorMessage,
+  progressText,
 } = inject(queryProvivderKey)!
 
 const columns = computed(() => {
@@ -28,37 +28,17 @@ const jsonResults = computed(() =>
     )
   )
 );
-
-const startTime = ref<Date | undefined>();
-const stopTime = ref<Date | undefined>();
-let updateTimerHandle = setInterval(() => {}, 2147483647);
-const startTimer = () => {
-  startTime.value = new Date();
-  stopTime.value = undefined;
-  updateTimerHandle = setInterval(() => (stopTime.value = new Date()), 100);
-}
-const stopTimer = () => {
-  clearInterval(updateTimerHandle);
-  stopTime.value = new Date();
-}
-watch(running, (newRunning) => {
-  newRunning ? startTimer() : stopTimer()
-});
-
-const progressText = computed(() => {
-  const count = results.value.length
-  const start = startTime.value
-  const end = stopTime.value
-  const elapsed = start !== undefined && end !== undefined ? end.valueOf() - start.valueOf() : 0
-  return `${count.toLocaleString()} result${count === 1 ? '' : 's'} in ${(elapsed / 1000).toFixed(1)}s`
-});
 </script>
 
 <template>
   <div class="flex">
     <div>
-      <div>{{ progressText }}</div>
-      <div v-if="possiblyIncomplete">Possibly incomplete!</div>
+      <div>
+        {{ progressText }}
+        <span v-if="possiblyIncomplete" :style="{ fontStyle: 'italic' }">
+          Possibly incomplete!
+        </span>
+      </div>
       <div v-if="errorMessage.length > 0">{{ errorMessage }}</div>
     </div>
     <DataTable

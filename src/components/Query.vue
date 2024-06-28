@@ -2,15 +2,15 @@
 import { queryProvivderKey } from '@/stores/query'
 import { type Source } from '@/modules/sources'
 import Yasqe from '@triply/yasqe'
-import { inject, ref, onMounted, computed, watch } from 'vue';
+import { inject, ref, onMounted, computed } from 'vue';
 
 const DEFAULT_QUERY = `\
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT * WHERE {
   ?sub ?pred ?obj .
-} LIMIT 10
-`
+} LIMIT 10\
+`;
 
 let {
   sources,
@@ -19,7 +19,6 @@ let {
   running,
   executeQuery,
   stopQuery,
-  yasqeInstance,
 } = inject(queryProvivderKey)!;
 
 const notReadyToRun = computed(() => 
@@ -43,16 +42,16 @@ const getSourceName = (source: { source: Source; selected: boolean }): string =>
 const editorElement = ref(null);
 onMounted(() => {
   if (editorElement.value !== null) {
-    yasqeInstance.value = new Yasqe(editorElement.value);
-    currentSparql.value = yasqeInstance.value.getValue();
-    yasqeInstance.value.on('change', () => {
-      currentSparql.value = yasqeInstance.value!.getValue();
-    })
-    if (currentSparql.value === '') {
-      yasqeInstance.value.setValue(DEFAULT_QUERY);
-    }
+    const previous = globalThis.yasqe?.getValue();
+    globalThis.yasqe = new Yasqe(editorElement.value);
+    if (previous) globalThis.yasqe.setValue(previous);
+    currentSparql.value = globalThis.yasqe.getValue();
+    globalThis.yasqe.on('change', () => {
+      if (globalThis.yasqe !== null) currentSparql.value = globalThis.yasqe.getValue()
+    });
+    if (currentSparql.value === "") globalThis.yasqe.setValue(DEFAULT_QUERY);
   }
-});
+})
 </script>
 
 <template>
