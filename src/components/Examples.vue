@@ -50,8 +50,10 @@ hr {
 
 .chip {
   font-size: 0.7rem;
+  font-weight: 500;
   padding: 2px 4px;
-  border-radius: 8px;
+  background-color: var(--p-slate-200);
+  border-radius: 6px;
   transform: translateY(-1.5px);
   margin-left: 1ch;
 }
