@@ -14,6 +14,8 @@ import Divider from 'primevue/divider';
 import DataTable from 'primevue/datatable';
 import Chip from 'primevue/chip';
 import Column from 'primevue/column';
+import InputText from 'primevue/inputtext';
+import Popover from 'primevue/popover';
 import { toggleablePanelsKey, toggleablePanelsProvider } from './stores/toggleablePanels';
 import { queryProvider, queryProvivderKey } from './stores/query';
 
@@ -53,6 +55,8 @@ app.component('Divider', Divider);
 app.component('DataTable', DataTable);
 app.component('Column', Column);
 app.component('Chip', Chip);
+app.component('Popover', Popover);
+app.component('InputText', InputText);
 
 app.directive('tooltip', Tooltip);
 
