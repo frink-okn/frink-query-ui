@@ -26,6 +26,7 @@ import Results from "@/components/Results.vue";
         <Results />
       </template>
     </Panels>
+
     <footer>
       <small>
         <a href="https://renci.org/" target="_blank" rel="noopener noreferrer">RENCI</a>
@@ -54,6 +55,7 @@ import Results from "@/components/Results.vue";
 
 .panels {
   flex: 1;
+  min-height: 0;
 }
 
 footer {
