@@ -1,4 +1,5 @@
 import { ref, type InjectionKey, type Ref } from "vue";
+import { useLocalStorage } from "@vueuse/core";
 
 interface ToggleablePanel {
   id: string;
@@ -8,13 +9,13 @@ interface ToggleablePanel {
   selected: boolean
 }
 
-const toggleablePanels = ref<ToggleablePanel[]>([
+const toggleablePanels = useLocalStorage<ToggleablePanel[]>('toggleable-panels', [
   {
     id: "examples",
     label: "Examples",
     icon: "pi-book",
     color: "var(--p-teal-400)",
-    selected: false,
+    selected: true,
   },
   {
     id: "saved",
