@@ -28,9 +28,9 @@ html {
 
 body {
   background-color: var(--p-slate-50);
-  --spacing: 15px;
+  --spacing: 10px;
   --line-width: 1px;
-  --line-color: var(--p-slate-200);
+  --line-color: #eaeef2;
   background-image: repeating-linear-gradient(
     -45deg,
     transparent 0 calc(var(--spacing) - 1px - var(--line-width)),
