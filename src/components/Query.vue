@@ -91,6 +91,12 @@ onMounted(() => {
         v-if="!running"
         label="Run Query"
         @click="executeQuery"
+        :disabled="notReadyToRun"
+        v-tooltip="
+          notReadyToRun
+            ?  'Please provide a SPARQL query and at least one source.'
+            : undefined
+        "
         icon="pi pi-arrow-right"
         iconPos="right"
         size="small"
@@ -99,7 +105,6 @@ onMounted(() => {
         v-else
         label="Stop Query"
         @click="stopQuery"
-        :disabled="notReadyToRun"
         severity="danger"
         icon="pi pi-stop"
         iconPos="right"
