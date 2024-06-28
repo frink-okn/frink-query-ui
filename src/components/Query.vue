@@ -2,7 +2,7 @@
 import { queryProvivderKey } from '@/stores/query'
 import { type Source } from '@/modules/sources'
 import Yasqe from '@triply/yasqe'
-import { inject, ref, onMounted, computed } from 'vue'
+import { inject, ref, onMounted, computed, watch } from 'vue';
 
 const DEFAULT_QUERY = `\
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -12,13 +12,14 @@ SELECT * WHERE {
 } LIMIT 10
 `
 
-const {
+let {
   sources,
   selectedSources,
   currentSparql,
   running,
   executeQuery,
-  stopQuery
+  stopQuery,
+  yasqeInstance,
 } = inject(queryProvivderKey)!;
 
 const notReadyToRun = computed(() => 
@@ -42,13 +43,13 @@ const getSourceName = (source: { source: Source; selected: boolean }): string =>
 const editorElement = ref(null);
 onMounted(() => {
   if (editorElement.value !== null) {
-    const yasqe = new Yasqe(editorElement.value);
-    currentSparql.value = yasqe.getValue();
-    yasqe.on('change', () => {
-      currentSparql.value = yasqe.getValue();
+    yasqeInstance.value = new Yasqe(editorElement.value);
+    currentSparql.value = yasqeInstance.value.getValue();
+    yasqeInstance.value.on('change', () => {
+      currentSparql.value = yasqeInstance.value!.getValue();
     })
     if (currentSparql.value === '') {
-      yasqe.setValue(DEFAULT_QUERY);
+      yasqeInstance.value.setValue(DEFAULT_QUERY);
     }
   }
 });

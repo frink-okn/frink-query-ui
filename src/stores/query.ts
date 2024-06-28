@@ -4,6 +4,7 @@ import { ArrayIterator } from 'asynciterator';
 import type { QueryStringContext, BindingsStream, Bindings } from "@comunica/types"
 import { computed, ref, type ComputedRef, type InjectionKey, type Ref } from "vue";
 import { asBindings } from "@/modules/util";
+import type Yasqe from "@triply/yasqe";
 
 export const queryProvivderKey = Symbol() as InjectionKey<{
   currentSparql: Ref<string>;
@@ -16,10 +17,13 @@ export const queryProvivderKey = Symbol() as InjectionKey<{
   results: Ref<Bindings[]>,
   possiblyIncomplete: Ref<boolean>,
   errorMessage: Ref<string>,
+  loadQuery: (sparql: string, selectedSources: string[]) => void,
+  yasqeInstance: Ref<Yasqe | undefined>,
 }>;
 
 const engine = new QueryEngine();
 
+const yasqeInstance = ref<Yasqe | undefined>(undefined);
 const currentSparql = ref("");
 
 const sources = ref(defaultSources.map((source) => ({
@@ -95,6 +99,13 @@ const stopQuery = () => {
   running.value = false;
 }
 
+const loadQuery = (sparql: string, selectedSources: string[]) => {
+  yasqeInstance.value?.setValue(sparql);
+  for (const s of sources.value) {
+    s.selected = selectedSources.includes(s.source.shortname);
+  }
+}
+
 export const queryProvider = {
   currentSparql,
   sources,
@@ -106,4 +117,6 @@ export const queryProvider = {
   results,
   possiblyIncomplete,
   errorMessage,
+  loadQuery,
+  yasqeInstance,
 }
