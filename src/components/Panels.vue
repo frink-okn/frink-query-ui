@@ -26,11 +26,11 @@ const allTabs = [
     label: "Examples",
     color: "var(--p-teal-400)",
   },
-  {
-    id: "saved",
-    label: "Saved",
-    color: "var(--p-amber-400)",
-  },
+  // {
+  //   id: "saved",
+  //   label: "Saved",
+  //   color: "var(--p-amber-400)",
+  // },
   {
     id: "query",
     label: "Query",

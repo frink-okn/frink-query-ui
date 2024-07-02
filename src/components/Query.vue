@@ -52,9 +52,6 @@ onMounted(() => {
     if (currentSparql.value === "") globalThis.yasqe.setValue(DEFAULT_QUERY);
   }
 });
-
-const popover = ref();
-const togglePopover = (event: any) => { popover.value.toggle(event); }
 </script>
 
 <template>
@@ -83,15 +80,6 @@ const togglePopover = (event: any) => { popover.value.toggle(event); }
 
     <div class="buttons">
       <Button
-        label="Save Query"
-        @click="togglePopover"
-        severity="secondary"
-        icon="pi pi-bookmark"
-        iconPos="right"
-        size="small"
-      />
-
-      <Button
         v-if="!running"
         label="Run Query"
         @click="executeQuery"
@@ -116,16 +104,6 @@ const togglePopover = (event: any) => { popover.value.toggle(event); }
       />
     </div>
   </div>
-
-  <Popover ref="popover">
-    <div :style="{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }">
-      <InputText placeholder="Name" />
-      <div class="save-buttons" :style="{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }">
-        <Button label="Cancel" @click="togglePopover" severity="secondary" size="small" :style="{flex: '1'}" />
-        <Button label="Save" size="small" icon="pi pi-bookmark-fill" iconPos="right" :style="{flex: '1'}" />
-      </div>
-    </div>
-  </Popover>
 </template>
 
 <style scoped>

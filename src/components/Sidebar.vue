@@ -16,9 +16,9 @@ defineOptions({
       <div class="subtitle">
         Query the PROTO-OKN
       </div>
+      <Divider />
     </div>
 
-    <Divider />
 
     <div class="links">
       <div class="links-spacer">
@@ -83,7 +83,7 @@ nav {
 }
 
 @media (max-width: 600px) {
-  .logo {
+  .header-box {
     display: none;
   }
 }
