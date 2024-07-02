@@ -15,7 +15,7 @@ import Chip from 'primevue/chip';
 import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 import Popover from 'primevue/popover';
-import { queryProvider, queryProvivderKey } from './stores/query';
+import { queryProvider, queryProviderKey } from './stores/query';
 
 const app = createApp(App);
 
@@ -59,6 +59,6 @@ app.directive('tooltip', Tooltip);
 
 app.use(router);
 
-app.provide(queryProvivderKey, queryProvider);
+app.provide(queryProviderKey, queryProvider);
 
 app.mount('#app');

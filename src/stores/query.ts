@@ -6,7 +6,7 @@ import { computed, ref, watch, type ComputedRef, type InjectionKey, type Ref } f
 import { asBindings } from "@/modules/util";
 import type Yasqe from "@triply/yasqe";
 
-export const queryProvivderKey = Symbol() as InjectionKey<{
+export const queryProviderKey = Symbol() as InjectionKey<{
   currentSparql: Ref<string>;
   sources: Ref<{ source: Source, selected: boolean }[]>
   selectedSources: ComputedRef<{ source: Source, selected: true }[]>,

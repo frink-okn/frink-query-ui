@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { queryProvivderKey } from '@/stores/query'
+import { queryProviderKey } from '@/stores/query'
 import { type Source } from '@/modules/sources'
 import Yasqe from '@triply/yasqe'
 import { inject, ref, onMounted, computed } from 'vue';
@@ -19,7 +19,7 @@ let {
   running,
   executeQuery,
   stopQuery,
-} = inject(queryProvivderKey)!;
+} = inject(queryProviderKey)!;
 
 const notReadyToRun = computed(() => 
   selectedSources.value.length < 1 || currentSparql.value.trim().length < 1

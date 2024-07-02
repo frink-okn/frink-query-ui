@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { downloadTextAsFile } from '@/modules/util';
-import { queryProvivderKey } from '@/stores/query'
+import { queryProviderKey } from '@/stores/query'
 import { ActorQueryResultSerializeSparqlCsv } from '@comunica/actor-query-result-serialize-sparql-csv';
 import { useLocalStorage } from '@vueuse/core';
 import { inject, computed } from 'vue'
@@ -11,7 +11,7 @@ const {
   errorMessage,
   progressText,
   running
-} = inject(queryProvivderKey)!
+} = inject(queryProviderKey)!
 
 const columns = computed(() => 
   Array.from(results.value?.[0]?.keys() ?? [])

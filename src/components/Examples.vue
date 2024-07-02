@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { exampleQueries } from '@/modules/exampleQueries';
-import { queryProvivderKey } from '@/stores/query';
+import { queryProviderKey } from '@/stores/query';
 import { inject } from 'vue';
 
-const { loadQuery } = inject(queryProvivderKey)!;
+const { loadQuery } = inject(queryProviderKey)!;
 </script>
 
 <template>
