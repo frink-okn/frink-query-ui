@@ -17,33 +17,31 @@ import {
 } from "vue-resizable-panels";
 import Panel from "@/components/Panel.vue";
 import TabsPanel from "@/components/TabsPanel.vue";
-import { inject } from "vue";
-import { toggleablePanelsKey } from "@/stores/toggleablePanels";
-import { computed } from "vue";
 
 const { width } = useWindowSize();
 
-const { toggleablePanels } = inject(toggleablePanelsKey)!;
-
-const toggleablePanelTabs = computed(() => toggleablePanels.value
-  .filter(p => p.selected)
-  .map(p => ({ ...p, closeable: true})));
-
-const allTabs = computed(() => [
-  ...toggleablePanelTabs.value,
+const allTabs = [
+  {
+    id: "examples",
+    label: "Examples",
+    color: "var(--p-teal-400)",
+  },
+  {
+    id: "saved",
+    label: "Saved",
+    color: "var(--p-amber-400)",
+  },
   {
     id: "query",
     label: "Query",
     color: "var(--p-blue-400)",
-    closeable: false,
   },
   {
     id: "results",
     label: "Results",
     color: "var(--p-purple-400)",
-    closeable: false,
   },
-])
+]
 </script>
 
 <template>
@@ -63,14 +61,17 @@ const allTabs = computed(() => [
           </Panel>
         </ResizablePanel>
     
-        <PanelResizeHandle v-if="toggleablePanelTabs.length > 0" class="handle vertical" />
+        <PanelResizeHandle class="handle vertical" />
     
         <ResizablePanel
-          v-if="toggleablePanelTabs.length > 0"
           :defaultSize="40"
           :order="2"
         >
-          <TabsPanel :tabs="toggleablePanelTabs">
+          <TabsPanel :tabs="[{
+            id: 'examples',
+            label: 'Examples',
+            color: 'var(--p-teal-400)',
+          }]">
             <template v-slot:examples><slot name="examples"></slot></template>
             <template v-slot:saved><slot name="saved"></slot></template>
             <template v-slot:query><slot name="query"></slot></template>

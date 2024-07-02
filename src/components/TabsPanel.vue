@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { toggleablePanelsKey } from '@/stores/toggleablePanels';
-import { inject } from 'vue';
-import { watch, ref, onMounted } from 'vue';
+import { watch, ref } from 'vue';
 
 interface Tab {
   id: string;
   label: string;
   color: string;
-  closeable: boolean;
 }
 
 const props = defineProps<{
@@ -16,8 +13,6 @@ const props = defineProps<{
 defineEmits<{
   tabClosed: [index: number]
 }>();
-
-const { togglePanel } = inject(toggleablePanelsKey)!;
 
 const selectedTabId = ref(props.tabs[0].id);
 const getTab = (id: string) => props.tabs.find((t) => t.id === id);
@@ -42,9 +37,6 @@ watch(props, ({ tabs }) => {
         @keydown.enter.space="() => { selectedTabId = tab.id  }"
       >
         <h2>{{ tab.label }}</h2>
-        <button v-if="tab.closeable" class="close-button" @click.stop="togglePanel(tab.id)">
-          <span class="pi pi-times"></span>
-        </button>
       </div>
     </header>
     <div class="content">
