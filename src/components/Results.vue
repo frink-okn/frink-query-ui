@@ -2,7 +2,7 @@
 import { downloadTextAsFile } from '@/modules/util';
 import { queryProvivderKey } from '@/stores/query'
 import { ActorQueryResultSerializeSparqlCsv } from '@comunica/actor-query-result-serialize-sparql-csv';
-import { ref } from 'vue';
+import { useLocalStorage } from '@vueuse/core';
 import { inject, computed } from 'vue'
 
 const {
@@ -17,7 +17,7 @@ const columns = computed(() =>
   Array.from(results.value?.[0]?.keys() ?? [])
 );
 
-const isWrapping = ref(true);
+const isWrapping = useLocalStorage("isWrapping", true);
 
 function downloadResults() {
   if (results.value.length > 0) {
