@@ -9,9 +9,17 @@ defineOptions({
 
 <template>
   <nav>
-    <div class="logo">
-      FRINK KG UI
+    <div class="header-box">
+      <div class="logo">
+        FRINK KG UI
+      </div>
+      <div class="subtitle">
+        Query the PROTO-OKN
+      </div>
     </div>
+
+    <Divider />
+
     <div class="links">
       <div class="links-spacer">
 
@@ -56,6 +64,11 @@ nav {
   margin: 0;
 }
 
+.header-box {
+  padding: 1rem 0 0 0;
+  text-align: center;
+}
+
 .logo {
   display: flex;
   flex-direction: column;
@@ -63,7 +76,10 @@ nav {
   align-items: center;
   font-size: 1.5rem;
   font-weight: 700;
-  padding: 1rem 0 1.3rem 0;
+}
+
+.subtitle {
+  font-style: italic;
 }
 
 @media (max-width: 600px) {
