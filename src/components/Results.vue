@@ -1,23 +1,16 @@
 <script setup lang="ts">
-import { downloadTextAsFile } from '@/modules/util';
+import { downloadTextAsFile } from '@/modules/util'
 import { queryProviderKey } from '@/stores/query'
-import { ActorQueryResultSerializeSparqlCsv } from '@comunica/actor-query-result-serialize-sparql-csv';
-import { useLocalStorage } from '@vueuse/core';
+import { ActorQueryResultSerializeSparqlCsv } from '@comunica/actor-query-result-serialize-sparql-csv'
+import { useLocalStorage } from '@vueuse/core'
 import { inject, computed } from 'vue'
 
-const {
-  results,
-  possiblyIncomplete,
-  errorMessage,
-  progressText,
-  running
-} = inject(queryProviderKey)!
+const { results, possiblyIncomplete, errorMessage, progressText, running } =
+  inject(queryProviderKey)!
 
-const columns = computed(() => 
-  Array.from(results.value?.[0]?.keys() ?? [])
-);
+const columns = computed(() => Array.from(results.value?.[0]?.keys() ?? []))
 
-const isWrapping = useLocalStorage("isWrapping", true);
+const isWrapping = useLocalStorage('isWrapping', true)
 
 function downloadResults() {
   if (results.value.length > 0) {
@@ -130,7 +123,7 @@ table {
 }
 
 thead {
-  background-color: var(--p-slate-200);;
+  background-color: var(--p-slate-200);
   box-shadow: 0px 3px 0px 0px var(--p-slate-300);
   position: sticky;
   top: 0px;

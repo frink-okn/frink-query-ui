@@ -1,26 +1,25 @@
 <script setup lang="ts">
-import { watch, ref } from 'vue';
+import { watch, ref } from 'vue'
 
 interface Tab {
-  id: string;
-  label: string;
-  color: string;
+  id: string
+  label: string
+  color: string
 }
 
 const props = defineProps<{
   tabs: Tab[]
-}>();
+}>()
 defineEmits<{
   tabClosed: [index: number]
-}>();
+}>()
 
-const selectedTabId = ref(props.tabs[0].id);
-const getTab = (id: string) => props.tabs.find((t) => t.id === id);
+const selectedTabId = ref(props.tabs[0].id)
+const getTab = (id: string) => props.tabs.find((t) => t.id === id)
 
 watch(props, ({ tabs }) => {
-  if (!tabs.some((t) => t.id === selectedTabId.value))
-  selectedTabId.value = tabs[0].id;
-});
+  if (!tabs.some((t) => t.id === selectedTabId.value)) selectedTabId.value = tabs[0].id
+})
 </script>
 
 <template>
@@ -33,8 +32,16 @@ watch(props, ({ tabs }) => {
         tabindex="0"
         :class="{ selected: selectedTabId === tab.id }"
         :style="{ '--button-accent-color': tab.color }"
-        @click="() => { selectedTabId = tab.id }"
-        @keydown.enter.space="() => { selectedTabId = tab.id  }"
+        @click="
+          () => {
+            selectedTabId = tab.id
+          }
+        "
+        @keydown.enter.space="
+          () => {
+            selectedTabId = tab.id
+          }
+        "
       >
         <h2>{{ tab.label }}</h2>
       </div>
@@ -80,11 +87,9 @@ header {
   --tab-flare-size: 10px;
 }
 .tab:not(.selected)::before {
-  content: "";
+  content: '';
   pointer-events: none;
-  background: linear-gradient(
-    to bottom, transparent 50%, rgba(0, 0, 0, 0.15)
-  );
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.15));
   position: absolute;
   top: 0;
   right: 0;
@@ -94,7 +99,7 @@ header {
 .tab.selected:not(:first-of-type)::before {
   z-index: 2;
   position: absolute;
-  content: "";
+  content: '';
   width: var(--tab-flare-size);
   height: var(--tab-flare-size);
   background: radial-gradient(
@@ -108,7 +113,7 @@ header {
 .tab.selected:not(:last-of-type)::after {
   z-index: 2;
   position: absolute;
-  content: "";
+  content: '';
   width: var(--tab-flare-size);
   height: var(--tab-flare-size);
   background: radial-gradient(

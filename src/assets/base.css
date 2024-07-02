@@ -1,5 +1,5 @@
 @layer normalize, primevue;
 
-@import "normalize.css" layer(normalize);
+@import 'normalize.css' layer(normalize);
 @import 'primeicons/primeicons.css';
 @import '@triply/yasqe/build/yasqe.min.css';

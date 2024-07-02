@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router';
+import { RouterLink } from 'vue-router'
 
 defineProps<{
-  label: string;
-  selected?: boolean;
-  iconClass: string;
-  to?: string;
-  click?: (payload: MouseEvent) => void;
-}>();
+  label: string
+  selected?: boolean
+  iconClass: string
+  to?: string
+  click?: (payload: MouseEvent) => void
+}>()
 
-defineEmits(["item-clicked"])
+defineEmits(['item-clicked'])
 </script>
 
 <template>
@@ -20,9 +20,15 @@ defineEmits(["item-clicked"])
     </button>
   </RouterLink>
 
-  <button v-else class="wrapper" :class="{ selected }" :aria-label="label" @click="$emit('item-clicked')">
-      <span :class="['pi', iconClass]"></span>
-      <span class="label">{{ label }}</span>
+  <button
+    v-else
+    class="wrapper"
+    :class="{ selected }"
+    :aria-label="label"
+    @click="$emit('item-clicked')"
+  >
+    <span :class="['pi', iconClass]"></span>
+    <span class="label">{{ label }}</span>
   </button>
 </template>
 
@@ -50,8 +56,7 @@ defineEmits(["item-clicked"])
 }
 
 .selected,
-.router-link.router-link-exact-active > .wrapper
-{
+.router-link.router-link-exact-active > .wrapper {
   background-color: color-mix(in srgb, var(--p-slate-300) 50%, transparent);
   border: 1px solid var(--p-slate-400);
 }
@@ -60,7 +65,7 @@ defineEmits(["item-clicked"])
   .wrapper {
     padding: 0.6rem;
   }
-  
+
   .label {
     display: none;
   }

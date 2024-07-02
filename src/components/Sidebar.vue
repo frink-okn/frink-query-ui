@@ -1,31 +1,23 @@
 <script setup lang="ts">
-import SidebarItem from '@/components/SidebarItem.vue';
+import SidebarItem from '@/components/SidebarItem.vue'
 
 defineOptions({
   inheritAttrs: false
-});
-
+})
 </script>
 
 <template>
   <nav>
     <div class="header-box">
-      <div class="logo">
-        FRINK KG UI
-      </div>
-      <div class="subtitle">
-        Query the PROTO-OKN
-      </div>
+      <div class="logo">FRINK KG UI</div>
+      <div class="subtitle">Query the PROTO-OKN</div>
       <Divider />
     </div>
 
-
     <div class="links">
       <div class="links-spacer">
-
         <SidebarItem label="Home" to="/" icon-class="pi-home" />
         <SidebarItem label="About" to="/about" icon-class="pi-question-circle" />
-        
       </div>
       <div class="links-spacer">
         <Divider class="divider" />

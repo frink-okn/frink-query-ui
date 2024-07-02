@@ -1,8 +1,8 @@
 <script setup lang="ts">
 defineProps<{
-  title: string,
+  title: string
   color: string
-}>();
+}>()
 </script>
 
 <template>
@@ -34,7 +34,7 @@ header {
 header::after {
   --size: 8px;
   position: absolute;
-  content: "";
+  content: '';
   width: var(--size);
   height: var(--size);
   background: radial-gradient(

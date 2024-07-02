@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { exampleQueries } from '@/modules/exampleQueries';
-import { queryProviderKey } from '@/stores/query';
-import { inject } from 'vue';
+import { exampleQueries } from '@/modules/exampleQueries'
+import { queryProviderKey } from '@/stores/query'
+import { inject } from 'vue'
 
-const { loadQuery } = inject(queryProviderKey)!;
+const { loadQuery } = inject(queryProviderKey)!
 </script>
 
 <template>
   <p>
-    Select a example query below to load it into the <mark>query</mark> panel.
-    Then press the "Run Query" button to execute the query.
+    Select a example query below to load it into the <mark>query</mark> panel. Then press the "Run
+    Query" button to execute the query.
   </p>
-  <hr>
+  <hr />
   <div class="queries">
     <div v-for="query in exampleQueries">
       <a @click="loadQuery(query.query, query.sources)">{{ query.title }} </a>

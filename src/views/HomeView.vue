@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Panels from "@/components/Panels.vue";
+import Panels from '@/components/Panels.vue'
 
-import Examples from "@/components/Examples.vue";
-import Saved from "@/components/Saved.vue";
-import Query from "@/components/Query.vue";
-import Results from "@/components/Results.vue";
+import Examples from '@/components/Examples.vue'
+import Saved from '@/components/Saved.vue'
+import Query from '@/components/Query.vue'
+import Results from '@/components/Results.vue'
 </script>
 
 <template>
@@ -32,12 +32,17 @@ import Results from "@/components/Results.vue";
         <a href="https://renci.org/" target="_blank" rel="noopener noreferrer">RENCI</a>
       </small>
       <small>
-        <a href="https://github.com/frink-okn/frink-query-ui/" target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://github.com/frink-okn/frink-query-ui/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Source code available on <span class="pi pi-github"></span>
         </a>
       </small>
       <small>
-        Powered by <a href="https://comunica.dev/" target="_blank" rel="noopener noreferrer">Comunica</a>
+        Powered by
+        <a href="https://comunica.dev/" target="_blank" rel="noopener noreferrer">Comunica</a>
       </small>
     </footer>
   </div>
@@ -64,7 +69,7 @@ footer {
 }
 
 footer > small:not(:last-of-type)::after {
-  content: "|";
+  content: '|';
   color: var(--p-slate-500);
   margin: 0px 1ch 0px 1.5ch;
 }

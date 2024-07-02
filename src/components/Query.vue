@@ -2,7 +2,7 @@
 import { queryProviderKey } from '@/stores/query'
 import { type Source } from '@/modules/sources'
 import Yasqe from '@triply/yasqe'
-import { inject, ref, onMounted, computed } from 'vue';
+import { inject, ref, onMounted, computed } from 'vue'
 
 const DEFAULT_QUERY = `\
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -10,48 +10,42 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT * WHERE {
   ?sub ?pred ?obj .
 } LIMIT 10\
-`;
+`
 
-let {
-  sources,
-  selectedSources,
-  currentSparql,
-  running,
-  executeQuery,
-  stopQuery,
-} = inject(queryProviderKey)!;
+let { sources, selectedSources, currentSparql, running, executeQuery, stopQuery } =
+  inject(queryProviderKey)!
 
-const notReadyToRun = computed(() => 
-  selectedSources.value.length < 1 || currentSparql.value.trim().length < 1
-);
+const notReadyToRun = computed(
+  () => selectedSources.value.length < 1 || currentSparql.value.trim().length < 1
+)
 
 const onSourceSelectionChange = (nextSelection: { source: Source; selected: boolean }[]) => {
   sources.value.forEach((currentSource) => {
     if (nextSelection.includes(currentSource)) {
-      currentSource.selected = true;
+      currentSource.selected = true
     } else {
-      currentSource.selected = false;
+      currentSource.selected = false
     }
-  });
+  })
 }
 
 const getSourceName = (source: { source: Source; selected: boolean }): string => {
   return source.source.name
 }
 
-const editorElement = ref(null);
+const editorElement = ref(null)
 onMounted(() => {
   if (editorElement.value !== null) {
-    const previous = globalThis.yasqe?.getValue();
-    globalThis.yasqe = new Yasqe(editorElement.value, { persistenceId: null });
-    if (previous) globalThis.yasqe.setValue(previous);
-    currentSparql.value = globalThis.yasqe.getValue();
+    const previous = globalThis.yasqe?.getValue()
+    globalThis.yasqe = new Yasqe(editorElement.value, { persistenceId: null })
+    if (previous) globalThis.yasqe.setValue(previous)
+    currentSparql.value = globalThis.yasqe.getValue()
     globalThis.yasqe.on('change', () => {
       if (globalThis.yasqe !== null) currentSparql.value = globalThis.yasqe.getValue()
-    });
-    if (currentSparql.value === "") globalThis.yasqe.setValue(DEFAULT_QUERY);
+    })
+    if (currentSparql.value === '') globalThis.yasqe.setValue(DEFAULT_QUERY)
   }
-});
+})
 </script>
 
 <template>
@@ -85,9 +79,7 @@ onMounted(() => {
         @click="executeQuery"
         :disabled="notReadyToRun"
         v-tooltip="
-          notReadyToRun
-            ?  'Please provide a SPARQL query and at least one source.'
-            : undefined
+          notReadyToRun ? 'Please provide a SPARQL query and at least one source.' : undefined
         "
         icon="pi pi-arrow-right"
         iconPos="right"

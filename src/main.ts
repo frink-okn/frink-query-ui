@@ -3,21 +3,21 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 
-import PrimeVue from 'primevue/config';
-import LaraTheme from "@primevue/themes/lara"
-import { definePreset } from '@primevue/themes';
+import PrimeVue from 'primevue/config'
+import LaraTheme from '@primevue/themes/lara'
+import { definePreset } from '@primevue/themes'
 
-import Tooltip from 'primevue/tooltip';
-import Button from 'primevue/button';
-import MultiSelect from 'primevue/multiselect';
-import Divider from 'primevue/divider';
-import Chip from 'primevue/chip';
-import Column from 'primevue/column';
-import InputText from 'primevue/inputtext';
-import Popover from 'primevue/popover';
-import { queryProvider, queryProviderKey } from './stores/query';
+import Tooltip from 'primevue/tooltip'
+import Button from 'primevue/button'
+import MultiSelect from 'primevue/multiselect'
+import Divider from 'primevue/divider'
+import Chip from 'primevue/chip'
+import Column from 'primevue/column'
+import InputText from 'primevue/inputtext'
+import Popover from 'primevue/popover'
+import { queryProvider, queryProviderKey } from './stores/query'
 
-const app = createApp(App);
+const app = createApp(App)
 
 const CustomizedTheme = definePreset(LaraTheme, {
   semantic: {
@@ -40,25 +40,23 @@ app.use(PrimeVue, {
   theme: {
     preset: CustomizedTheme,
     options: {
-      darkModeSelector: ".dark-mode"
+      darkModeSelector: '.dark-mode'
     }
   }
-});
+})
 
+app.component('Button', Button)
+app.component('MultiSelect', MultiSelect)
+app.component('Divider', Divider)
+app.component('Column', Column)
+app.component('Chip', Chip)
+app.component('Popover', Popover)
+app.component('InputText', InputText)
 
+app.directive('tooltip', Tooltip)
 
-app.component('Button', Button);
-app.component('MultiSelect', MultiSelect);
-app.component('Divider', Divider);
-app.component('Column', Column);
-app.component('Chip', Chip);
-app.component('Popover', Popover);
-app.component('InputText', InputText);
+app.use(router)
 
-app.directive('tooltip', Tooltip);
+app.provide(queryProviderKey, queryProvider)
 
-app.use(router);
-
-app.provide(queryProviderKey, queryProvider);
-
-app.mount('#app');
+app.mount('#app')

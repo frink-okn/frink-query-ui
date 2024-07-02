@@ -87,7 +87,7 @@ a:active {
 img {
   max-width: 100%;
   display: block;
-  margin: auto
+  margin: auto;
 }
 
 hr {
@@ -106,7 +106,7 @@ hr {
 }
 
 .markdown-body thead {
-  background-color: var(--p-slate-200);;
+  background-color: var(--p-slate-200);
   border-bottom: 3px solid var(--p-slate-300);
 }
 
