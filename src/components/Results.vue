@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { downloadTextAsFile } from '@/modules/util';
 import { queryProvivderKey } from '@/stores/query'
+import { ActorQueryResultSerializeSparqlCsv } from '@comunica/actor-query-result-serialize-sparql-csv';
+import { ref } from 'vue';
 import { inject, computed } from 'vue'
 
 const {
@@ -7,61 +10,80 @@ const {
   possiblyIncomplete,
   errorMessage,
   progressText,
+  running
 } = inject(queryProvivderKey)!
 
-const columns = computed(() => {
-  if (results.value.length > 0) {
-    return Array.from(results.value[0].keys())
-  } else {
-    return []
-  }
-})
-
-const jsonResults = computed(() =>
-  results.value.map((result) =>
-    columns.value.reduce(
-      (row, currentCol) => {
-        row[currentCol.value] = result.get(currentCol)?.value ?? ''
-        return row
-      },
-      {} as Record<string, string>
-    )
-  )
+const columns = computed(() => 
+  Array.from(results.value?.[0]?.keys() ?? [])
 );
+
+const isWrapping = ref(true);
+
+function downloadResults() {
+  if (results.value.length > 0) {
+    const variables = Array.from(results.value[0].keys())
+    const header = `${variables.map((v) => v.value).join(',')}\r\n`
+    const body = results.value
+      .map(
+        (result) =>
+          `${variables
+            .map((v) => ActorQueryResultSerializeSparqlCsv.bindingToCsvBindings(result.get(v)))
+            .join(',')}\r\n`
+      )
+      .join('')
+    downloadTextAsFile([header, body], 'sparql-results.csv', 'text/csv')
+  }
+}
 </script>
 
 <template>
-  <div class="flex">
-    <div>
-      <div>
-        {{ progressText }}
-        <span v-if="possiblyIncomplete" :style="{ fontStyle: 'italic' }">
-          Possibly incomplete!
-        </span>
+  <div v-if="results.length === 0 && !running" class="centered">
+    <p>Please run a query to view the results here.</p>
+  </div>
+  <div v-else class="flex">
+    <header :style="{ display: 'flex' }">
+      <div :style="{ flex: 1 }">
+        <div>
+          {{ progressText }}
+          <span v-if="possiblyIncomplete" :style="{ fontStyle: 'italic' }">
+            Possibly incomplete!
+          </span>
+        </div>
+        <div v-if="errorMessage.length > 0" :style="{ color: 'var(--p-rose-500)' }">
+          {{ errorMessage }}
+        </div>
       </div>
-      <div v-if="errorMessage.length > 0">{{ errorMessage }}</div>
+
+      <div v-if="results.length > 0" :style="{ display: 'flex', gap: '0.5rem' }">
+        <Button
+          v-tooltip.left="'Toggle cell content wrapping'"
+          @click="isWrapping = !isWrapping"
+          icon="pi pi-align-justify"
+          severity="secondary"
+        />
+        <Button
+          v-tooltip.left="'Download results'"
+          @click="downloadResults()"
+          icon="pi pi-download"
+        />
+      </div>
+    </header>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th v-for="column in columns" :key="column.value">{{ column.value }}</th>
+          </tr>
+        </thead>
+        <tbody :class="{ 'dont-wrap-cells': !isWrapping }">
+          <tr v-for="result in results" :key="result.values().toString">
+            <td v-for="column in columns" :key="column.toString">
+              {{ result.get(column)?.value }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <DataTable
-      class="table"
-      :value="jsonResults"
-      size="medium"
-      scrollable
-      removableSort
-      height
-      :pt="{
-        tableContainer: {
-          style: { minHeight: 0, height: '100%' }
-        }
-      }"
-    >
-      <Column
-        v-for="col in columns"
-        :field="col.value"
-        :header="col.value"
-        :key="col.value"
-        sortable
-      />
-    </DataTable>
   </div>
 </template>
 
@@ -70,12 +92,66 @@ const jsonResults = computed(() =>
   display: flex;
   flex-direction: column;
   height: 100%;
+  gap: 0.5rem;
 }
 
-.table {
+.run-query-message {
+  padding: 4px 0px;
+}
+
+.centered {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.centered > p {
+  margin: 0;
+  font-style: italic;
+  font-size: 1.5rem;
+  color: var(--p-slate-400);
+}
+
+.table-wrapper {
   flex: 1;
   min-height: 0px;
+  height: 100%;
   margin: 0 -0.75rem -0.75rem -0.75rem;
-  --p-datatable-column-title-font-weight: 500;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--p-slate-50);
+  overflow: auto;
+}
+
+thead {
+  background-color: var(--p-slate-200);;
+  box-shadow: 0px 3px 0px 0px var(--p-slate-300);
+  position: sticky;
+  top: 0px;
+}
+
+thead th {
+  font-weight: 500;
+}
+
+thead th,
+td {
+  padding: 0.375rem 0.5rem;
+  text-align: left;
+  vertical-align: bottom;
+}
+
+tbody.dont-wrap-cells td {
+  white-space: nowrap;
+}
+
+tr:not(:last-of-type) > td {
+  border-bottom: 1px solid var(--p-slate-300);
 }
 </style>

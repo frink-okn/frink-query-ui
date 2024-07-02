@@ -43,7 +43,7 @@ const editorElement = ref(null);
 onMounted(() => {
   if (editorElement.value !== null) {
     const previous = globalThis.yasqe?.getValue();
-    globalThis.yasqe = new Yasqe(editorElement.value);
+    globalThis.yasqe = new Yasqe(editorElement.value, { persistenceId: null });
     if (previous) globalThis.yasqe.setValue(previous);
     currentSparql.value = globalThis.yasqe.getValue();
     globalThis.yasqe.on('change', () => {
