@@ -13,14 +13,19 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "vue": "^3.4.21",
-    "vue-router": "^4.3.0",
-    "marx-css": "^4.0.0",
-    "@comunica/query-sparql": "3.1.2",
+    "@comunica/actor-query-result-serialize-sparql-csv": "3.1.2",
     "@comunica/bindings-factory": "^3.1.0",
     "@comunica/data-factory": "^3.1.0",
-    "@comunica/actor-query-result-serialize-sparql-csv": "3.1.2",
-    "@triply/yasqe": "4.2.28"
+    "@comunica/query-sparql": "3.1.2",
+    "@primevue/themes": "^4.0.0-rc.2",
+    "@triply/yasqe": "4.2.28",
+    "@vueuse/core": "^10.11.0",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.0.0-rc.2",
+    "unplugin-vue-markdown": "^0.26.2",
+    "vue": "^3.4.21",
+    "vue-resizable-panels": "^0.0.1",
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
