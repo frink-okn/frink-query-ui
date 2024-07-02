@@ -66,6 +66,7 @@ const allTabs = [
         <ResizablePanel
           :defaultSize="40"
           :order="2"
+          :collapsible="true"
         >
           <TabsPanel :tabs="[{
             id: 'examples',
