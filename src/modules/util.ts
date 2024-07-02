@@ -29,7 +29,7 @@ function asBindings(result: RDF.Quad | boolean): Bindings {
     return BF.fromRecord({
       subject: result.subject,
       predicate: result.predicate,
-      object: result.predicate,
+      object: result.object,
       graph: result.graph
     })
   }
