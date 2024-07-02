@@ -50,7 +50,7 @@ const allTabs = [
     autoSaveId="localstorage-panels-horiz"
     direction="horizontal"
   >
-    <ResizablePanel :defaultSize="50">
+    <ResizablePanel :defaultSize="50" :collapsible="true">
       <PanelGroup direction="vertical" autoSaveId="localstorage-panels-vert">
         <ResizablePanel :defaultSize="60" :order="1">
           <Panel 
@@ -84,7 +84,7 @@ const allTabs = [
 
     <PanelResizeHandle class="handle" />
 
-    <ResizablePanel :defaultSize="50">
+    <ResizablePanel :defaultSize="50" :collapsible="true">
       <Panel 
         title="Results"
         color="var(--p-purple-400)"
