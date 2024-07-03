@@ -17,7 +17,7 @@ service:
   port: 8080
 
 ingress:
-  host: frink-ui.apps.renci.org
+  host: frink.apps.renci.org
   path: /
   tls: true
   public: false
