@@ -20,4 +20,4 @@ ingress:
   host: frink.apps.renci.org
   path: /
   tls: true
-  public: false
+  public: true
