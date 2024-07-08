@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { downloadTextAsFile } from '@/modules/util'
 import { queryProviderKey } from '@/stores/query'
+import RDFTermDisplay from '@/components/RDFTermDisplay.vue'
 import { ActorQueryResultSerializeSparqlCsv } from '@comunica/actor-query-result-serialize-sparql-csv'
 import { useLocalStorage } from '@vueuse/core'
 import { inject, computed } from 'vue'
@@ -71,7 +72,7 @@ function downloadResults() {
         <tbody :class="{ 'dont-wrap-cells': !isWrapping }">
           <tr v-for="result in results" :key="result.values().toString">
             <td v-for="column in columns" :key="column.toString">
-              {{ result.get(column)?.value }}
+              <RDFTermDisplay :term="result.get(column)" />
             </td>
           </tr>
         </tbody>
