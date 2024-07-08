@@ -85,7 +85,11 @@ const executeQuery = async () => {
         break
     }
     running.value = true
-    bindingsStream.value.on('data', (item) => results.value.push(item))
+    bindingsStream.value.on('data', (item) => {
+      if (results.value) {
+        results.value.push(item)
+      }
+    })
     bindingsStream.value.on('end', () => {
       running.value = false
       possiblyIncomplete.value = false
@@ -129,7 +133,7 @@ watch(running, (newRunning) => {
 })
 
 const progressText = computed(() => {
-  const count = results.value.length
+  const count = results.value?.length ?? 0
   const start = startTime.value
   const end = stopTime.value
   const elapsed = start !== undefined && end !== undefined ? end.valueOf() - start.valueOf() : 0
