@@ -14,7 +14,7 @@ export const queryProviderKey = Symbol() as InjectionKey<{
   running: Ref<boolean>
   executeQuery: () => Promise<void>
   stopQuery: () => void
-  results: Ref<Bindings[]>
+  results: Ref<Bindings[] | undefined>
   possiblyIncomplete: Ref<boolean>
   errorMessage: Ref<string>
   loadQuery: (sparql: string, selectedSources: string[]) => void
@@ -53,7 +53,7 @@ const queryContext = computed(() => {
   })
 })
 
-const results = ref<Bindings[]>([])
+const results = ref<Bindings[]>()
 const bindingsStream = ref<BindingsStream>(new ArrayIterator<Bindings>([]))
 const running = ref(false)
 const possiblyIncomplete = ref(false)
@@ -85,7 +85,11 @@ const executeQuery = async () => {
         break
     }
     running.value = true
-    bindingsStream.value.on('data', (item) => results.value.push(item))
+    bindingsStream.value.on('data', (item) => {
+      if (results.value) {
+        results.value.push(item)
+      }
+    })
     bindingsStream.value.on('end', () => {
       running.value = false
       possiblyIncomplete.value = false
@@ -129,7 +133,7 @@ watch(running, (newRunning) => {
 })
 
 const progressText = computed(() => {
-  const count = results.value.length
+  const count = results.value?.length ?? 0
   const start = startTime.value
   const end = stopTime.value
   const elapsed = start !== undefined && end !== undefined ? end.valueOf() - start.valueOf() : 0
