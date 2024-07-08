@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { downloadTextAsFile } from '@/modules/util'
 import { queryProviderKey } from '@/stores/query'
+import RDFTermDisplay from '@/components/RDFTermDisplay.vue'
 import { ActorQueryResultSerializeSparqlCsv } from '@comunica/actor-query-result-serialize-sparql-csv'
 import { useLocalStorage } from '@vueuse/core'
 import { inject, computed } from 'vue'
@@ -13,7 +14,7 @@ const columns = computed(() => Array.from(results.value?.[0]?.keys() ?? []))
 const isWrapping = useLocalStorage('isWrapping', true)
 
 function downloadResults() {
-  if (results.value.length > 0) {
+  if (results.value && results.value.length > 0) {
     const variables = Array.from(results.value[0].keys())
     const header = `${variables.map((v) => v.value).join(',')}\r\n`
     const body = results.value
@@ -30,7 +31,7 @@ function downloadResults() {
 </script>
 
 <template>
-  <div v-if="results.length === 0 && !running" class="centered">
+  <div v-if="!results && !running" class="centered">
     <p>Please run a query to view the results here.</p>
   </div>
   <div v-else class="flex">
@@ -47,7 +48,7 @@ function downloadResults() {
         </div>
       </div>
 
-      <div v-if="results.length > 0" :style="{ display: 'flex', gap: '0.5rem' }">
+      <div v-if="results && results.length > 0" :style="{ display: 'flex', gap: '0.5rem' }">
         <Button
           v-tooltip.left="'Toggle cell content wrapping'"
           @click="isWrapping = !isWrapping"
@@ -71,7 +72,7 @@ function downloadResults() {
         <tbody :class="{ 'dont-wrap-cells': !isWrapping }">
           <tr v-for="result in results" :key="result.values().toString">
             <td v-for="column in columns" :key="column.toString">
-              {{ result.get(column)?.value }}
+              <RDFTermDisplay :term="result.get(column)" />
             </td>
           </tr>
         </tbody>
