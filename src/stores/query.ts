@@ -14,7 +14,7 @@ export const queryProviderKey = Symbol() as InjectionKey<{
   running: Ref<boolean>
   executeQuery: () => Promise<void>
   stopQuery: () => void
-  results: Ref<Bindings[]>
+  results: Ref<Bindings[] | undefined>
   possiblyIncomplete: Ref<boolean>
   errorMessage: Ref<string>
   loadQuery: (sparql: string, selectedSources: string[]) => void
@@ -53,7 +53,7 @@ const queryContext = computed(() => {
   })
 })
 
-const results = ref<Bindings[]>([])
+const results = ref<Bindings[]>()
 const bindingsStream = ref<BindingsStream>(new ArrayIterator<Bindings>([]))
 const running = ref(false)
 const possiblyIncomplete = ref(false)
