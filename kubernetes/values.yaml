@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: woozl/frink-ui
+  repository: ghcr.io/frink-okn/frink-query-ui
   tag: "1.0.3"
 
 resources:
