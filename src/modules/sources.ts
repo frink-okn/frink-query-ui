@@ -20,6 +20,7 @@ const defaultSources: Source[] = [
   makeFRINKSource('DREAM-KG', 'dreamkg'),
   makeFRINKSource('SCALES', 'scales'),
   makeFRINKSource('Secure Chain KG', 'securechainkg'),
+  makeFRINKSource('SemOpenAlex', 'semopenalex'),
   makeFRINKSource('SOC-KG', 'sockg'),
   makeFRINKSource('SUD-OKN', 'sudokn'),
   makeFRINKSource('Ubergraph', 'ubergraph'),
