@@ -3,7 +3,7 @@ type ExampleQuery = {
   sources: string[]
   query: string
 }
-// some test comment
+
 const exampleQueries: ExampleQuery[] = [
   {
     title: 'What is the adrenal gland part of?',
