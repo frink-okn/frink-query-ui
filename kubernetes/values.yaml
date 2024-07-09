@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/frink-okn/frink-query-ui
-  tag: "v1.0.0"
+  tag: "v1.0.1"
 
 resources:
   limits:
