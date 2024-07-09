@@ -9,8 +9,8 @@ defineOptions({
 <template>
   <nav>
     <div class="header-box">
-      <div class="logo">FRINK KG UI</div>
-      <div class="subtitle">Query the PROTO-OKN</div>
+      <div class="logo">FRINK</div>
+      <div class="subtitle">Query the Proto-OKN</div>
       <Divider />
     </div>
 
@@ -44,6 +44,7 @@ nav {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  margin-top: 5px;
 }
 
 .links-spacer {
