@@ -16,8 +16,11 @@ type CompoundSource = {
 export type Source = SPARQLSource | CompoundSource
 
 const defaultSources: Source[] = [
+  makeFRINKSource('BioBricks ICE', 'biobricks-ice'),
   makeFRINKSource('Climatepub4-KG', 'climatepub4kg'),
   makeFRINKSource('DREAM-KG', 'dreamkg'),
+  makeFRINKSource('Rural-KG', 'ruralkg'),
+  makeFRINKSource('SAWGraph', 'sawgraph'),
   makeFRINKSource('SCALES', 'scales'),
   makeFRINKSource('Secure Chain KG', 'securechainkg'),
   makeFRINKSource('SemOpenAlex', 'semopenalex'),

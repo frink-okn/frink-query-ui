@@ -126,7 +126,93 @@ WHERE {
 SELECT DISTINCT ?ontologyLabel
 WHERE {
     ?s scales:hasOntologyLabel ?ontologyLabel .
-} `
+}`
+  },
+  {
+    title: 'List assays by source from InvitroDB that are found in both ICE and ToxCast',
+    sources: ['biobricks-ice'],
+    query: `PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX CHEMINF: <http://purl.obolibrary.org/obo/CHEMINF_>
+PREFIX CAS: <http://identifiers.org/cas/>
+PREFIX EDAM: <http://edamontology.org/>
+PREFIX dce: <http://purl.org/dc/elements/1.1/>
+PREFIX BAO: <http://www.bioassayontology.org/bao#BAO_>
+SELECT ?assay 
+WHERE {
+  ?assay a BAO:0000015 ;
+    dce:source "InvitroDB" .
+}`
+  },
+  {
+    title:
+      'List the names of chemical entities and optionally their CAS RNand DSSTOXSID if available',
+    sources: ['biobricks-ice'],
+    query: `PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX CHEMINF: <http://purl.obolibrary.org/obo/CHEMINF_>
+PREFIX CAS: <http://identifiers.org/cas/>
+PREFIX EDAM: <http://edamontology.org/>
+SELECT  ?cas ?dsstox ?name
+WHERE {
+  ?s a CHEMINF:000000 ;
+    rdfs:label ?name .
+  OPTIONAL {
+    ?s EDAM:has_identifier ?dsstox.
+    ?dsstox a CHEMINF:000568. # DSSTOX SID
+  }
+  OPTIONAL {
+    ?s EDAM:has_identifier ?cas .
+    ?cas a CHEMINF:000446 . # CAS RN
+  }
+}
+LIMIT 200`
+  },
+  {
+    title: 'List all providers (RURAL-KG)',
+    sources: ['ruralkg'],
+    query: `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX treatment: <http://sail.ua.edu/ruralkg/treatmentprovider/>
+SELECT ?provider ?providerName
+WHERE {
+  ?provider rdf:type treatment:TreatmentProvider ;
+    treatment:name ?providerName .
+}
+LIMIT 100`
+  },
+  {
+    title: 'List all substances in the graph (RURAL-KG)',
+    sources: ['ruralkg'],
+    query: `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sa: <http://sail.ua.edu/ruralkg/substanceabuse/>
+SELECT ?substance ?name
+WHERE {
+  ?substance rdf:type sa:Substance .
+  ?substance sa:name ?name .
+}
+LIMIT 100`
+  },
+  {
+    title: 'List software dependencies of versions of ffmpeg',
+    sources: ['securechainkg'],
+    query: `PREFIX ns1: <http://example.org/ns#>
+SELECT ?package ?dependency {
+  ?software ns1:name "ffmpeg" .
+  ?package ns1:isVersionOf ?software ; 
+    ns1:dependsOn ?dependency .
+}
+LIMIT 100`
+  },
+  {
+    title: 'List vulnerabilities in versions of ffmpeg',
+    sources: ['securechainkg'],
+    query: `PREFIX ns1: <http://example.org/ns#>
+SELECT ?vuln ?software {
+  ?software ns1:name "ffmpeg" .
+  ?package ns1:isVersionOf ?software .
+  ?vuln ns1:affects ?package .
+}
+LIMIT 100`
   }
 ]
 
