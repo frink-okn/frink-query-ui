@@ -73,6 +73,12 @@ function downloadResults() {
       scrollable
       scrollHeight="flex"
       :rows="50"
+      height
+      :pt="{
+        tableContainer: {
+          style: { minHeight: 0, height: '100%' }
+        }
+      }"
     >
       <Column
         v-for="column in columns"
@@ -95,6 +101,12 @@ function downloadResults() {
   flex-direction: column;
   height: 100%;
   gap: 0.5rem;
+}
+
+.p-datatable {
+  flex: 1;
+  min-height: 0px;
+  margin: 0 -0.75rem -0.75rem -0.75rem;
 }
 
 .run-query-message {
