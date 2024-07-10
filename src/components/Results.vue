@@ -7,6 +7,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { inject, computed } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import type { Bindings } from '@comunica/types'
 
 const { results, possiblyIncomplete, errorMessage, progressText, running } =
   inject(queryProviderKey)!
@@ -79,7 +80,7 @@ function downloadResults() {
         :field="column.value"
         :header="column.value"
         :sortable="true"
-        :sortField="(item) => item.get(column)?.value ?? ''"
+        :sortField="(item: Bindings) => item.get(column)?.value ?? ''"
         ><template #body="slotProps"
           ><div :class="{ 'wrap-cells': isWrapping }">
             <RDFTermDisplay :term="slotProps.data.get(column)" /></div></template
