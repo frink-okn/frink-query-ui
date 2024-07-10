@@ -5,6 +5,9 @@ import RDFTermDisplay from '@/components/RDFTermDisplay.vue'
 import { ActorQueryResultSerializeSparqlCsv } from '@comunica/actor-query-result-serialize-sparql-csv'
 import { useLocalStorage } from '@vueuse/core'
 import { inject, computed } from 'vue'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import type { Bindings } from '@comunica/types'
 
 const { results, possiblyIncomplete, errorMessage, progressText, running } =
   inject(queryProviderKey)!
@@ -47,7 +50,6 @@ function downloadResults() {
           {{ errorMessage }}
         </div>
       </div>
-
       <div v-if="results && results.length > 0" :style="{ display: 'flex', gap: '0.5rem' }">
         <Button
           v-tooltip.left="'Toggle cell content wrapping'"
@@ -62,22 +64,34 @@ function downloadResults() {
         />
       </div>
     </header>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th v-for="column in columns" :key="column.value">{{ column.value }}</th>
-          </tr>
-        </thead>
-        <tbody :class="{ 'dont-wrap-cells': !isWrapping }">
-          <tr v-for="result in results" :key="result.values().toString">
-            <td v-for="column in columns" :key="column.toString">
-              <RDFTermDisplay :term="result.get(column)" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      :value="results"
+      removableSort
+      paginator
+      :resizableColumns="true"
+      columnResizeMode="expand"
+      scrollable
+      scrollHeight="flex"
+      :rows="50"
+      height
+      :pt="{
+        tableContainer: {
+          style: { minHeight: 0, height: '100%' }
+        }
+      }"
+    >
+      <Column
+        v-for="column in columns"
+        :key="column.value"
+        :field="column.value"
+        :header="column.value"
+        :sortable="true"
+        :sortField="(item: Bindings) => item.get(column)?.value ?? ''"
+        ><template #body="slotProps"
+          ><div :class="{ 'wrap-cells': isWrapping }">
+            <RDFTermDisplay :term="slotProps.data.get(column)" /></div></template
+      ></Column>
+    </DataTable>
   </div>
 </template>
 
@@ -87,6 +101,12 @@ function downloadResults() {
   flex-direction: column;
   height: 100%;
   gap: 0.5rem;
+}
+
+.p-datatable {
+  flex: 1;
+  min-height: 0px;
+  margin: 0 -0.75rem -0.75rem -0.75rem;
 }
 
 .run-query-message {
@@ -108,44 +128,7 @@ function downloadResults() {
   color: var(--p-slate-400);
 }
 
-.table-wrapper {
-  flex: 1;
-  min-height: 0px;
-  height: 100%;
-  margin: 0 -0.75rem -0.75rem -0.75rem;
-  overflow: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: var(--p-slate-50);
-  overflow: auto;
-}
-
-thead {
-  background-color: var(--p-slate-200);
-  box-shadow: 0px 3px 0px 0px var(--p-slate-300);
-  position: sticky;
-  top: 0px;
-}
-
-thead th {
-  font-weight: 500;
-}
-
-thead th,
-td {
-  padding: 0.375rem 0.5rem;
-  text-align: left;
-  vertical-align: bottom;
-}
-
-tbody.dont-wrap-cells td {
-  white-space: nowrap;
-}
-
-tr:not(:last-of-type) > td {
-  border-bottom: 1px solid var(--p-slate-300);
+.wrap-cells {
+  white-space: wrap;
 }
 </style>
