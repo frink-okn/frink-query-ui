@@ -49,7 +49,7 @@ WHERE {
   },
   {
     title:
-      'Scientific articles in Wikidata with about a cell type that Ubergraph says is part of the abdomen',
+      'Scientific articles in Wikidata about a cell type that Ubergraph says is part of the abdomen',
     sources: ['ubergraph', 'wikidata'],
     query: `PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
