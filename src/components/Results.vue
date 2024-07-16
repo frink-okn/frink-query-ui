@@ -9,10 +9,8 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import type { Bindings } from '@comunica/types'
 
-const { results, possiblyIncomplete, errorMessage, progressText, running } =
+const { results, columns, possiblyIncomplete, errorMessage, progressText, running } =
   inject(queryProviderKey)!
-
-const columns = computed(() => Array.from(results.value?.[0]?.keys() ?? []))
 
 const isWrapping = useLocalStorage('isWrapping', true)
 
