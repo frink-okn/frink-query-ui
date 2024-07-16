@@ -19,9 +19,8 @@ const incomingRelationships: Ref<{ subject: NamedNode | BlankNode; predicate: Na
   []
 )
 const predicateRelationships: Ref<{ subject: NamedNode | BlankNode; object: Term }[]> = ref([])
-const federation =
-  defaultSources.filter((s) => s.type === 'sparql').find((s) => s.shortname === 'federation')
-    ?.endpoint ?? ''
+// TODO make sources selectable for this page?
+const federation = 'https://frink.apps.renci.org/federation/sparql'
 const engine = new QueryEngine()
 async function refreshData() {
   label.value = ''
