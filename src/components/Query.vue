@@ -2,7 +2,9 @@
 import { queryProviderKey } from '@/stores/query'
 import { type Source } from '@/modules/sources'
 import Yasqe from '@triply/yasqe'
-import { inject, ref, onMounted, computed } from 'vue'
+import { inject, ref, onMounted, computed, watch } from 'vue'
+import router from '@/router'
+import { useRoute } from 'vue-router'
 
 const DEFAULT_QUERY = `\
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -14,6 +16,16 @@ SELECT * WHERE {
 
 let { sources, selectedSources, currentSparql, running, executeQuery, stopQuery } =
   inject(queryProviderKey)!
+
+const route = useRoute()
+const names = route.query['sources']
+if (names) {
+  const namesArray = Array.isArray(names) ? names : [names]
+  sources.value.forEach((s) => {
+    if (namesArray.some((n) => n === s.source.shortname)) s.selected = true
+    else s.selected = false
+  })
+}
 
 const notReadyToRun = computed(
   () => selectedSources.value.length < 1 || currentSparql.value.trim().length < 1
@@ -46,6 +58,20 @@ onMounted(() => {
     if (currentSparql.value === '') globalThis.yasqe.setValue(DEFAULT_QUERY)
   }
 })
+
+watch(currentSparql, (_newSparql) => {
+  pushState()
+})
+watch(selectedSources, (_newSelectedSources) => {
+  pushState()
+})
+function pushState() {
+  const sourceNames: string[] = selectedSources.value.reduce(
+    (acc: string[], current) => (current.selected ? acc.concat([current.source.shortname]) : acc),
+    []
+  )
+  router.push({ path: '/', query: { query: currentSparql.value, sources: sourceNames } })
+}
 </script>
 
 <template>
