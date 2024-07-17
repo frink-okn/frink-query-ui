@@ -125,7 +125,7 @@ watch(iriRef, async (_newIRI) => {
   <p>
     <i>{{ iri }}</i>
   </p>
-  <h3>Property values</h3>
+  <h3>Attribute values</h3>
   <table>
     <tr>
       <th>Property</th>
