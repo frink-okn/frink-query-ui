@@ -1,13 +1,16 @@
 import { defaultSources, type Source } from '@/modules/sources'
-import { QueryEngine } from '@comunica/query-sparql'
+import { QueryEngine, QueryEngineFactory } from '@comunica/query-sparql'
 import { ArrayIterator } from 'asynciterator'
 import type { QueryStringContext, BindingsStream, Bindings } from '@comunica/types'
 import { computed, ref, watch, type ComputedRef, type InjectionKey, type Ref } from 'vue'
 import { asBindings } from '@/modules/util'
 import type Yasqe from '@triply/yasqe'
+import type { Variable } from '@rdfjs/types'
+import { DataFactory } from 'rdf-data-factory'
 
 export const queryProviderKey = Symbol() as InjectionKey<{
   currentSparql: Ref<string>
+  columns: Ref<Variable[]>
   sources: Ref<{ source: Source; selected: boolean }[]>
   selectedSources: ComputedRef<{ source: Source; selected: true }[]>
   queryContext: ComputedRef<{ type: 'qpf' | 'sparql'; value: string }[]>
@@ -21,9 +24,13 @@ export const queryProviderKey = Symbol() as InjectionKey<{
   progressText: ComputedRef<string>
 }>
 
+const DF = new DataFactory()
+
 const engine = new QueryEngine()
 
 const currentSparql = ref('')
+
+const columns: Ref<Variable[]> = ref([])
 
 declare global {
   var yasqe: Yasqe | null
@@ -75,12 +82,15 @@ const executeQuery = async () => {
   if (result) {
     switch (result.resultType) {
       case 'bindings':
+        columns.value = (await result.metadata()).variables
         bindingsStream.value = await result.execute()
         break
       case 'quads':
+        columns.value = ['subject', 'predicate', 'object', 'graph'].map((v) => DF.variable(v))
         bindingsStream.value = (await result.execute()).map(asBindings)
         break
       case 'boolean':
+        columns.value = [DF.variable('result')]
         bindingsStream.value = new ArrayIterator<Bindings>([asBindings(await result.execute())])
         break
     }
@@ -142,6 +152,7 @@ const progressText = computed(() => {
 
 export const queryProvider = {
   currentSparql,
+  columns,
   sources,
   selectedSources,
   queryContext,
