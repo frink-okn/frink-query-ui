@@ -13,9 +13,11 @@ const { loadQuery } = inject(queryProviderKey)!
   </p>
   <hr />
   <div class="queries">
-    <div v-for="query in exampleQueries">
-      <a @click="loadQuery(query.query, query.sources)">{{ query.title }} </a>
-      <Chip v-for="source in query.sources" :label="source" class="chip" />
+    <div v-for="query in exampleQueries" class="query" :key="query.title">
+      <a @click="loadQuery(query.query, query.sources)">
+        {{ query.title }}
+        <Chip v-for="source in query.sources" :label="source" class="chip" :key="source" />
+      </a>
     </div>
   </div>
 </template>
@@ -37,15 +39,20 @@ mark {
 .queries {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 
 .queries a {
   cursor: pointer;
 }
 
+.query:not(:last-of-type) {
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px dotted var(--p-slate-300);
+}
+
 hr {
-  margin: 1rem 0px;
+  margin: 0.5rem 0px;
 }
 
 .chip {

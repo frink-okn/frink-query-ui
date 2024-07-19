@@ -1,5 +1,3 @@
-<!-- # Heading Level 1 -->
-
 Welcome to the FRINK query service for the NSF Prototype Open Knowledge Network (Proto-OKN). For more information, please see the following:
 
 - [FRINK documentation](https://frink.renci.org)
