@@ -21,6 +21,10 @@ const incomingRelationships: Ref<{ subject: NamedNode | BlankNode; predicate: Na
 const predicateRelationships: Ref<{ subject: NamedNode | BlankNode; object: Term }[]> = ref([])
 // TODO make sources selectable for this page?
 const federation = 'https://frink.apps.renci.org/federation/sparql'
+const attributesSparql: Ref<string> = ref('')
+const outgoingSparql: Ref<string> = ref('')
+const incomingSparql: Ref<string> = ref('')
+const predicateSparql: Ref<string> = ref('')
 const engine = new QueryEngine()
 async function refreshData() {
   label.value = ''
@@ -28,22 +32,31 @@ async function refreshData() {
   outgoingRelationships.value = []
   incomingRelationships.value = []
   predicateRelationships.value = []
-  const labelSparql = `SELECT ?label WHERE {
-  <${iriRef.value}> <http://www.w3.org/2000/01/rdf-schema#label>|<http://xmlns.com/foaf/0.1/name> ?label
-  } LIMIT 1`
+  const labelSparql = `\
+SELECT ?label
+WHERE {
+  <${iriRef.value}> <http://xmlns.com/foaf/0.1/name>|<http://purl.org/dc/terms/title>|<http://www.w3.org/2000/01/rdf-schema#label> ?label
+}
+LIMIT 1`
   const labelBindings = await (
     await engine.queryBindings(labelSparql, { sources: [{ type: 'sparql', value: federation }] })
   )
     .take(1)
     .toArray()
   label.value = labelBindings[0]?.get('label')?.value ?? ''
-  const propertiesSparql = `SELECT ?p ?v WHERE {<${iriRef.value}> ?p ?v FILTER(isLiteral(?v)) } LIMIT 50`
-  const propertiesBindings = await (
-    await engine.queryBindings(propertiesSparql, {
+  attributesSparql.value = `\
+SELECT ?p ?v
+WHERE {
+  <${iriRef.value}> ?p ?v
+  FILTER(isLiteral(?v))
+}
+LIMIT 50`
+  const attributesBindings = await (
+    await engine.queryBindings(attributesSparql.value, {
       sources: [{ type: 'sparql', value: federation }]
     })
   ).toArray()
-  propertiesBindings.forEach((bindings) => {
+  attributesBindings.forEach((bindings) => {
     const pValue = bindings.get('p')
     const vValue = bindings.get('v')
     if (pValue && vValue && pValue.termType === 'NamedNode' && vValue.termType === 'Literal') {
@@ -53,9 +66,15 @@ async function refreshData() {
       })
     }
   })
-  const outgoingSparql = `SELECT ?p ?o WHERE {<${iriRef.value}> ?p ?o FILTER(!isLiteral(?o)) } LIMIT 50`
+  outgoingSparql.value = `\
+SELECT ?p ?o
+WHERE {
+  <${iriRef.value}> ?p ?o
+  FILTER(!isLiteral(?o))
+}
+LIMIT 50`
   const outgoingBindings = await (
-    await engine.queryBindings(outgoingSparql, {
+    await engine.queryBindings(outgoingSparql.value, {
       sources: [{ type: 'sparql', value: federation }]
     })
   ).toArray()
@@ -74,9 +93,15 @@ async function refreshData() {
       })
     }
   })
-  const incomingSparql = `SELECT ?s ?p WHERE { ?s ?p <${iriRef.value}> FILTER(!isLiteral(?s)) } LIMIT 50`
+  incomingSparql.value = `\
+SELECT ?s ?p
+WHERE {
+  ?s ?p <${iriRef.value}>
+  FILTER(!isLiteral(?s))
+}
+LIMIT 50`
   const incomingRelationshipsBindings = await (
-    await engine.queryBindings(incomingSparql, {
+    await engine.queryBindings(incomingSparql.value, {
       sources: [{ type: 'sparql', value: federation }]
     })
   ).toArray()
@@ -95,9 +120,14 @@ async function refreshData() {
       })
     }
   })
-  const predicateSparql = `SELECT ?s ?o WHERE { ?s <${iriRef.value}> ?o } LIMIT 50`
+  predicateSparql.value = `\
+SELECT ?s ?o
+WHERE {
+  ?s <${iriRef.value}> ?o
+}
+LIMIT 50`
   const predicateRelationshipsBindings = await (
-    await engine.queryBindings(predicateSparql, {
+    await engine.queryBindings(predicateSparql.value, {
       sources: [{ type: 'sparql', value: federation }]
     })
   ).toArray()
@@ -126,6 +156,9 @@ watch(iriRef, async (_newIRI) => {
     <i>{{ iri }}</i>
   </p>
   <h3>Attribute values</h3>
+  <RouterLink :to="{ path: '/', query: { query: attributesSparql } }"
+    >First 50—explore all in query</RouterLink
+  >
   <table>
     <tr>
       <th>Property</th>
@@ -137,6 +170,10 @@ watch(iriRef, async (_newIRI) => {
     </tr>
   </table>
   <h3>Outgoing relationships</h3>
+  <!-- FIXME not working to refresh query on query page -->
+  <RouterLink :to="{ path: '/', query: { query: outgoingSparql } }"
+    >First 50—explore all in query</RouterLink
+  >
   <table>
     <tr>
       <th>Subject</th>
@@ -152,6 +189,9 @@ watch(iriRef, async (_newIRI) => {
     </tr>
   </table>
   <h3>Incoming relationships</h3>
+  <RouterLink :to="{ path: '/', query: { query: incomingSparql } }"
+    >First 50—explore all in query</RouterLink
+  >
   <table>
     <tr>
       <th>Subject</th>
@@ -167,6 +207,9 @@ watch(iriRef, async (_newIRI) => {
     </tr>
   </table>
   <h3>Usages as property</h3>
+  <RouterLink :to="{ path: '/', query: { query: predicateSparql } }"
+    >First 50—explore all in query</RouterLink
+  >
   <table>
     <tr>
       <th>Subject</th>
