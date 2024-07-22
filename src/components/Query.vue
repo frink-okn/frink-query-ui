@@ -5,6 +5,7 @@ import Yasqe from '@triply/yasqe'
 import { inject, ref, onMounted, computed, watch } from 'vue'
 import router from '@/router'
 import { useRoute } from 'vue-router'
+import SaveQueryForm from '@/components/SaveQueryForm.vue'
 
 const DEFAULT_QUERY = `\
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -14,7 +15,7 @@ SELECT * WHERE {
 } LIMIT 10\
 `
 
-let { sources, selectedSources, currentSparql, running, executeQuery, stopQuery } =
+const { sources, selectedSources, currentSparql, running, executeQuery, stopQuery } =
   inject(queryProviderKey)!
 
 const route = useRoute()
@@ -72,6 +73,11 @@ function pushState() {
   )
   router.push({ path: '/', query: { query: currentSparql.value, sources: sourceNames } })
 }
+
+const popover = ref()
+const togglePopover = (event: any) => {
+  popover.value.toggle(event)
+}
 </script>
 
 <template>
@@ -100,6 +106,15 @@ function pushState() {
 
     <div class="buttons">
       <Button
+        label="Save Query"
+        @click="togglePopover"
+        severity="secondary"
+        icon="pi pi-save"
+        iconPos="right"
+        size="small"
+      />
+
+      <Button
         v-if="!running"
         label="Run Query"
         @click="executeQuery"
@@ -122,6 +137,10 @@ function pushState() {
       />
     </div>
   </div>
+
+  <Popover ref="popover">
+    <SaveQueryForm @close="togglePopover" />
+  </Popover>
 </template>
 
 <style scoped>

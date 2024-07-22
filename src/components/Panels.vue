@@ -22,11 +22,11 @@ const allTabs = [
     label: 'Examples',
     color: 'var(--p-teal-400)'
   },
-  // {
-  //   id: "saved",
-  //   label: "Saved",
-  //   color: "var(--p-amber-400)",
-  // },
+  {
+    id: 'saved',
+    label: 'Saved',
+    color: 'var(--p-amber-400)'
+  },
   {
     id: 'query',
     label: 'Query',
@@ -53,15 +53,7 @@ const allTabs = [
         <PanelResizeHandle class="handle vertical" />
 
         <ResizablePanel :defaultSize="40" :order="2" :collapsible="true">
-          <TabsPanel
-            :tabs="[
-              {
-                id: 'examples',
-                label: 'Examples',
-                color: 'var(--p-teal-400)'
-              }
-            ]"
-          >
+          <TabsPanel :tabs="allTabs.filter((t) => ['examples', 'saved'].includes(t.id))">
             <template v-slot:examples><slot name="examples"></slot></template>
             <template v-slot:saved><slot name="saved"></slot></template>
             <template v-slot:query><slot name="query"></slot></template>

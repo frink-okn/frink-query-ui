@@ -4,7 +4,7 @@ import App from './App.vue'
 import router from './router'
 
 import PrimeVue from 'primevue/config'
-import LaraTheme from '@primevue/themes/lara'
+import AuraTheme from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
 
 import Tooltip from 'primevue/tooltip'
@@ -15,11 +15,14 @@ import Chip from 'primevue/chip'
 import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
 import Popover from 'primevue/popover'
+import Select from 'primevue/select'
 import { queryProvider, queryProviderKey } from './stores/query'
+import { savedQueriesProviderKey, savedQueriesProvider } from './stores/savedQueries'
+import AutoComplete from 'primevue/autocomplete'
 
 const app = createApp(App)
 
-const CustomizedTheme = definePreset(LaraTheme, {
+const CustomizedTheme = definePreset(AuraTheme, {
   semantic: {
     primary: {
       50: '{blue.50}',
@@ -52,11 +55,14 @@ app.component('Column', Column)
 app.component('Chip', Chip)
 app.component('Popover', Popover)
 app.component('InputText', InputText)
+app.component('Select', Select)
+app.component('AutoComplete', AutoComplete)
 
 app.directive('tooltip', Tooltip)
 
 app.use(router)
 
 app.provide(queryProviderKey, queryProvider)
+app.provide(savedQueriesProviderKey, savedQueriesProvider)
 
 app.mount('#app')

@@ -84,6 +84,7 @@ header {
   gap: 4px;
   flex-direction: row;
   align-items: center;
+  cursor: pointer;
   --tab-flare-size: 10px;
 }
 .tab:not(.selected)::before {
