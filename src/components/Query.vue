@@ -18,14 +18,17 @@ let { sources, selectedSources, currentSparql, running, executeQuery, stopQuery 
   inject(queryProviderKey)!
 
 const route = useRoute()
-const names = route.query['sources']
-if (names) {
-  const namesArray = Array.isArray(names) ? names : [names]
+const sourceNames = route.query['sources']
+if (sourceNames) {
+  const namesArray = Array.isArray(sourceNames) ? sourceNames : [sourceNames]
   sources.value.forEach((s) => {
     if (namesArray.some((n) => n === s.source.shortname)) s.selected = true
     else s.selected = false
   })
 }
+const queryParam = route.query['query']
+const queryParamSingle = Array.isArray(queryParam) ? queryParam[0] : queryParam
+currentSparql.value = queryParamSingle ?? DEFAULT_QUERY
 
 const notReadyToRun = computed(
   () => selectedSources.value.length < 1 || currentSparql.value.trim().length < 1
