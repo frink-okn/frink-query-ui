@@ -25,10 +25,12 @@ const defaultSources: Source[] = [
   makeFRINKSource('Secure Chain KG', 'securechainkg'),
   makeFRINKSource('SemOpenAlex', 'semopenalex'),
   makeFRINKSource('SOC-KG', 'sockg'),
+  makeFRINKSource('SPOKE', 'spoke'),
   makeFRINKSource('SUD-OKN', 'sudokn'),
   makeFRINKSource('Ubergraph', 'ubergraph'),
   makeFRINKSource('UF-OKN', 'ufokn'),
   makeFRINKSource('Wikidata', 'wikidata'),
+  makeFRINKSource('Wildlife-KG', 'wildlifekg'),
   {
     type: 'sparql',
     name: 'FRINK Federated SPARQL',
