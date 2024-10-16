@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { queryProviderKey } from '@/stores/query'
-import { type Source } from '@/modules/sources'
+import { type Source, type SourceCategory } from '@/modules/sources'
 import Yasqe from '@triply/yasqe'
 import { inject, ref, onMounted, computed, watch } from 'vue'
 import router from '@/router'
@@ -42,9 +42,38 @@ const onSourceSelectionChange = (nextSelection: { source: Source; selected: bool
   })
 }
 
-const getSourceName = (source: { source: Source; selected: boolean }): string => {
-  return source.source.name
-}
+const sourceSelectOptions = computed(() => {
+  const groupedSources: Map<
+    SourceCategory,
+    { source: Source; selected: boolean; disabled: boolean }[]
+  > = new Map()
+
+  const federatedGraph = sources.value.find(
+    ({ source }) => source.name === 'FRINK Federated SPARQL'
+  )!
+  if (!federatedGraph) console.error('Cannot find FRINK Federated SPARQL')
+  for (const source of sources.value) {
+    if (source !== federatedGraph) {
+      source.disabled = federatedGraph.selected
+    } else {
+      source.disabled = sources.value.filter((s) => s !== federatedGraph).some((s) => s.selected)
+    }
+
+    const group = groupedSources.get(source.source.category)
+    if (group !== undefined) group.push(source)
+    else groupedSources.set(source.source.category, [source])
+  }
+
+  return [...groupedSources.entries()].map(([category, sources]) => {
+    const label =
+      {
+        federation: 'Federation',
+        frink: 'Frink Graphs',
+        'theme-1': 'Theme 1 Graphs'
+      }?.[category] ?? 'Other Graphs'
+    return { label, sources }
+  })
+})
 
 const editorElement = ref(null)
 onMounted(() => {
@@ -87,10 +116,13 @@ const togglePopover = (event: any) => {
       <MultiSelect
         :modelValue="selectedSources"
         @update:modelValue="onSourceSelectionChange"
-        :options="sources"
+        :options="sourceSelectOptions"
+        optionLabel="source.name"
+        optionGroupLabel="label"
+        optionGroupChildren="sources"
+        optionDisabled="disabled"
         :maxSelectedLabels="3"
         class="multiselect"
-        :optionLabel="getSourceName"
         placeholder="Select Sources"
         :pt="{
           header: { style: { display: 'none' } },
