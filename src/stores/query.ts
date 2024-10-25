@@ -8,22 +8,6 @@ import type Yasqe from '@triply/yasqe'
 import type { Variable } from '@rdfjs/types'
 import { DataFactory } from 'rdf-data-factory'
 
-export const queryProviderKey = Symbol() as InjectionKey<{
-  currentSparql: Ref<string>
-  columns: Ref<Variable[]>
-  sources: Ref<{ source: Source; selected: boolean }[]>
-  selectedSources: ComputedRef<{ source: Source; selected: true }[]>
-  queryContext: ComputedRef<{ type: 'qpf' | 'sparql'; value: string }[]>
-  running: Ref<boolean>
-  executeQuery: () => Promise<void>
-  stopQuery: () => void
-  results: Ref<Bindings[] | undefined>
-  possiblyIncomplete: Ref<boolean>
-  errorMessage: Ref<string>
-  loadQuery: (sparql: string, selectedSources: string[]) => void
-  progressText: ComputedRef<string>
-}>
-
 const DF = new DataFactory()
 
 const engine = new QueryEngine()
@@ -40,7 +24,8 @@ globalThis.yasqe = null
 const sources = ref(
   defaultSources.map((source) => ({
     source,
-    selected: source.name === 'FRINK Federated SPARQL'
+    selected: source.name === 'FRINK Federated SPARQL',
+    disabled: false
   }))
 )
 
@@ -165,3 +150,4 @@ export const queryProvider = {
   loadQuery,
   progressText
 }
+export const queryProviderKey = Symbol() as InjectionKey<typeof queryProvider>
