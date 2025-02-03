@@ -1,0 +1,100 @@
+import { useQueryContext } from "../../context/query";
+import { IconButton, styled, Tooltip } from "@mui/joy";
+import { WrapText, Download } from "@mui/icons-material";
+import { RDFTable } from "../RDFTable/RDFTable";
+import { useState } from "react";
+import { ResultsTimer } from "../ResultsTimer";
+
+export function Results() {
+  const {
+    results,
+    columns,
+    running,
+    possiblyIncomplete,
+    errorMessage,
+    downloadResultsAsCSV,
+  } = useQueryContext()!;
+
+  const [isTextWrapped, setIsTextWrapped] = useState(false);
+
+  if (results.length === 0 && !running) {
+    return (
+      <CenteredMessage>
+        <p>Please run a query to view the results here.</p>
+      </CenteredMessage>
+    );
+  }
+
+  return (
+    <Wrapper>
+      <Toolbar>
+        <div>
+          <ResultsTimer />
+          {!running && possiblyIncomplete && <div>Possibly incomplete</div>}
+          {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
+        </div>
+        <ButtonWrapper>
+          <Tooltip title="Toggle text wrapping" placement="top">
+            <IconButton
+              variant="soft"
+              onClick={() => setIsTextWrapped(!isTextWrapped)}
+              color={isTextWrapped ? "primary" : "neutral"}
+            >
+              <WrapText />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Download results as CSV" placement="top">
+            <IconButton variant="soft" onClick={downloadResultsAsCSV}>
+              <Download />
+            </IconButton>
+          </Tooltip>
+        </ButtonWrapper>
+      </Toolbar>
+      <TableWrapper>
+        <RDFTable columns={columns} rows={results} wrapText={isTextWrapped} />
+      </TableWrapper>
+    </Wrapper>
+  );
+}
+
+const Wrapper = styled("div")`
+  --parent-padding: 0.75rem;
+  margin: calc(-1 * var(--parent-padding));
+  display: flex;
+  flex-direction: column;
+  height: calc(100% + 2 * var(--parent-padding));
+`;
+
+const Toolbar = styled("header")`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  gap: 0.5rem;
+`;
+
+const ButtonWrapper = styled("div")`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const TableWrapper = styled("div")`
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0px;
+`;
+
+const CenteredMessage = styled("div")`
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  & > p {
+    margin: 0;
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--p-slate-400);
+  }
+`;
