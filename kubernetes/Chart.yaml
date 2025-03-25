@@ -1,6 +1,0 @@
-name: frink-ui
-apiVersion: v2
-version: 1.0.0
-type: application
-description: Frink query UI webapp.
-
