@@ -7,6 +7,8 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 FROM base AS builder
+ARG VITE_KG_SOURCES_YAML
+ENV VITE_KG_SOURCES_YAML=${VITE_KG_SOURCES_YAML}
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
