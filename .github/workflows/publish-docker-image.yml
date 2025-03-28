@@ -7,6 +7,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  VITE_KG_SOURCES_YAML: "https://raw.githubusercontent.com/frink-okn/frink-landing-zone/refs/heads/main/docs/registry/kgs.yaml"
 
 jobs:
 
@@ -45,6 +46,8 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        build-args: |
+          VITE_KG_SOURCES_YAML=${{ env.VITE_KG_SOURCES_YAML }}
 
     - name: Generate artifact attestation
       uses: actions/attest-build-provenance@v1
