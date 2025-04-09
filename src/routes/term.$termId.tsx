@@ -228,6 +228,7 @@ const Heading = styled("h1")`
 `
 
 const TableWrapper = styled('div')`
-  height: 100%;
-  margin: -0.75rem;
+  --parent-padding: 0.75rem;
+  height: calc(100% + 2 * var(--parent-padding));
+  margin: calc(-1 * var(--parent-padding));
 `
