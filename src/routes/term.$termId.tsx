@@ -1,8 +1,13 @@
 import { styled } from "@mui/joy";
-import { Link } from "@tanstack/react-router";
+import { getRouteApi } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { TermPagePanels } from "../ui/Panels/layout/TermPagePanels";
+import { useEffect, useState } from "react";
+import { QueryEngine } from "@comunica/query-sparql";
+
+const engine = new QueryEngine();
+const rootRouteApi = getRouteApi("__root__");
 
 export const Route = createFileRoute("/term/$termId")({
   component: RouteComponent,
@@ -11,16 +16,32 @@ export const Route = createFileRoute("/term/$termId")({
 function RouteComponent() {
   const { termId } = Route.useParams();
 
+  const [termName, setTermName] = useState(termId);
+  useEffect(() => {
+    (async () => {
+      const labelSparql = `\
+SELECT ?label
+WHERE {
+  <${termId}> <http://xmlns.com/foaf/0.1/name>|<http://purl.org/dc/terms/title>|<http://www.w3.org/2000/01/rdf-schema#label> ?label
+}
+LIMIT 1`
+      const labelBindings = await (
+        await engine.queryBindings(labelSparql, { sources: [{ type: 'sparql', value: 'https://frink.apps.renci.org/federation/sparql' }] })
+      )
+        .take(1)
+        .toArray()
+      setTermName(labelBindings[0]?.get('label')?.value ?? termId)
+    })()
+  }, [termId]);
+
   const { width } = useWindowSize();
   if (!width) return null;
 
   return (
     <Wrapper>
       <header>
-        <Heading style={{ margin: 0 }}>{termId}</Heading>
-        <Link to="/" search={{ query: termId, sources: ["ubergraph"] }}>
-          Test query
-        </Link>
+        <Heading style={{ margin: 0 }}>{termName}</Heading>
+        <a href={termId} target="_blank" rel="noopener noreferrer">{termId}</a>
       </header>
 
       <TermPagePanels
