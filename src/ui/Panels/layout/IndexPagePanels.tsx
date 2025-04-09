@@ -17,7 +17,7 @@ interface PanelsProps {
   }[];
 }
 
-export function Panels({ tabs }: PanelsProps) {
+export function IndexPagePanels({ tabs }: PanelsProps) {
   const { width } = useWindowSize();
 
   if (!width) return null;
