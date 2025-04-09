@@ -9,7 +9,7 @@ export function Results() {
   const {
     results,
     columns,
-    running,
+    isRunning,
     possiblyIncomplete,
     errorMessage,
     downloadResultsAsCSV,
@@ -17,7 +17,7 @@ export function Results() {
 
   const [isTextWrapped, setIsTextWrapped] = useState(false);
 
-  if (results.length === 0 && !running) {
+  if (results.length === 0 && !isRunning) {
     return (
       <CenteredMessage>
         <p>Please run a query to view the results here.</p>
@@ -30,7 +30,7 @@ export function Results() {
       <Toolbar>
         <div>
           <ResultsTimer />
-          {!running && possiblyIncomplete && <div>Possibly incomplete</div>}
+          {!isRunning && possiblyIncomplete && <div>Possibly incomplete</div>}
           {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
         </div>
         <ButtonWrapper>

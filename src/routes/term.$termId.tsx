@@ -1,13 +1,14 @@
 import { styled } from "@mui/joy";
-import { getRouteApi } from "@tanstack/react-router";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, getRouteApi } from "@tanstack/react-router";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { TermPagePanels } from "../ui/Panels/layout/TermPagePanels";
 import { useEffect, useState } from "react";
 import { QueryEngine } from "@comunica/query-sparql";
+import { RDFTable } from "../ui/RDFTable/RDFTable";
+import { useComunicaQuery } from "../hooks/useComunicaQuery";
 
 const engine = new QueryEngine();
-const rootRouteApi = getRouteApi("__root__");
+const FEDERATION_URL = 'https://frink.apps.renci.org/federation/sparql'
 
 export const Route = createFileRoute("/term/$termId")({
   component: RouteComponent,
@@ -26,7 +27,7 @@ WHERE {
 }
 LIMIT 1`
       const labelBindings = await (
-        await engine.queryBindings(labelSparql, { sources: [{ type: 'sparql', value: 'https://frink.apps.renci.org/federation/sparql' }] })
+        await engine.queryBindings(labelSparql, { sources: [{ type: 'sparql', value: FEDERATION_URL }] })
       )
         .take(1)
         .toArray()
@@ -76,28 +77,118 @@ LIMIT 1`
   );
 }
 
+const rootRouteApi = getRouteApi("__root__");
+
 function Incoming() {
-  return <div>
-    Incoming
-  </div>
+  const { termId } = Route.useParams();
+  const { sources } = rootRouteApi.useLoaderData();
+  
+  const incomingSparql = `\
+SELECT ?s ?p
+WHERE {
+  ?s ?p <${termId}>
+  FILTER(!isLiteral(?s))
+}
+LIMIT 50`
+  const incomingQuery = useComunicaQuery({
+    runOnMount: true,
+    query: incomingSparql,
+    sources: sources.filter(s => s.shortname === 'federation'),
+  })
+
+  if (incomingQuery.isRunning)
+    return <div>Loading...</div>
+  
+  return <TableWrapper>
+    <RDFTable
+      columns={incomingQuery.columns}
+      rows={incomingQuery.results}
+    />
+  </TableWrapper>
 }
 
 function Outgoing() {
-  return <div>
-    Outgoing
-  </div>
+  const { termId } = Route.useParams();
+  const { sources } = rootRouteApi.useLoaderData();
+  
+  const outgoingSparql = `\
+SELECT ?p ?o
+WHERE {
+  <${termId}> ?p ?o
+  FILTER(!isLiteral(?o))
+}
+LIMIT 50`
+  const outgoingQuery = useComunicaQuery({
+    runOnMount: true,
+    query: outgoingSparql,
+    sources: sources.filter(s => s.shortname === 'federation'),
+  })
+
+  if (outgoingQuery.isRunning)
+    return <div>Loading...</div>
+  
+  return <TableWrapper>
+    <RDFTable
+      columns={outgoingQuery.columns}
+      rows={outgoingQuery.results}
+    />
+  </TableWrapper>
 }
 
+
 function Attributes() {
-  return <div>
-    Attributes
-  </div>
+  const { termId } = Route.useParams();
+  const { sources } = rootRouteApi.useLoaderData();
+  
+  const attributesSparql = `\
+SELECT ?p ?v
+WHERE {
+  <${termId}> ?p ?v
+  FILTER(isLiteral(?v))
+}
+LIMIT 50`
+  const attributesQuery = useComunicaQuery({
+    runOnMount: true,
+    query: attributesSparql,
+    sources: sources.filter(s => s.shortname === 'federation'),
+  })
+
+  if (attributesQuery.isRunning)
+    return <div>Loading...</div>
+  
+  return <TableWrapper>
+    <RDFTable
+      columns={attributesQuery.columns}
+      rows={attributesQuery.results}
+    />
+  </TableWrapper>
 }
 
 function Usages() {
-  return <div>
-    Usages
-  </div>
+  const { termId } = Route.useParams();
+  const { sources } = rootRouteApi.useLoaderData();
+  
+  const usagesSparql = `\
+SELECT ?s ?o
+WHERE {
+  ?s <${termId}> ?o
+}
+LIMIT 50`
+  const usagesQuery = useComunicaQuery({
+    runOnMount: true,
+    query: usagesSparql,
+    sources: sources.filter(s => s.shortname === 'federation'),
+  })
+
+  if (usagesQuery.isRunning)
+    return <div>Loading...</div>
+  
+  return <TableWrapper>
+    <RDFTable
+      columns={usagesQuery.columns}
+      rows={usagesQuery.results}
+    />
+  </TableWrapper>
 }
 
 const Wrapper = styled("div")`
@@ -134,4 +225,9 @@ const Heading = styled("h1")`
     left: 0px;
     right: 0px;
   }
+`
+
+const TableWrapper = styled('div')`
+  height: 100%;
+  margin: -0.75rem;
 `
