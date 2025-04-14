@@ -1,8 +1,11 @@
 import { styled } from "@mui/joy";
-import { exampleQueries } from "../../data/examples";
-import { Link } from "@tanstack/react-router";
+import { getRouteApi, Link } from "@tanstack/react-router";
+
+const rootRouteApi = getRouteApi("__root__");
 
 export function Examples() {
+  const { examples } = rootRouteApi.useLoaderData();
+  
   return (
     <Wrapper>
       <p>
@@ -11,7 +14,7 @@ export function Examples() {
       </p>
       <hr />
       <QueriesWrapper>
-        {exampleQueries.map((example) => (
+        {examples.map((example) => (
           <div key={example.title}>
             <Link
               to={"/"}

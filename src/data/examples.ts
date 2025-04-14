@@ -1,4 +1,10 @@
-export const exampleQueries = [
+interface Example {
+  title: string;
+  sources: string[];
+  query: string;
+}
+
+const exampleQueries: Example[] = [
   {
     title: "What is the adrenal gland part of?",
     sources: ["ubergraph"],
@@ -210,3 +216,7 @@ SELECT ?vuln ?software {
 LIMIT 100`,
   },
 ];
+
+export async function fetchExamples(): Promise<Example[]> {
+  return Promise.resolve(exampleQueries)
+}
