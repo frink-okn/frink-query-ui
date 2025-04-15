@@ -27,7 +27,7 @@ const searchParamsSchema = v.object({
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
-  beforeLoad: ({ context: { queryClient } }) => {
+  loader: ({ context: { queryClient } }) => {
     // We can kick off the examples fetching here, without blocking the page.
     // The useQuery hook in the Examples component will use the cached data
     // if available
