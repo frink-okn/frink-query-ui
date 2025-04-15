@@ -1,33 +1,53 @@
 import { styled } from "@mui/joy";
-import { getRouteApi, Link } from "@tanstack/react-router";
-
-const rootRouteApi = getRouteApi("__root__");
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { fetchExamples } from "../../data/examples";
 
 export function Examples() {
-  const { examples } = rootRouteApi.useLoaderData();
+  const {
+    data: examples,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["examples"],
+    queryFn: fetchExamples,
+    staleTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+  })
   
   return (
     <Wrapper>
-      <p>
-        Select a example query below to load it into the <mark>query</mark>{" "}
-        panel. Then press the "Run Query" button to execute the query.
-      </p>
-      <hr />
-      <QueriesWrapper>
-        {examples.map((example) => (
-          <div key={example.title}>
-            <Link
-              to={"/"}
-              search={{ query: example.query, sources: example.sources }}
-            >
-              {example.title}
-              {example.sources.map((s) => (
-                <Chip key={s}>{s}</Chip>
+      {
+        isLoading || !examples ? (
+          <div>Loading...</div>
+        ) : isError ? (
+          <div>{error.message}</div>
+        ) : (
+          <>
+            <p>
+              Select a example query below to load it into the <mark>query</mark>{" "}
+              panel. Then press the "Run Query" button to execute the query.
+            </p>
+            <hr />
+            <QueriesWrapper>
+              {examples.map((example) => (
+                <div key={example.title}>
+                  <Link
+                    to={"/"}
+                    search={{ query: example.query, sources: example.sources }}
+                  >
+                    {example.title}
+                    {example.sources.map((s) => (
+                      <Chip key={s}>{s}</Chip>
+                    ))}
+                  </Link>
+                </div>
               ))}
-            </Link>
-          </div>
-        ))}
-      </QueriesWrapper>
+            </QueriesWrapper>
+          </>
+        )
+      }
     </Wrapper>
   );
 }

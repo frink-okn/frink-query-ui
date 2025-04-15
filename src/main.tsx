@@ -1,5 +1,7 @@
 import React, { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 
@@ -19,8 +21,24 @@ const TanStackRouterDevtools =
         })),
       );
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      gcTime: 24 * 60 * 60 * 1000,
+      retry: false,
+    },
+  },
+});
+
 // Create a new router instance
-const router = createRouter({ routeTree });
+const router = createRouter({
+  routeTree,
+  context: {
+    queryClient,
+  }
+});
 
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -34,9 +52,12 @@ declare module "@tanstack/react-router" {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Suspense>
-      <TanStackRouterDevtools router={router} position="bottom-right" />
-    </Suspense>
-    <RouterProvider router={router} />
+    <QueryClientProvider client={queryClient}>
+      <Suspense>
+        <TanStackRouterDevtools router={router} position="bottom-right" />
+      </Suspense>
+      <ReactQueryDevtools initialIsOpen={false} position="left" buttonPosition="top-right" />
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   </StrictMode>,
 );

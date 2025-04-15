@@ -1,22 +1,20 @@
-import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { CssBaseline, CssVarsProvider, styled } from "@mui/joy";
 import { Sidebar } from "../ui/Sidebar/Sidebar";
 import { fetchSources } from "../data/sources";
-import { fetchExamples } from "../data/examples";
 import { QueryProvider } from "../context/query";
 
 import "../styles.css";
 import { SavedQueriesProvider } from "../context/savedQueries";
+import type { QueryClient } from "@tanstack/react-query";
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient
+}>()({
   component: RootComponent,
-  loader: async () => {
-    const [sources, examples] = await Promise.all([
-      fetchSources(),
-      fetchExamples(),
-    ]);
-    return { sources, examples }
-  },
+  loader: async () => ({
+    sources: await fetchSources(),
+  }),
   staleTime: Infinity,
   pendingComponent: () => <div>Loading...</div>,
 });
