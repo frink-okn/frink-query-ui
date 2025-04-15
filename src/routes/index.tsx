@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Panels } from "../ui/Panels/layout/Panels";
+import { IndexPagePanels } from "../ui/Panels/layout/IndexPagePanels";
 import { Saved } from "../ui/Panels/Saved";
 import { Examples } from "../ui/Panels/Examples";
 import { Query } from "../ui/Panels/Query";
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   return (
     <Wrapper>
-      <Panels
+      <IndexPagePanels
         tabs={[
           {
             id: "examples",
