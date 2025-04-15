@@ -7,6 +7,7 @@ import { Results } from "../ui/Panels/Results";
 import { styled, SvgIcon } from "@mui/joy";
 import { GitHub } from "@mui/icons-material";
 import * as v from "valibot";
+import { fetchExamples } from "../data/examples";
 
 const DEFAULT_QUERY = `\
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -26,6 +27,16 @@ const searchParamsSchema = v.object({
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
+  loader: ({ context: { queryClient } }) => {
+    // We can kick off the examples fetching here, without blocking the page.
+    // The useQuery hook in the Examples component will use the cached data
+    // if available
+    queryClient.fetchQuery({
+      queryKey: ["examples"],
+      queryFn: fetchExamples,
+      staleTime: 24 * 60 * 60 * 1000,
+    })
+  },
   validateSearch: searchParamsSchema,
 });
 

@@ -84,8 +84,14 @@ export type Source = SPARQLSource | CompoundSource;
  * fetches kg list yaml from github and constructs a json array of sources
  */
 export async function fetchSources(): Promise<Source[]> {
+  const yamlSourcesUrl = `https://raw.githubusercontent.com/${
+    import.meta.env.VITE_GH_REPO
+  }/refs/heads/main${
+    import.meta.env.VITE_GH_SOURCES
+  }`;
+  
   // fetch yaml from frink-landing-zone Github. Ensure env var is set!
-  const res = await fetch(import.meta.env.VITE_KG_SOURCES_YAML, {
+  const res = await fetch(yamlSourcesUrl, {
     method: "get",
     headers: { Accept: "text/plain" },
   });
