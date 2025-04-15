@@ -15,6 +15,7 @@ type SourceCategory = "theme-1" | "frink" | "federation" | "other";
 const sourceCategories: Map<string, SourceCategory> = new Map([
   ["biobricks-ice",   "theme-1"],
   ["biohealth",       "theme-1"],
+  ["nasa-gesdisc-kg", "theme-1"],
   ["climatemodelskg", "theme-1"],
   ["dreamkg",         "theme-1"],
   ["ruralkg",         "theme-1"],
