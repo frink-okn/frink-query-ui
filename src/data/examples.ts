@@ -1,11 +1,6 @@
 import { getFilesFromGithubFlattened } from "./github-utils";
 import yaml from "js-yaml";
-
-interface Example {
-  title: string;
-  sources: string[];
-  query: string;
-}
+import * as v from 'valibot';
 
 /**
  * Extracts the frontmatter from a SPARQL query string and parses it with
@@ -39,17 +34,36 @@ function extractSparqlFrontMatter(sparql: string, removeFrontmatter = true): {
           .join("\n")
       : sparql,
   }
-  
+}
+
+const examplesFrontmatterSchema = v.object({
+  summary: v.string(),
+  tags: v.array(v.string()),
+});
+
+interface Example {
+  title: string;
+  sources: string[];
+  query: string;
 }
 
 export async function fetchExamples(): Promise<Example[]> {
   const files = await getFilesFromGithubFlattened(import.meta.env.VITE_GH_EXAMPLES_DIRECTORY);
 
-  const examples = files.map((file, i) => ({
-    title: "Temp title " + i,
-    sources: ["hydrologykg"],
-    query: file,
-  }))
+  return files.map((file) => {
+    const { frontmatter, sparql } = extractSparqlFrontMatter(file);
 
-  return examples;
+    const validatorResult = v.safeParse(examplesFrontmatterSchema, frontmatter);
+    if (!validatorResult.success) {
+      throw new Error(`Error validating example frontmatter: \n${validatorResult.issues}`);
+    }
+
+    const { summary, tags } = validatorResult.output;
+
+    return {
+      title: summary,
+      sources: tags,
+      query: sparql,
+    }
+  })
 }
