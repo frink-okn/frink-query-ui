@@ -106,24 +106,24 @@ SELECT DISTINCT ?service {
   {
     title: "List distinct judges",
     sources: ["scales"],
-    query: `PREFIX scales: <http://schemas.scales-okn.org/rdf/scales#>
-SELECT DISTINCT ?judgeName
-WHERE {
-    ?s scales:hasAgentType "judge" .
-    ?s scales:hasName ?judgeName .
-}`,
-  },
-  {
-    title: "List SCALES ontology event labels",
-    sources: ["scales"],
     query: `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX j: <http://release.niem.gov/niem/domains/jxdm/7.2/#>
+PREFIX j: <http://release.niem.gov/niem/domains/jxdm/7.2/>
 PREFIX nc: <http://release.niem.gov/niem/niem-core/5.0/>
 
 SELECT DISTINCT ?judgeName
 WHERE {
     ?judge rdf:type j:Judge ;
             nc:PersonFullName ?judgeName .
+}`,
+  },
+  {
+    title: "List SCALES ontology event labels",
+    sources: ["scales"],
+    query: `PREFIX scales: <http://schemas.scales-okn.org/rdf/scales#>
+
+SELECT DISTINCT ?eventLabel
+WHERE {
+  ?docket scales:OntologyLabel ?eventLabel .
 }
 `,
   },
