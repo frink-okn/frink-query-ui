@@ -8,7 +8,6 @@ RUN npm ci
 
 FROM base AS builder
 
-# Env vars, no I don't know why it has to be done this way
 ARG VITE_GH_REPO
 ENV VITE_GH_REPO=${VITE_GH_REPO}
 
