@@ -66,7 +66,7 @@ const Tab = styled("div")`
   color: inherit;
   background-color: var(--button-accent-color);
   padding: 0.5rem 0.75rem 0.3rem 0.75rem;
-  align-self: flex-start;
+  align-self: stretch;
   border-radius: 8px 8px 0px 0px;
   position: relative;
   display: flex;

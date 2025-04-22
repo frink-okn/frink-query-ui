@@ -17,45 +17,24 @@ interface PanelsProps {
   }[];
 }
 
-export function Panels({ tabs }: PanelsProps) {
+export function TermPagePanels({ tabs }: PanelsProps) {
   const { width } = useWindowSize();
 
   if (!width) return null;
 
   if (width > 700)
     return (
-      <WrapperPanelGroup
-        autoSaveId="localstorage-panels-horiz"
-        direction="horizontal"
-      >
-        <ResizablePanel defaultSize={50} minSize={10} collapsible={true}>
-          <PanelGroup
-            direction="vertical"
-            autoSaveId="localstorage-panels-vert"
-          >
-            <ResizablePanel defaultSize={60} minSize={10} order={1}>
-              <Panel tab={tabs.filter((t) => t.id === "query")[0]} />
-            </ResizablePanel>
-
-            <Handle horizontal={"true"} />
-
-            <ResizablePanel
-              defaultSize={40}
-              minSize={10}
-              order={2}
-              collapsible={true}
-            >
-              <TabsPanel
-                tabs={tabs.filter((t) => ["examples", "saved"].includes(t.id))}
-              />
-            </ResizablePanel>
-          </PanelGroup>
+      <WrapperPanelGroup autoSaveId="localstorage-term-panels" direction="vertical">
+        <ResizablePanel defaultSize={30} minSize={10} collapsible={true}>
+          <Panel tab={tabs.filter((t) => t.id === "attributes")[0]} />
         </ResizablePanel>
 
-        <Handle horizontal={"false"} />
+        <Handle horizontal={"true"} />
 
-        <ResizablePanel defaultSize={50} minSize={10} collapsible={true}>
-          <Panel tab={tabs.filter((t) => t.id === "results")[0]} />
+        <ResizablePanel defaultSize={80} minSize={10} collapsible={true}>
+          <TabsPanel
+            tabs={tabs.filter((t) => ["as-subject", "as-predicate", "as-object"].includes(t.id))}
+          />
         </ResizablePanel>
       </WrapperPanelGroup>
     );
