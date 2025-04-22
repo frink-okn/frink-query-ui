@@ -112,10 +112,10 @@ function AsSubject() {
   const { sources } = rootRouteApi.useLoaderData();
   
   const outgoingSparql = `\
-SELECT ?p ?o
+SELECT ?predicate ?object
 WHERE {
-  <${termId}> ?p ?o
-  FILTER(!isLiteral(?o))
+  <${termId}> ?predicate ?object
+  FILTER(!isLiteral(?object))
 }
 LIMIT 50`
   const outgoingQuery = useComunicaQuery({
@@ -141,10 +141,10 @@ function Attributes() {
   const { sources } = rootRouteApi.useLoaderData();
   
   const attributesSparql = `\
-SELECT ?p ?v
+SELECT ?property ?value
 WHERE {
-  <${termId}> ?p ?v
-  FILTER(isLiteral(?v))
+  <${termId}> ?property ?value
+  FILTER(isLiteral(?value))
 }
 LIMIT 50`
   const attributesQuery = useComunicaQuery({
@@ -169,9 +169,9 @@ function AsPredicate() {
   const { sources } = rootRouteApi.useLoaderData();
   
   const usagesSparql = `\
-SELECT ?s ?o
+SELECT ?subject ?object
 WHERE {
-  ?s <${termId}> ?o
+  ?subject <${termId}> ?object
 }
 LIMIT 50`
   const usagesQuery = useComunicaQuery({
