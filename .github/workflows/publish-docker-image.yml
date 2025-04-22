@@ -9,7 +9,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   VITE_GH_REPO: "frink-okn/okn-registry"
   VITE_GH_SOURCES: "/docs/registry/kgs.yaml"
-  VITE_GH_EXAMPLES_DIRECTORY: "/contents/docs/registry/queries"
+  VITE_GH_EXAMPLES_DIRECTORY: "/docs/registry/queries"
 
 
 jobs:

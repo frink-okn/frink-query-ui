@@ -22,7 +22,7 @@ const githubDirectorySchema = v.array(v.looseObject({
  * @link https://docs.github.com/en/rest/repos/contents?apiVersion=2022-11-28#get-repository-content
  */
 export const getFilesFromGithubFlattened = async (path: string, maxDepth = 2): Promise<string[]> => {
-  const apiBase = `https://api.github.com/repos/${import.meta.env.VITE_GH_REPO}`;
+  const apiBase = `https://api.github.com/repos/${import.meta.env.VITE_GH_REPO}/contents`;
 
   const traverse = async (url: string, depth = 0): Promise<string[]> => {
     const output: string[] = [];
