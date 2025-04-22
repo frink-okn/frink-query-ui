@@ -62,42 +62,51 @@ export const SourceSelect = React.memo(() => {
         });
       }}
     >
-      {Object.entries(groupedSources).map(([group, sources]) => (
-        <List key={group}>
-          <ListItem>
-            <Typography
-              level="body-md"
-              sx={{ fontWeight: "bold", color: "var(--p-slate-500)" }}
-            >
-              {SOURCE_LABELS[group]}
-            </Typography>
-          </ListItem>
-          {sources.map((source) => (
-            <Option
-              key={source.shortname}
-              value={source}
-              disabled={
-                (isFederatedSparqlSelected &&
-                  source.shortname !== "federation") ||
-                (!isFederatedSparqlSelected &&
-                  selectedSources.length > 0 &&
-                  source.shortname === "federation")
-              }
-            >
-              <Checkbox
-                tab-index="0"
-                checked={
-                  selectedSources?.findIndex(
-                    (selectedSource) =>
-                      selectedSource.shortname === source.shortname,
-                  ) !== -1
-                }
-              />
-              {source.name}
-            </Option>
-          ))}
-        </List>
-      ))}
+      {
+        Object.entries(groupedSources)
+          .sort(([groupA], [groupB]) => {
+            // sort by order of appearance in SOURCE_LABELS
+            const indexA = Object.keys(SOURCE_LABELS).indexOf(groupA);
+            const indexB = Object.keys(SOURCE_LABELS).indexOf(groupB);
+            return indexA - indexB;
+          })
+          .map(([group, sources]) => (
+            <List key={group}>
+              <ListItem>
+                <Typography
+                  level="body-md"
+                  sx={{ fontWeight: "bold", color: "var(--p-slate-500)" }}
+                >
+                  {SOURCE_LABELS[group]}
+                </Typography>
+              </ListItem>
+              {sources.map((source) => (
+                <Option
+                  key={source.shortname}
+                  value={source}
+                  disabled={
+                    (isFederatedSparqlSelected &&
+                      source.shortname !== "federation") ||
+                    (!isFederatedSparqlSelected &&
+                      selectedSources.length > 0 &&
+                      source.shortname === "federation")
+                  }
+                >
+                  <Checkbox
+                    tab-index="0"
+                    checked={
+                      selectedSources?.findIndex(
+                        (selectedSource) =>
+                          selectedSource.shortname === source.shortname,
+                      ) !== -1
+                    }
+                  />
+                  {source.name}
+                </Option>
+              ))}
+            </List>
+          ))
+      }
     </Select>
   );
 });
