@@ -32,20 +32,9 @@ export function TermPagePanels({ tabs }: PanelsProps) {
         <Handle horizontal={"true"} />
 
         <ResizablePanel defaultSize={80} minSize={10} collapsible={true}>
-          <PanelGroup direction="horizontal" autoSaveId="localstorage-term-panels-horiz">
-            <ResizablePanel defaultSize={50} minSize={10} collapsible={true}>
-              <Panel tab={tabs.filter((t) => t.id === "incoming")[0]} />
-            </ResizablePanel>
-
-            <Handle horizontal={"false"} />
-
-            <ResizablePanel defaultSize={50} minSize={10} collapsible={true}>
-              <TabsPanel
-                tabs={tabs.filter((t) => ["outgoing", "usages"].includes(t.id))}
-              />
-            </ResizablePanel>
-
-          </PanelGroup>
+          <TabsPanel
+            tabs={tabs.filter((t) => ["outgoing", "usages", "incoming"].includes(t.id))}
+          />
         </ResizablePanel>
       </WrapperPanelGroup>
     );

@@ -49,13 +49,13 @@ LIMIT 1`
         tabs={[
           {
             id: "incoming",
-            label: "Incoming",
+            label: "As Object",
             color: "var(--p-cyan-400)",
             jsx: <Incoming />,
           },
           {
             id: "outgoing",
-            label: "Outgoing",
+            label: "As Subject",
             color: "var(--p-orange-400)",
             jsx: <Outgoing />,
           },
@@ -67,7 +67,7 @@ LIMIT 1`
           },
           {
             id: "usages",
-            label: "Usages",
+            label: "As Predicate",
             color: "var(--p-pink-400)",
             jsx: <Usages />,
           },
@@ -84,10 +84,10 @@ function Incoming() {
   const { sources } = rootRouteApi.useLoaderData();
   
   const incomingSparql = `\
-SELECT ?s ?p
+SELECT ?subject ?predicate
 WHERE {
-  ?s ?p <${termId}>
-  FILTER(!isLiteral(?s))
+  ?subject ?predicate <${termId}>
+  FILTER(!isLiteral(?subject))
 }
 LIMIT 50`
   const incomingQuery = useComunicaQuery({
