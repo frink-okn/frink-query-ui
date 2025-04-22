@@ -48,16 +48,16 @@ LIMIT 1`
       <TermPagePanels
         tabs={[
           {
-            id: "incoming",
+            id: "as-object",
             label: "As Object",
             color: "var(--p-cyan-400)",
-            jsx: <Incoming />,
+            jsx: <AsObject />,
           },
           {
-            id: "outgoing",
+            id: "as-subject",
             label: "As Subject",
             color: "var(--p-orange-400)",
-            jsx: <Outgoing />,
+            jsx: <AsSubject />,
           },
           {
             id: "attributes",
@@ -66,10 +66,10 @@ LIMIT 1`
             jsx: <Attributes />,
           },
           {
-            id: "usages",
+            id: "as-predicate",
             label: "As Predicate",
             color: "var(--p-pink-400)",
-            jsx: <Usages />,
+            jsx: <AsPredicate />,
           },
         ]}
       />
@@ -79,7 +79,7 @@ LIMIT 1`
 
 const rootRouteApi = getRouteApi("__root__");
 
-function Incoming() {
+function AsObject() {
   const { termId } = Route.useParams();
   const { sources } = rootRouteApi.useLoaderData();
   
@@ -107,7 +107,7 @@ LIMIT 50`
   </TableWrapper>
 }
 
-function Outgoing() {
+function AsSubject() {
   const { termId } = Route.useParams();
   const { sources } = rootRouteApi.useLoaderData();
   
@@ -164,7 +164,7 @@ LIMIT 50`
   </TableWrapper>
 }
 
-function Usages() {
+function AsPredicate() {
   const { termId } = Route.useParams();
   const { sources } = rootRouteApi.useLoaderData();
   

@@ -33,7 +33,7 @@ export function TermPagePanels({ tabs }: PanelsProps) {
 
         <ResizablePanel defaultSize={80} minSize={10} collapsible={true}>
           <TabsPanel
-            tabs={tabs.filter((t) => ["outgoing", "usages", "incoming"].includes(t.id))}
+            tabs={tabs.filter((t) => ["as-subject", "as-predicate", "as-object"].includes(t.id))}
           />
         </ResizablePanel>
       </WrapperPanelGroup>
