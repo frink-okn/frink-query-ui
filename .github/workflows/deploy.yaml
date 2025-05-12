@@ -30,8 +30,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Ensure GitHub sites base path is used
-        run: mv vite.config.gh-deploy.ts vite.config.ts
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -39,6 +37,8 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
+      - name: Ensure GitHub sites base path is used
+        run: export BASE_URL = "/frink-query-ui/"
       - name: Build
         run: npm run build
       - name: Setup Pages
