@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Ensure GitHub sites base path is used
-        run: export BASE_URL = "/frink-query-ui/"
+        run: export BASE_URL = "/${{ github.event.repository.name }}/"
       - name: Build
         run: npm run build
       - name: Setup Pages
