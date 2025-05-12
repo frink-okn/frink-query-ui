@@ -38,7 +38,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build
-        run: BASE_URL="/${{ github.event.repository.name }}/" npm run build
+        run: >
+          BASE_URL="/${{ github.event.repository.name }}/"
+          VITE_GH_REPO="frink-okn/okn-registry"
+          VITE_GH_SOURCES="/docs/registry/kgs.yaml"
+          VITE_GH_EXAMPLES_DIRECTORY="/docs/registry/queries"
+          npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
