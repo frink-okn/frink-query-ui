@@ -43,7 +43,8 @@ const router = createRouter({
   routeTree,
   context: {
     queryClient,
-  }
+  },
+  basepath: import.meta.env.VITE_BASE_URL,
 });
 
 // Register all Community features

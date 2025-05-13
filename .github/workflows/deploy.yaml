@@ -39,7 +39,7 @@ jobs:
         run: npm ci
       - name: Build
         run: >
-          BASE_URL="/${{ github.event.repository.name }}/"
+          VITE_BASE_URL="/${{ github.event.repository.name }}/"
           VITE_GH_REPO="frink-okn/okn-registry"
           VITE_GH_SOURCES="/docs/registry/kgs.yaml"
           VITE_GH_EXAMPLES_DIRECTORY="/docs/registry/queries"
