@@ -13,7 +13,7 @@ export function Results() {
     possiblyIncomplete,
     errorMessage,
     downloadResultsAsCSV,
-    msElapsed
+    msElapsed,
   } = useQueryContext()!;
 
   const [isTextWrapped, setIsTextWrapped] = useState(false);

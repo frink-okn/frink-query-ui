@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 import { QueryEngine } from "@comunica/query-sparql";
 import { RDFTable } from "../ui/RDFTable/RDFTable";
 import { useComunicaQuery } from "../hooks/useComunicaQuery";
-import dedent from "dedent"
+import dedent from "dedent";
 
 const engine = new QueryEngine();
-const FEDERATION_URL = 'https://frink.apps.renci.org/federation/sparql'
+const FEDERATION_URL = "https://frink.apps.renci.org/federation/sparql";
 
 export const Route = createFileRoute("/term/$termId")({
   component: RouteComponent,
@@ -27,14 +27,16 @@ function RouteComponent() {
           <${termId}> <http://xmlns.com/foaf/0.1/name>|<http://purl.org/dc/terms/title>|<http://www.w3.org/2000/01/rdf-schema#label> ?label
         }
         LIMIT 1
-      `
+      `;
       const labelBindings = await (
-        await engine.queryBindings(labelSparql, { sources: [{ type: 'sparql', value: FEDERATION_URL }] })
+        await engine.queryBindings(labelSparql, {
+          sources: [{ type: "sparql", value: FEDERATION_URL }],
+        })
       )
         .take(1)
-        .toArray()
-      setTermName(labelBindings[0]?.get('label')?.value ?? termId)
-    })()
+        .toArray();
+      setTermName(labelBindings[0]?.get("label")?.value ?? termId);
+    })();
   }, [termId]);
 
   const { width } = useWindowSize();
@@ -44,7 +46,9 @@ function RouteComponent() {
     <Wrapper>
       <header>
         <Heading style={{ margin: 0 }}>{termName}</Heading>
-        <a href={termId} target="_blank" rel="noopener noreferrer">{termId}</a>
+        <a href={termId} target="_blank" rel="noopener noreferrer">
+          {termId}
+        </a>
       </header>
 
       <TermPagePanels
@@ -53,52 +57,68 @@ function RouteComponent() {
             id: "as-object",
             label: "As Object",
             color: "var(--p-cyan-400)",
-            jsx: <TermPanel querySparql={dedent`
-              SELECT ?subject ?predicate
-              WHERE {
-                ?subject ?predicate <${termId}>
-                FILTER(!isLiteral(?subject))
-              }
-              LIMIT 50
-            `} />,
+            jsx: (
+              <TermPanel
+                querySparql={dedent`
+                  SELECT ?subject ?predicate
+                  WHERE {
+                    ?subject ?predicate <${termId}>
+                    FILTER(!isLiteral(?subject))
+                  }
+                  LIMIT 50
+                `}
+              />
+            ),
           },
           {
             id: "as-subject",
             label: "As Subject",
             color: "var(--p-orange-400)",
-            jsx: <TermPanel querySparql={dedent`
-              SELECT ?predicate ?object
-              WHERE {
-                <${termId}> ?predicate ?object
-                FILTER(!isLiteral(?object))
-              }
-              LIMIT 50
-            `} />,
+            jsx: (
+              <TermPanel
+                querySparql={dedent`
+                  SELECT ?predicate ?object
+                  WHERE {
+                    <${termId}> ?predicate ?object
+                    FILTER(!isLiteral(?object))
+                  }
+                  LIMIT 50
+                `}
+              />
+            ),
           },
           {
             id: "attributes",
             label: "Attributes",
             color: "var(--p-indigo-300)",
-            jsx: <TermPanel querySparql={dedent`
-              SELECT ?property ?value
-              WHERE {
-                <${termId}> ?property ?value
-                FILTER(isLiteral(?value))
-              }
-              LIMIT 50
-            `} />,
+            jsx: (
+              <TermPanel
+                querySparql={dedent`
+                  SELECT ?property ?value
+                  WHERE {
+                    <${termId}> ?property ?value
+                    FILTER(isLiteral(?value))
+                  }
+                  LIMIT 50
+                `}
+              />
+            ),
           },
           {
             id: "as-predicate",
             label: "As Predicate",
             color: "var(--p-pink-400)",
-            jsx: <TermPanel querySparql={dedent`
-              SELECT ?subject ?object
-              WHERE {
-                ?subject <${termId}> ?object
-              }
-              LIMIT 50
-            `} />,
+            jsx: (
+              <TermPanel
+                querySparql={dedent`
+                  SELECT ?subject ?object
+                  WHERE {
+                    ?subject <${termId}> ?object
+                  }
+                  LIMIT 50
+                `}
+              />
+            ),
           },
         ]}
       />
@@ -117,25 +137,29 @@ function TermPanel({ querySparql }: TermPanelProps) {
   const query = useComunicaQuery({
     runOnMount: true,
     query: querySparql,
-    sources: sources.filter(s => s.shortname === 'federation'),
-  })
+    sources: sources.filter((s) => s.shortname === "federation"),
+  });
 
-  if (query.isRunning)
-    return <div>Loading...</div>
-  
-  return <PanelWrapper>
-    <TableHeader>
-      <Link to="/" search={{ query: querySparql.replace('LIMIT 50', 'LIMIT 1000'), sources: ['federation'] }}>
-        First 50 results, click to view full query.
-      </Link>
-    </TableHeader>
-    <TableWrapper>
-      <RDFTable
-        columns={query.columns}
-        rows={query.results}
-      />
-    </TableWrapper>
-  </PanelWrapper>
+  if (query.isRunning) return <div>Loading...</div>;
+
+  return (
+    <PanelWrapper>
+      <TableHeader>
+        <Link
+          to="/"
+          search={{
+            query: querySparql.replace("LIMIT 50", "LIMIT 1000"),
+            sources: ["federation"],
+          }}
+        >
+          First 50 results, click to view full query.
+        </Link>
+      </TableHeader>
+      <TableWrapper>
+        <RDFTable columns={query.columns} rows={query.results} />
+      </TableWrapper>
+    </PanelWrapper>
+  );
 }
 
 const Wrapper = styled("div")`
@@ -163,7 +187,7 @@ const Heading = styled("h1")`
 
   &:after {
     background-color: var(--p-slate-50);
-    content: '';
+    content: "";
     filter: blur(10px);
     z-index: -1;
     position: absolute;
@@ -172,9 +196,9 @@ const Heading = styled("h1")`
     left: 0px;
     right: 0px;
   }
-`
+`;
 
-const PanelWrapper = styled('div')`
+const PanelWrapper = styled("div")`
   --parent-padding: 0.75rem;
   height: calc(100% + 2 * var(--parent-padding));
   margin: calc(-1 * var(--parent-padding));
@@ -182,7 +206,7 @@ const PanelWrapper = styled('div')`
   flex-direction: column;
 `;
 
-const TableWrapper = styled('div')`
+const TableWrapper = styled("div")`
   flex: 1;
   min-height: 0px;
 `;

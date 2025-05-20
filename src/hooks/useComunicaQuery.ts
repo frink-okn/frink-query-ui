@@ -91,7 +91,7 @@ export const useComunicaQuery = ({
   const [results, setResults] = useState<Bindings[]>([]);
   const [columns, setColumns] = useState<Variable[]>([]);
   const [bindingsStream, setBindingsStream] = useState<BindingsStream>(
-    new ArrayIterator<Bindings>([])
+    new ArrayIterator<Bindings>([]),
   );
   const [isRunning, setIsRunning] = useState(false);
   const [possiblyIncomplete, setPossiblyIncomplete] = useState(false);
@@ -102,7 +102,7 @@ export const useComunicaQuery = ({
       setResults(
         produce((draft) => {
           draft.push(item);
-        })
+        }),
       );
     };
 
@@ -118,7 +118,7 @@ export const useComunicaQuery = ({
       setPossiblyIncomplete(true);
       setErrorMessage(
         error?.toLocaleString() ??
-          "An unknown error occurred while streaming data."
+          "An unknown error occurred while streaming data.",
       );
     };
 
@@ -140,73 +140,80 @@ export const useComunicaQuery = ({
     onStop,
   ]);
 
-  const runQuery = useCallback<ComunicaQueryOutput["runQuery"]>(async (q, s) => {
-    const sources = s ?? propsSources;
-    const query = q ?? propsQuery;
+  const runQuery = useCallback<ComunicaQueryOutput["runQuery"]>(
+    async (q, s) => {
+      const sources = s ?? propsSources;
+      const query = q ?? propsQuery;
 
-    if (!query) {
-      throw new Error("No query provided. A query must be either provided in the hook or passed to the runQuery function.");
-    }
-    if (!sources) {
-      throw new Error("No sources array provided. A sources array must be either provided in the hook or passed to the runQuery function.");
-    }
-    
-    const queryContext = (() => {
-      const useTpf = sources.length > 1;
-      return sources.map((s) => {
-        if ("endpoint" in s) {
-          return { type: "sparql", value: s.endpoint };
-        } else {
-          return useTpf
-            ? { type: "qpf", value: s.tpfEndpoint }
-            : { type: "sparql", value: s.sparqlEndpoint };
-        }
-      });
-    })();
-
-    if (queryContext.length < 1) return;
-
-    setResults([]);
-    setErrorMessage("");
-    setPossiblyIncomplete(false);
-
-    const result = await engine
-      .query(query, { sources: queryContext } as QueryStringContext)
-      .catch((error) => {
-        setIsRunning(false);
-        onStop?.();
-        setPossiblyIncomplete(true);
-        setErrorMessage(error.toLocalString());
-      });
-
-    if (result) {
-      switch (result.resultType) {
-        case "bindings":
-          setColumns((await result.metadata()).variables);
-          setBindingsStream(await result.execute());
-          break;
-        case "quads":
-          setColumns(
-            ["subject", "predicate", "object", "graph"].map((v) =>
-              DF.variable(v)
-            )
-          );
-          setBindingsStream((await result.execute()).map(asBindings));
-          break;
-        case "boolean":
-          setColumns([DF.variable("result")]);
-          setBindingsStream(
-            new ArrayIterator<Bindings>([asBindings(await result.execute())])
-          );
-          break;
+      if (!query) {
+        throw new Error(
+          "No query provided. A query must be either provided in the hook or passed to the runQuery function.",
+        );
       }
-      setIsRunning(true);
-      onStart?.();
-    }
-  }, [onStart, onStop, propsQuery, propsSources]);
+      if (!sources) {
+        throw new Error(
+          "No sources array provided. A sources array must be either provided in the hook or passed to the runQuery function.",
+        );
+      }
+
+      const queryContext = (() => {
+        const useTpf = sources.length > 1;
+        return sources.map((s) => {
+          if ("endpoint" in s) {
+            return { type: "sparql", value: s.endpoint };
+          } else {
+            return useTpf
+              ? { type: "qpf", value: s.tpfEndpoint }
+              : { type: "sparql", value: s.sparqlEndpoint };
+          }
+        });
+      })();
+
+      if (queryContext.length < 1) return;
+
+      setResults([]);
+      setErrorMessage("");
+      setPossiblyIncomplete(false);
+
+      const result = await engine
+        .query(query, { sources: queryContext } as QueryStringContext)
+        .catch((error) => {
+          setIsRunning(false);
+          onStop?.();
+          setPossiblyIncomplete(true);
+          setErrorMessage(error.toLocalString());
+        });
+
+      if (result) {
+        switch (result.resultType) {
+          case "bindings":
+            setColumns((await result.metadata()).variables);
+            setBindingsStream(await result.execute());
+            break;
+          case "quads":
+            setColumns(
+              ["subject", "predicate", "object", "graph"].map((v) =>
+                DF.variable(v),
+              ),
+            );
+            setBindingsStream((await result.execute()).map(asBindings));
+            break;
+          case "boolean":
+            setColumns([DF.variable("result")]);
+            setBindingsStream(
+              new ArrayIterator<Bindings>([asBindings(await result.execute())]),
+            );
+            break;
+        }
+        setIsRunning(true);
+        onStart?.();
+      }
+    },
+    [onStart, onStop, propsQuery, propsSources],
+  );
 
   useEffect(() => {
-    if(runOnMount) {
+    if (runOnMount) {
       runQuery();
     }
   }, [runQuery, runOnMount]);
@@ -228,10 +235,10 @@ export const useComunicaQuery = ({
             `${variables
               .map((v) =>
                 ActorQueryResultSerializeSparqlCsv.bindingToCsvBindings(
-                  result.get(v)
-                )
+                  result.get(v),
+                ),
               )
-              .join(",")}\r\n`
+              .join(",")}\r\n`,
         )
         .join("");
       downloadTextAsFile([header, body], "sparql-results.csv", "text/csv");
