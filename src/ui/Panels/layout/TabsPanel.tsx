@@ -40,7 +40,14 @@ export function TabsPanel({ tabs }: TabsPanelProps) {
           </Tab>
         ))}
       </header>
-      <Content>{selectedTab.jsx}</Content>
+      {tabs.map((tab) => (
+        <Content
+          key={tab.id}
+          style={{ display: selectedTab.id === tab.id ? "block" : "none" }}
+        >
+          {tab.jsx}
+        </Content>
+      ))}
     </Panel>
   );
 }
