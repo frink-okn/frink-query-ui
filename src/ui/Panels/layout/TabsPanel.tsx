@@ -137,7 +137,6 @@ const Tab = styled("div")`
 
 const Content = styled("div")`
   flex: 1;
-  background-color: var(--p-slate-50);
   background-color: white;
   border: 2px solid var(--accent-color);
   padding: 0.75rem;

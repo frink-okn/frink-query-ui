@@ -1,5 +1,5 @@
 import { styled } from "@mui/joy";
-import { createFileRoute, getRouteApi } from "@tanstack/react-router";
+import { createFileRoute, getRouteApi, Link } from "@tanstack/react-router";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { TermPagePanels } from "../ui/Panels/layout/TermPagePanels";
 import { useEffect, useState } from "react";
@@ -123,12 +123,19 @@ function TermPanel({ querySparql }: TermPanelProps) {
   if (query.isRunning)
     return <div>Loading...</div>
   
-  return <TableWrapper>
-    <RDFTable
-      columns={query.columns}
-      rows={query.results}
-    />
-  </TableWrapper>
+  return <PanelWrapper>
+    <TableHeader>
+      <Link to="/" search={{ query: querySparql.replace('LIMIT 50', 'LIMIT 1000'), sources: ['federation'] }}>
+        First 50 results, click to view full query.
+      </Link>
+    </TableHeader>
+    <TableWrapper>
+      <RDFTable
+        columns={query.columns}
+        rows={query.results}
+      />
+    </TableWrapper>
+  </PanelWrapper>
 }
 
 const Wrapper = styled("div")`
@@ -167,8 +174,21 @@ const Heading = styled("h1")`
   }
 `
 
-const TableWrapper = styled('div')`
+const PanelWrapper = styled('div')`
   --parent-padding: 0.75rem;
   height: calc(100% + 2 * var(--parent-padding));
   margin: calc(-1 * var(--parent-padding));
-`
+  display: flex;
+  flex-direction: column;
+`;
+
+const TableWrapper = styled('div')`
+  flex: 1;
+  min-height: 0px;
+`;
+
+const TableHeader = styled("header")`
+  padding: 0.75rem 1rem 0rem 1rem;
+  gap: 0.5rem;
+  background-color: var(--p-slate-50);
+`;
