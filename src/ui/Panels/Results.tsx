@@ -13,11 +13,12 @@ export function Results() {
     possiblyIncomplete,
     errorMessage,
     downloadResultsAsCSV,
+    msElapsed
   } = useQueryContext()!;
 
   const [isTextWrapped, setIsTextWrapped] = useState(false);
 
-  if (results.length === 0 && !isRunning) {
+  if (msElapsed === 0 && !isRunning) {
     return (
       <CenteredMessage>
         <p>Please run a query to view the results here.</p>

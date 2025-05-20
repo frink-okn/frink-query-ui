@@ -15,6 +15,7 @@ const QueryContext = createContext<{
   errorMessage: string;
   downloadResultsAsCSV: () => void;
   secondsString: string;
+  msElapsed: number;
 } | null>(null);
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -30,7 +31,7 @@ interface QueryProviderProps {
 }
 
 export const QueryProvider = ({ children }: QueryProviderProps) => {
-  const { startTimer, stopTimer, secondsString } = useTimer();
+  const timer = useTimer();
 
   const {
     runQuery,
@@ -42,8 +43,8 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
     errorMessage,
     downloadResultsAsCSV,
   } = useComunicaQuery({
-    onStart: startTimer,
-    onStop: stopTimer,
+    onStart: timer.start,
+    onStop: timer.stop,
   });
 
   return (
@@ -57,7 +58,8 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
         possiblyIncomplete,
         errorMessage,
         downloadResultsAsCSV,
-        secondsString,
+        secondsString: timer.secondsString,
+        msElapsed: timer.msElapsed,
       }}
     >
       {children}
