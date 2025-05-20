@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { QueryEngine } from "@comunica/query-sparql";
 import { RDFTable } from "../ui/RDFTable/RDFTable";
 import { useComunicaQuery } from "../hooks/useComunicaQuery";
+import dedent from "dedent"
 
 const engine = new QueryEngine();
 const FEDERATION_URL = 'https://frink.apps.renci.org/federation/sparql'
@@ -20,12 +21,13 @@ function RouteComponent() {
   const [termName, setTermName] = useState(termId);
   useEffect(() => {
     (async () => {
-      const labelSparql = `\
-SELECT ?label
-WHERE {
-  <${termId}> <http://xmlns.com/foaf/0.1/name>|<http://purl.org/dc/terms/title>|<http://www.w3.org/2000/01/rdf-schema#label> ?label
-}
-LIMIT 1`
+      const labelSparql = dedent`
+        SELECT ?label
+        WHERE {
+          <${termId}> <http://xmlns.com/foaf/0.1/name>|<http://purl.org/dc/terms/title>|<http://www.w3.org/2000/01/rdf-schema#label> ?label
+        }
+        LIMIT 1
+      `
       const labelBindings = await (
         await engine.queryBindings(labelSparql, { sources: [{ type: 'sparql', value: FEDERATION_URL }] })
       )
@@ -51,25 +53,52 @@ LIMIT 1`
             id: "as-object",
             label: "As Object",
             color: "var(--p-cyan-400)",
-            jsx: <AsObject />,
+            jsx: <TermPanel querySparql={dedent`
+              SELECT ?subject ?predicate
+              WHERE {
+                ?subject ?predicate <${termId}>
+                FILTER(!isLiteral(?subject))
+              }
+              LIMIT 50
+            `} />,
           },
           {
             id: "as-subject",
             label: "As Subject",
             color: "var(--p-orange-400)",
-            jsx: <AsSubject />,
+            jsx: <TermPanel querySparql={dedent`
+              SELECT ?predicate ?object
+              WHERE {
+                <${termId}> ?predicate ?object
+                FILTER(!isLiteral(?object))
+              }
+              LIMIT 50
+            `} />,
           },
           {
             id: "attributes",
             label: "Attributes",
             color: "var(--p-indigo-300)",
-            jsx: <Attributes />,
+            jsx: <TermPanel querySparql={dedent`
+              SELECT ?property ?value
+              WHERE {
+                <${termId}> ?property ?value
+                FILTER(isLiteral(?value))
+              }
+              LIMIT 50
+            `} />,
           },
           {
             id: "as-predicate",
             label: "As Predicate",
             color: "var(--p-pink-400)",
-            jsx: <AsPredicate />,
+            jsx: <TermPanel querySparql={dedent`
+              SELECT ?subject ?object
+              WHERE {
+                ?subject <${termId}> ?object
+              }
+              LIMIT 50
+            `} />,
           },
         ]}
       />
@@ -79,114 +108,25 @@ LIMIT 1`
 
 const rootRouteApi = getRouteApi("__root__");
 
-function AsObject() {
-  const { termId } = Route.useParams();
-  const { sources } = rootRouteApi.useLoaderData();
-  
-  const incomingSparql = `\
-SELECT ?subject ?predicate
-WHERE {
-  ?subject ?predicate <${termId}>
-  FILTER(!isLiteral(?subject))
+interface TermPanelProps {
+  querySparql: string;
 }
-LIMIT 50`
-  const incomingQuery = useComunicaQuery({
+function TermPanel({ querySparql }: TermPanelProps) {
+  const { sources } = rootRouteApi.useLoaderData();
+
+  const query = useComunicaQuery({
     runOnMount: true,
-    query: incomingSparql,
+    query: querySparql,
     sources: sources.filter(s => s.shortname === 'federation'),
   })
 
-  if (incomingQuery.isRunning)
+  if (query.isRunning)
     return <div>Loading...</div>
   
   return <TableWrapper>
     <RDFTable
-      columns={incomingQuery.columns}
-      rows={incomingQuery.results}
-    />
-  </TableWrapper>
-}
-
-function AsSubject() {
-  const { termId } = Route.useParams();
-  const { sources } = rootRouteApi.useLoaderData();
-  
-  const outgoingSparql = `\
-SELECT ?predicate ?object
-WHERE {
-  <${termId}> ?predicate ?object
-  FILTER(!isLiteral(?object))
-}
-LIMIT 50`
-  const outgoingQuery = useComunicaQuery({
-    runOnMount: true,
-    query: outgoingSparql,
-    sources: sources.filter(s => s.shortname === 'federation'),
-  })
-
-  if (outgoingQuery.isRunning)
-    return <div>Loading...</div>
-  
-  return <TableWrapper>
-    <RDFTable
-      columns={outgoingQuery.columns}
-      rows={outgoingQuery.results}
-    />
-  </TableWrapper>
-}
-
-
-function Attributes() {
-  const { termId } = Route.useParams();
-  const { sources } = rootRouteApi.useLoaderData();
-  
-  const attributesSparql = `\
-SELECT ?property ?value
-WHERE {
-  <${termId}> ?property ?value
-  FILTER(isLiteral(?value))
-}
-LIMIT 50`
-  const attributesQuery = useComunicaQuery({
-    runOnMount: true,
-    query: attributesSparql,
-    sources: sources.filter(s => s.shortname === 'federation'),
-  })
-
-  if (attributesQuery.isRunning)
-    return <div>Loading...</div>
-  
-  return <TableWrapper>
-    <RDFTable
-      columns={attributesQuery.columns}
-      rows={attributesQuery.results}
-    />
-  </TableWrapper>
-}
-
-function AsPredicate() {
-  const { termId } = Route.useParams();
-  const { sources } = rootRouteApi.useLoaderData();
-  
-  const usagesSparql = `\
-SELECT ?subject ?object
-WHERE {
-  ?subject <${termId}> ?object
-}
-LIMIT 50`
-  const usagesQuery = useComunicaQuery({
-    runOnMount: true,
-    query: usagesSparql,
-    sources: sources.filter(s => s.shortname === 'federation'),
-  })
-
-  if (usagesQuery.isRunning)
-    return <div>Loading...</div>
-  
-  return <TableWrapper>
-    <RDFTable
-      columns={usagesQuery.columns}
-      rows={usagesQuery.results}
+      columns={query.columns}
+      rows={query.results}
     />
   </TableWrapper>
 }
