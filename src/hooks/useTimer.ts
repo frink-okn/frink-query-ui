@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 export function useTimer(): {
-  startTimer: () => void;
-  stopTimer: () => void;
+  start: () => void;
+  stop: () => void;
   msElapsed: number;
   secondsString: string;
 } {
@@ -34,18 +34,18 @@ export function useTimer(): {
     return cleanup;
   }, []);
 
-  const startTimer = () => {
+  const start = () => {
     setActive(true);
     setStartTime(new Date().getTime());
   };
 
-  const stopTimer = () => {
+  const stop = () => {
     setActive(false);
   };
 
   return {
-    startTimer,
-    stopTimer,
+    start,
+    stop,
     msElapsed,
     secondsString,
   };

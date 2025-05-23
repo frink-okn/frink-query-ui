@@ -40,7 +40,14 @@ export function TabsPanel({ tabs }: TabsPanelProps) {
           </Tab>
         ))}
       </header>
-      <Content>{selectedTab.jsx}</Content>
+      {tabs.map((tab) => (
+        <Content
+          key={tab.id}
+          style={{ display: selectedTab.id === tab.id ? "block" : "none" }}
+        >
+          {tab.jsx}
+        </Content>
+      ))}
     </Panel>
   );
 }
@@ -66,7 +73,7 @@ const Tab = styled("div")`
   color: inherit;
   background-color: var(--button-accent-color);
   padding: 0.5rem 0.75rem 0.3rem 0.75rem;
-  align-self: flex-start;
+  align-self: stretch;
   border-radius: 8px 8px 0px 0px;
   position: relative;
   display: flex;
@@ -130,7 +137,6 @@ const Tab = styled("div")`
 
 const Content = styled("div")`
   flex: 1;
-  background-color: var(--p-slate-50);
   background-color: white;
   border: 2px solid var(--accent-color);
   padding: 0.75rem;

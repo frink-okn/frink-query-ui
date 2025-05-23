@@ -16,7 +16,7 @@ export function Query() {
   const searchParams = indexRouteApi.useSearch();
   const navigate = indexRouteApi.useNavigate();
 
-  const { runQuery, stopQuery, running } = useQueryContext()!;
+  const { runQuery, stopQuery, isRunning } = useQueryContext()!;
 
   const [saveQueryDialogOpen, setSaveQueryDialogOpen] = useState(false);
 
@@ -71,7 +71,7 @@ export function Query() {
           >
             Save Query
           </Button>
-          {running ? (
+          {isRunning ? (
             <Button
               color={"danger"}
               variant={"solid"}
