@@ -54,23 +54,6 @@ function RouteComponent() {
       <TermPagePanels
         tabs={[
           {
-            id: "as-object",
-            label: "As Object",
-            color: "var(--p-cyan-400)",
-            jsx: (
-              <TermPanel
-                querySparql={dedent`
-                  SELECT ?subject ?predicate
-                  WHERE {
-                    ?subject ?predicate <${termId}>
-                    FILTER(!isLiteral(?subject))
-                  }
-                  LIMIT 50
-                `}
-              />
-            ),
-          },
-          {
             id: "as-subject",
             label: "As Subject",
             color: "var(--p-orange-400)",
@@ -81,6 +64,23 @@ function RouteComponent() {
                   WHERE {
                     <${termId}> ?predicate ?object
                     FILTER(!isLiteral(?object))
+                  }
+                  LIMIT 50
+                `}
+              />
+            ),
+          },
+          {
+            id: "as-object",
+            label: "As Object",
+            color: "var(--p-cyan-400)",
+            jsx: (
+              <TermPanel
+                querySparql={dedent`
+                  SELECT ?subject ?predicate
+                  WHERE {
+                    ?subject ?predicate <${termId}>
+                    FILTER(!isLiteral(?subject))
                   }
                   LIMIT 50
                 `}
