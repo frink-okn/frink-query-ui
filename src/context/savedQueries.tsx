@@ -18,7 +18,7 @@ export const useSavedQueriesContext = () => {
   return context;
 };
 
-type SavedQuery = {
+export type SavedQuery = {
   title: string;
   sources: string[];
   query: string;
