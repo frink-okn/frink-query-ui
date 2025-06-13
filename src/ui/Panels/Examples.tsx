@@ -12,10 +12,10 @@ export function Examples() {
   } = useQuery({
     queryKey: ["examples"],
     queryFn: fetchExamples,
-    staleTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
+    staleTime: 0,
+    refetchOnMount: true,
   })
-  
+
   return (
     <Wrapper>
       {
@@ -31,7 +31,7 @@ export function Examples() {
             </p>
             <hr />
             <QueriesWrapper>
-              {examples.map((example) => (
+              {/* {examples.map((example) => (
                 <div key={example.title}>
                   <Link
                     to={"/"}
@@ -43,7 +43,7 @@ export function Examples() {
                     ))}
                   </Link>
                 </div>
-              ))}
+              ))} */}
             </QueriesWrapper>
           </>
         )

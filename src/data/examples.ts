@@ -1,23 +1,26 @@
-import { getFilesFromGithubFlattened } from "./github-utils";
+import { getFilesFromGithub, type FileNode } from "./github-utils";
 import yaml from "js-yaml";
-import * as v from 'valibot';
+import * as v from "valibot";
 
 /**
  * Extracts the frontmatter from a SPARQL query string and parses it with
  * js-yaml. Frontmatter must be at the start of the file, contiguous, start
  * with `#+`, and be valid yaml when extracted
  * @param sparql the SPARQL query string
- * @param removeFrontmatter should the return string have the frontmatter stripped? 
+ * @param removeFrontmatter should the return string have the frontmatter stripped?
  * @returns the SPARQL query string and the parsed frontmatter
  */
-function extractSparqlFrontMatter(sparql: string, removeFrontmatter = true): {
+function extractSparqlFrontMatter(
   sparql: string,
+  removeFrontmatter = true
+): {
+  sparql: string;
   frontmatter: unknown;
 } {
   const frontMatterRegex = /^#\+ (?<value>.*)$/;
   let frontmatterLines = [];
   let splitLineNumber = 0;
-  
+
   for (const [lineNumber, line] of Object.entries(sparql.split("\n"))) {
     const match = line.match(frontMatterRegex);
     if (!match) break;
@@ -34,7 +37,7 @@ function extractSparqlFrontMatter(sparql: string, removeFrontmatter = true): {
           .join("\n")
           .trim()
       : sparql.trim(),
-  }
+  };
 }
 
 const examplesFrontmatterSchema = v.object({
@@ -42,29 +45,55 @@ const examplesFrontmatterSchema = v.object({
   tags: v.array(v.string()),
 });
 
-interface Example {
-  title: string;
-  sources: string[];
-  query: string;
-}
-
-export async function fetchExamples(): Promise<Example[]> {
-  const files = await getFilesFromGithubFlattened(import.meta.env.VITE_GH_EXAMPLES_DIRECTORY);
-
-  return files.map((file) => {
-    const { frontmatter, sparql } = extractSparqlFrontMatter(file);
-
-    const validatorResult = v.safeParse(examplesFrontmatterSchema, frontmatter);
-    if (!validatorResult.success) {
-      throw new Error(`Error validating example frontmatter: \n${validatorResult.issues}`);
+type ExampleNode =
+  | {
+      type: "example";
+      title: string;
+      sources: string[];
+      query: string;
     }
+  | {
+      type: "folder";
+      title: string;
+      children: ExampleNode[];
+    };
 
-    const { summary, tags } = validatorResult.output;
+export async function fetchExamples(): Promise<ExampleNode[]> {
+  const fileTree = await getFilesFromGithub(
+    import.meta.env.VITE_GH_EXAMPLES_DIRECTORY
+  );
 
-    return {
-      title: summary,
-      sources: tags,
-      query: sparql,
-    }
-  })
+  const traverse = (files: FileNode[]): ExampleNode[] => {
+    return files.map((fileNode) => {
+      if (fileNode.type === "file") {
+        const { frontmatter, sparql } = extractSparqlFrontMatter(
+          fileNode.contents
+        );
+        const validatorResult = v.safeParse(
+          examplesFrontmatterSchema,
+          frontmatter
+        );
+        if (!validatorResult.success) {
+          throw new Error(
+            `Error validating example frontmatter: \n${validatorResult.issues}`
+          );
+        }
+        const { summary, tags } = validatorResult.output;
+
+        return {
+          type: "example",
+          title: summary,
+          sources: tags,
+          query: sparql,
+        };
+      } else {
+        return {
+          type: "folder",
+          title: fileNode.name,
+          children: traverse(fileNode.children),
+        };
+      }
+    });
+  };
+  return traverse(fileTree);
 }
