@@ -3,6 +3,7 @@ import * as v from "valibot";
 const githubDirectorySchema = v.array(
   v.looseObject({
     name: v.string(),
+    sha: v.string(),
     download_url: v.nullable(v.string()),
     type: v.union([v.literal("file"), v.literal("dir")]),
     _links: v.looseObject({
@@ -11,16 +12,19 @@ const githubDirectorySchema = v.array(
   })
 );
 
-export type FileNode =
+export type FileNode = {
+  name: string;
+  sha: string;
+} & (
   | {
       type: "dir";
-      name: string;
       children: FileNode[];
     }
   | {
       type: "file";
       contents: string;
-    };
+    }
+);
 
 /**
  * Gets a tree of files from a public Github directory.
@@ -69,41 +73,36 @@ export const getFilesFromGithub = async (
     }
     const data = validatorResult.output;
 
-    const fileQueries: Promise<string>[] = data
-      .map(({ download_url }) => download_url)
-      .filter((url) => url !== null)
-      .map((url) =>
-        fetch(url).then((res) => {
-          if (!res.ok)
-            throw new Error(
-              "Error fetching from Github API: " + res.statusText
-            );
-          return res.text();
-        })
-      );
+    const directories: Extract<FileNode, { type: "dir" }>[] = await Promise.all(
+      data
+        .filter((entry) => entry.type === "dir")
+        .map((dir) =>
+          traverse(dir._links.self, depth + 1).then(async (children) => ({
+            type: "dir" as const,
+            name: dir.name,
+            sha: dir.sha,
+            children,
+          }))
+        )
+    );
 
-    const directories: FileNode[] = (
-      await Promise.all(
-        data
-          .filter((entry) => entry.type === "dir")
-          .map((dir) =>
-            traverse(dir._links.self, depth + 1).then((children) => ({
-              parentName: dir.name,
-              children,
-            }))
-          )
-      )
-    ).map(({ parentName, children }) => ({
-      type: "dir" as const,
-      name: parentName,
-      children,
-    }));
-
-    const files: FileNode[] = (await Promise.all(fileQueries)).map(
-      (contents) => ({
-        type: "file" as const,
-        contents,
-      })
+    const files: Extract<FileNode, { type: "file" }>[] = await Promise.all(
+      data
+        .filter((entry) => entry.type === "file")
+        .map((fileEntry) =>
+          fetch(fileEntry.download_url!).then(async (res) => {
+            if (!res.ok)
+              throw new Error(
+                "Error fetching from Github API: " + res.statusText
+              );
+            return res.text().then((contents) => ({
+              type: "file" as const,
+              name: fileEntry.name,
+              sha: fileEntry.sha,
+              contents,
+            }));
+          })
+        )
     );
 
     output.push(...directories, ...files);
