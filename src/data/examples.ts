@@ -32,7 +32,8 @@ function extractSparqlFrontMatter(sparql: string, removeFrontmatter = true): {
           .split("\n")
           .slice(splitLineNumber + 1, -1)
           .join("\n")
-      : sparql,
+          .trim()
+      : sparql.trim(),
   }
 }
 
