@@ -35,6 +35,9 @@ export const getFilesFromGithubFlattened = async (path: string, maxDepth = 2): P
       method: "get",
       headers: {
         Accept: "application/vnd.github+json",
+        ...(import.meta.env.VITE_GH_TOKEN && ({
+          Authorization: `Bearer ${import.meta.env.VITE_GH_TOKEN}`,
+        }))
       },
     });
     if (!res.ok) throw new Error("Error fetching from Github API: " + res.statusText);
