@@ -45,18 +45,20 @@ const examplesFrontmatterSchema = v.object({
   tags: v.array(v.string()),
 });
 
-type ExampleNode =
+export type ExampleNode = {
+  title: string;
+  sha: string;
+} & (
   | {
       type: "example";
-      title: string;
       sources: string[];
       query: string;
     }
   | {
       type: "folder";
-      title: string;
       children: ExampleNode[];
-    };
+    }
+);
 
 export async function fetchExamples(): Promise<ExampleNode[]> {
   const fileTree = await getFilesFromGithub(
@@ -83,6 +85,7 @@ export async function fetchExamples(): Promise<ExampleNode[]> {
         return {
           type: "example",
           title: summary,
+          sha: fileNode.sha,
           sources: tags,
           query: sparql,
         };
@@ -90,6 +93,7 @@ export async function fetchExamples(): Promise<ExampleNode[]> {
         return {
           type: "folder",
           title: fileNode.name,
+          sha: fileNode.sha,
           children: traverse(fileNode.children),
         };
       }
