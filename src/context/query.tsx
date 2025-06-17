@@ -9,6 +9,7 @@ const QueryContext = createContext<{
   runQuery: (query: string, sources: Source[]) => Promise<void>;
   stopQuery: () => void;
   results: Bindings[];
+  lastSubmittedQuery: string | null;
   columns: Variable[];
   isRunning: boolean;
   possiblyIncomplete: boolean;
@@ -37,6 +38,7 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
     runQuery,
     stopQuery,
     results,
+    lastSubmittedQuery,
     columns,
     isRunning,
     possiblyIncomplete,
@@ -53,6 +55,7 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
         runQuery,
         stopQuery,
         results,
+        lastSubmittedQuery,
         columns,
         isRunning,
         possiblyIncomplete,

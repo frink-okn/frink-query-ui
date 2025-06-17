@@ -4,10 +4,14 @@ import { WrapText, Download } from "@mui/icons-material";
 import { RDFTable } from "../RDFTable/RDFTable";
 import { useState } from "react";
 import { ResultsTimer } from "../ResultsTimer";
+import { getRouteApi } from "@tanstack/react-router";
+
+const indexRouteApi = getRouteApi("/");
 
 export function Results() {
   const {
     results,
+    lastSubmittedQuery,
     columns,
     isRunning,
     possiblyIncomplete,
@@ -17,6 +21,8 @@ export function Results() {
   } = useQueryContext()!;
 
   const [isTextWrapped, setIsTextWrapped] = useState(false);
+
+  const searchParams = indexRouteApi.useSearch();
 
   if (msElapsed === 0 && !isRunning) {
     return (
@@ -31,8 +37,13 @@ export function Results() {
       <Toolbar>
         <div>
           <ResultsTimer />
-          {!isRunning && possiblyIncomplete && <div>Possibly incomplete</div>}
+          {!isRunning && possiblyIncomplete && <div>Possibly incomplete.</div>}
           {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
+          {searchParams.query !== lastSubmittedQuery && (
+            <div style={{ color: "red" }}>
+              Query has been edited—results may be out of date.
+            </div>
+          )}
         </div>
         <ButtonWrapper>
           <Tooltip title="Toggle text wrapping" placement="top">
