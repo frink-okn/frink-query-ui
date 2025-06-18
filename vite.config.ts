@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
+import tanstackRouter from '@tanstack/router-plugin/vite'
 
 const ReactCompilerConfig = {
   target: '19',
@@ -17,7 +17,10 @@ export default defineConfig(({ mode }) => {
       }
     },
     plugins: [
-      TanStackRouterVite({ autoCodeSplitting: true }),
+      tanstackRouter({
+        target: "react",
+        autoCodeSplitting: false,
+      }),
       react({
         babel: {
           plugins: [
