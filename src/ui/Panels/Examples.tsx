@@ -12,8 +12,8 @@ export function Examples() {
   } = useQuery({
     queryKey: ["examples"],
     queryFn: fetchExamples,
-    staleTime: 0,
-    refetchOnMount: true,
+    staleTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
   });
 
   return (
