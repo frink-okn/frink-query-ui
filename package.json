@@ -10,10 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@comunica/actor-query-result-serialize-sparql-csv": "^4.1.0",
+    "@comunica/actor-query-result-serialize-sparql-csv": "^4.2.0",
     "@comunica/bindings-factory": "^3.3.0",
-    "@comunica/query-sparql": "^4.0.2",
-    "@comunica/types": "^4.0.2",
+    "@comunica/query-sparql": "^4.3.0",
+    "@comunica/types": "^4.2.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@floating-ui/react": "^0.27.5",
