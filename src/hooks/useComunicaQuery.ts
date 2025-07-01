@@ -11,7 +11,7 @@ import { ArrayIterator } from "asynciterator";
 import type { Variable } from "@rdfjs/types";
 import { asBindings, downloadTextAsFile } from "../utils";
 import { ActorQueryResultSerializeSparqlCsv } from "@comunica/actor-query-result-serialize-sparql-csv";
-import { produce } from "immer";
+import throttle from "throttleit"
 
 interface ComunicaQueryParams {
   /**
@@ -105,21 +105,52 @@ export const useComunicaQuery = ({
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
+    let finished = false
+
+    const _results: Bindings[] = [];
+
+    const updateResults = () => {
+      setResults([..._results])
+    };
+
+    const throttledUpdateResults = throttle(() => {
+      // `finished` will be true in one of three scenarios:
+      //   1. Component has unmounted
+      //   2. Stream has ended
+      //   3. Stream has errored
+      // In the latter two cases, we set the results one final time and don't
+      // need to call this debounced function. In the first case, the remaining
+      // non-rendered results are just tossed.
+      if (finished) return;
+      updateResults()
+    }, 250)
+
+    throttledUpdateResults()
+
     const handleData = (item: Bindings) => {
-      setResults(
-        produce((draft) => {
-          draft.push(item);
-        })
-      );
+      _results.push(item)
+
+      if (_results.length < 100) {
+        // Synchronously update results at the beginning to prevent a delay in
+        // rendering results when they're available immediately.
+        updateResults();
+      } else {
+        // Otherwise, call the throttled update function.
+        throttledUpdateResults()
+      }
     };
 
     const handleEnd = () => {
+      finished = true;
+      updateResults()
       setIsRunning(false);
       onStop?.();
       setPossiblyIncomplete(false);
     };
 
     const handleError = (error: unknown) => {
+      finished = true;
+      updateResults()
       setIsRunning(false);
       onStop?.();
       setPossiblyIncomplete(true);
@@ -134,13 +165,13 @@ export const useComunicaQuery = ({
     bindingsStream.on("error", handleError);
 
     return () => {
+      finished = true;
       bindingsStream.off("data", handleData);
       bindingsStream.off("end", handleEnd);
       bindingsStream.off("error", handleError);
     };
   }, [
     bindingsStream,
-    results,
     setResults,
     setPossiblyIncomplete,
     setErrorMessage,
