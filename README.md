@@ -103,4 +103,44 @@ Because the examples data fetching requires using the Github API once for each f
 
 ![A network diagram for the inital page load of the application](./docs/media/page-load-network-requests.png)
 
-The above diagram gives a simplified view of the network requests made when the user loads the page. The yellow boxes are using the Github API to fetch the contents of the directory. Once files have been found, the `raw.githubusercontent.com` url can be used to directly fetch the contents of the file (blue boxes, these are not subject to the rate limit). Note the possibility of network waterfalls for deeply nested folders in `/queries`. In the UI, the text "Loading..." will be shown until the all the request have finished.
+The above diagram gives a simplified view of the network requests made when the user loads the page. The yellow boxes are using the Github API to fetch the contents of the directory. Once files have been found, the `raw.githubusercontent.com` url can be used to directly fetch the contents of the file (blue boxes, these are not subject to the rate limit). Note the possibility of network waterfalls for deeply nested folders in `queries/`. In the UI, the text "Loading..." will be shown until the all the request have finished.
+
+# Deployment
+
+This client interface can be deployed with any web server that can deploy static resources. The static files can be generated using the `npm run build` command (Node.js is required to build), which will put them in the `dist/` folder.
+
+## Docker
+
+In order to avoid manually building the static files, there is a provided [Dockerfile](./Dockerfile) that builds the files and server them from an Nginx server. It is recommended to use Docker for reproducability and simplicity. To begin, ensure Docker is downloaded on your system (for development machines, [Docker Desktop](https://www.docker.com/products/docker-desktop/) provides a nice GUI).
+
+You could create a image using the following command:
+
+```
+docker build . \
+  -t frink-query-ui \
+  --build-arg VITE_GH_REPO="frink-okn/okn-registry" \
+  --build-arg VITE_GH_SOURCES="/docs/registry/kgs.yaml" \
+  --build-arg VITE_GH_EXAMPLES_DIRECTORY="/docs/registry/queries"
+```
+
+Note that the environment variables must be provided to the website to properly build. Once it has finished building, you can run it using:
+
+```
+docker run --name frink-query-ui -p 8080:8080 frink-query-ui
+```
+
+It can then be visited at [localhost:8080](http://localhost:8080). Please see the [Docker documentation](https://docs.docker.com/) for more information about how to use Docker.
+
+## Github Actions
+
+This project has several Github actions (found in the [.github/workflows/ directory](./.github/workflows/)) that run automatically in response to various actions.
+
+[`publish-docker-image.yml`](./.github/workflows/publish-docker-image.yml): upon a new release, builds a Docker image of the site and publishes it to the Github Container Registry at [ghcr.io/frink-okn/frink-query-ui](https://ghcr.io/frink-okn/frink-query-ui).
+
+[`deploy.yaml`](./.github/workflows/deploy.yaml): builds the website and deploys it to Github Pages anytime there is a push to the `main` branch. The site is viewable at [https://frink-okn.github.io/frink-query-ui](https://frink-okn.github.io/frink-query-ui).
+
+[`node.js.yaml`](./.github/workflows/node.js.yml): ensures the site builds without errors on each pull request to the `main` branch.
+
+## Helm
+
+Utilizing the Docker image created from the `publish-docker-image.yml` workflow, the Helm chart located at [`/kubernetes`](./kubernetes/) can be used to automate the deployment of the query UI within RENCI's Sterling cluster. This deployment can be found at [frink.apps.renci.org](https://frink.apps.renci.org). Please see the [Helm documentation](https://helm.sh/docs/) to learn more about updating and deploying releases.
