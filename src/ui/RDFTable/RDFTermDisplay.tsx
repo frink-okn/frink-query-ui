@@ -27,7 +27,7 @@ export function RDFTermDisplay({ term }: RDFTermDisplayProps) {
       <Term>
         {term.value}
         {term.language.length > 0 && (
-          <span className="lang">{term.language}</span>
+          <sup className="lang">@{term.language}</sup>
         )}
         {term.datatype.value !==
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString" && (
@@ -52,7 +52,7 @@ const Term = styled("span")`
   }
 `;
 
-const DataType = styled("span")`
+const DataType = styled("sup")`
   color: gray;
   font-size: x-small;
 `;
