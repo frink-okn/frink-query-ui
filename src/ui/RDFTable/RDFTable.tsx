@@ -17,20 +17,34 @@ interface RDFTableProps {
   rows: Bindings[];
   wrapText?: boolean;
 }
+
 export function RDFTable({ columns, rows, wrapText = false }: RDFTableProps) {
   const agGridColumns = useMemo(
     () =>
-      columns.map(({ value: col }) => ({
-        field: col as string,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        filterValueGetter: (params: any) =>
-          params.data?.[params.column?.getColId()]?.value ?? "",
-        comparator: (a: Term, b: Term) => a.value.localeCompare(b.value),
-      })),
+      columns.map((variable) => {
+        const col: ColDef<Bindings, Term> = {
+          headerName: variable.value,
+          valueGetter: (d) => {
+            return d.data?.get(variable.value);
+          },
+          filterValueGetter: (params) =>
+            params.data?.get(variable.value)?.value ?? "",
+          comparator: (
+            a: Term | null | undefined,
+            b: Term | null | undefined,
+          ) => {
+            if (a == null) return 1;
+            if (b == null) return -1;
+            return a.value.localeCompare(b.value);
+          },
+        };
+
+        return col;
+      }),
     [columns],
   );
 
-  const defaultColDef: ColDef = useMemo(
+  const defaultColDef: ColDef<Bindings, Term> = useMemo(
     () => ({
       flex: 1,
       filter: true,
@@ -45,20 +59,10 @@ export function RDFTable({ columns, rows, wrapText = false }: RDFTableProps) {
     [wrapText],
   );
 
-  const agGridRows = rows.map((result) =>
-    columns.reduce(
-      (row, { value: colKey }) => {
-        row[colKey] = result.get(colKey) ?? "";
-        return row;
-      },
-      {} as Record<string, Term | string>,
-    ),
-  );
-
   return (
     <AgGridReact
       columnDefs={agGridColumns}
-      rowData={agGridRows}
+      rowData={rows}
       theme={customTheme}
       pagination={true}
       paginationAutoPageSize={true}

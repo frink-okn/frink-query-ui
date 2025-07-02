@@ -113,6 +113,23 @@ export const useComunicaQuery = ({
       setResults([..._results])
     };
 
+    const readData = async () => {
+      for await (const item of bindingsStream) {
+        if (finished) return
+
+        _results.push(item)
+
+        if (_results.length < 100) {
+          // Synchronously update results at the beginning to prevent a delay in
+          // rendering results when they're available immediately.
+          updateResults();
+        } else {
+          // Otherwise, call the throttled update function.
+          throttledUpdateResults()
+        }
+      }
+    }
+
     const throttledUpdateResults = throttle(() => {
       // `finished` will be true in one of three scenarios:
       //   1. Component has unmounted
@@ -126,19 +143,6 @@ export const useComunicaQuery = ({
     }, 250)
 
     throttledUpdateResults()
-
-    const handleData = (item: Bindings) => {
-      _results.push(item)
-
-      if (_results.length < 100) {
-        // Synchronously update results at the beginning to prevent a delay in
-        // rendering results when they're available immediately.
-        updateResults();
-      } else {
-        // Otherwise, call the throttled update function.
-        throttledUpdateResults()
-      }
-    };
 
     const handleEnd = () => {
       finished = true;
@@ -160,13 +164,12 @@ export const useComunicaQuery = ({
       );
     };
 
-    bindingsStream.on("data", handleData);
     bindingsStream.on("end", handleEnd);
     bindingsStream.on("error", handleError);
+    readData()
 
     return () => {
       finished = true;
-      bindingsStream.off("data", handleData);
       bindingsStream.off("end", handleEnd);
       bindingsStream.off("error", handleError);
     };
