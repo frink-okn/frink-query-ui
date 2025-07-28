@@ -1,4 +1,8 @@
-import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import {
+  Link,
+  Outlet,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
 import { CssBaseline, CssVarsProvider, styled } from "@mui/joy";
 import { Sidebar } from "../ui/Sidebar/Sidebar";
 import { fetchSources } from "../data/sources";
@@ -7,9 +11,10 @@ import { QueryProvider } from "../context/query";
 import "../styles.css";
 import { SavedQueriesProvider } from "../context/savedQueries";
 import type { QueryClient } from "@tanstack/react-query";
+import { PageWrapper } from "../ui/PageWrapper";
 
 export const Route = createRootRouteWithContext<{
-  queryClient: QueryClient
+  queryClient: QueryClient;
 }>()({
   component: RootComponent,
   loader: async () => ({
@@ -17,6 +22,15 @@ export const Route = createRootRouteWithContext<{
   }),
   staleTime: Infinity,
   pendingComponent: () => <div>Loading...</div>,
+  notFoundComponent: () => (
+    <PageWrapper title="404 Not Found">
+      This route does not exist or was moved.{" "}
+      <Link to="/" search={{ query: "", sources: [] }}>
+        Go Home
+      </Link>
+      .
+    </PageWrapper>
+  ),
 });
 
 function RootComponent() {
