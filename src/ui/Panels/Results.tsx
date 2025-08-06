@@ -2,7 +2,7 @@ import { useQueryContext } from "../../context/query";
 import { IconButton, styled, Tooltip } from "@mui/joy";
 import { WrapText, Download } from "@mui/icons-material";
 import { RDFTable } from "../RDFTable/RDFTable";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ResultsTimer } from "../ResultsTimer";
 import { getRouteApi } from "@tanstack/react-router";
 
@@ -32,6 +32,18 @@ export function Results() {
     );
   }
 
+  console.log(lastSubmittedQuery);
+
+  const queryHasBeenEdited = useMemo(
+    () =>
+      searchParams.query !== lastSubmittedQuery?.query ||
+      searchParams.sources.length !== lastSubmittedQuery.sources.length ||
+      !lastSubmittedQuery.sources
+        .map((s) => s.shortname)
+        .every((s) => searchParams.sources.includes(s)),
+    [searchParams, lastSubmittedQuery]
+  );
+
   return (
     <Wrapper>
       <Toolbar>
@@ -39,7 +51,7 @@ export function Results() {
           <ResultsTimer />
           {!isRunning && possiblyIncomplete && <div>Possibly incomplete.</div>}
           {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
-          {searchParams.query !== lastSubmittedQuery && (
+          {queryHasBeenEdited && (
             <div style={{ color: "red" }}>
               Query has been edited—results may be out of date.
             </div>
