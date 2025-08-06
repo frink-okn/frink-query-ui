@@ -32,8 +32,6 @@ export function Results() {
     );
   }
 
-  console.log(lastSubmittedQuery);
-
   const queryHasBeenEdited = useMemo(
     () =>
       searchParams.query !== lastSubmittedQuery?.query ||
