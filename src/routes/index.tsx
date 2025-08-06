@@ -19,13 +19,26 @@ SELECT * WHERE {
 
 const DEFAULT_SOURCES = ["federation"];
 
+const getSourcesFromLocalStorage = (): string[] => {
+  const rawSources = localStorage.getItem("sources");
+  if (!rawSources) return DEFAULT_SOURCES;
+  let jsonParsedSources;
+  try {
+    jsonParsedSources = JSON.parse(rawSources);
+  } catch {
+    return DEFAULT_SOURCES;
+  }
+  const parsedSources = v.safeParse(v.array(v.string()), jsonParsedSources);
+  return parsedSources.success ? parsedSources.output : DEFAULT_SOURCES;
+}
+
 // make optional search params always have a default value
 const searchParamsSchema = v.pipe(v.object({
   query: v.optional(v.string()),
   sources: v.optional(v.array(v.string())),
 }), v.transform((obj) => ({
   query: obj.query ?? localStorage.getItem("sparql-query") ?? DEFAULT_QUERY,
-  sources: obj.sources ?? DEFAULT_SOURCES,
+  sources: obj.sources ?? getSourcesFromLocalStorage(),
 })));
 
 export const Route = createFileRoute("/")({
