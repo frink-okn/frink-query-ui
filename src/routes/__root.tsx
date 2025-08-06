@@ -25,7 +25,7 @@ export const Route = createRootRouteWithContext<{
   notFoundComponent: () => (
     <PageWrapper title="404 Not Found">
       This route does not exist or was moved.{" "}
-      <Link to="/" search={{ query: "", sources: [] }}>
+      <Link to="/">
         Go Home
       </Link>
       .

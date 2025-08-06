@@ -17,13 +17,16 @@ SELECT * WHERE {
 } LIMIT 10\
 `;
 
-const searchParamsSchema = v.object({
-  query: v.fallback(
-    v.string(),
-    localStorage.getItem("sparql-query") ?? DEFAULT_QUERY,
-  ),
-  sources: v.fallback(v.array(v.string()), ["federation"]),
-});
+const DEFAULT_SOURCES = ["federation"];
+
+// make optional search params always have a default value
+const searchParamsSchema = v.pipe(v.object({
+  query: v.optional(v.string()),
+  sources: v.optional(v.array(v.string())),
+}), v.transform((obj) => ({
+  query: obj.query ?? localStorage.getItem("sparql-query") ?? DEFAULT_QUERY,
+  sources: obj.sources ?? DEFAULT_SOURCES,
+})));
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -35,7 +38,7 @@ export const Route = createFileRoute("/")({
       queryKey: ["examples"],
       queryFn: fetchExamples,
       staleTime: 24 * 60 * 60 * 1000,
-    })
+    });
   },
   validateSearch: searchParamsSchema,
 });
