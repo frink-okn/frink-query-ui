@@ -9,7 +9,10 @@ const QueryContext = createContext<{
   runQuery: (query: string, sources: Source[]) => Promise<void>;
   stopQuery: () => void;
   results: Bindings[];
-  lastSubmittedQuery: string | null;
+  lastSubmittedQuery: {
+    query: string;
+    sources: Source[];
+  } | null;
   columns: Variable[];
   isRunning: boolean;
   possiblyIncomplete: boolean;
