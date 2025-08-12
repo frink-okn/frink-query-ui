@@ -11,7 +11,7 @@ import { ArrayIterator } from "asynciterator";
 import type { Variable } from "@rdfjs/types";
 import { asBindings, downloadTextAsFile } from "../utils";
 import { ActorQueryResultSerializeSparqlCsv } from "@comunica/actor-query-result-serialize-sparql-csv";
-import throttle from "throttleit"
+import throttle from "throttleit";
 
 interface ComunicaQueryParams {
   /**
@@ -56,9 +56,12 @@ interface ComunicaQueryOutput {
    */
   results: Bindings[];
   /**
-   * The SPARQL query that was last submitted to the engine
+   * The Comunica query and sources that were last submitted to the engine
    */
-  lastSubmittedQuery: string | null;
+  lastSubmittedQuery: {
+    query: string;
+    sources: Source[];
+  } | null;
   /**
    * The columns of the results.
    */
@@ -93,9 +96,10 @@ export const useComunicaQuery = ({
   onStop,
 }: ComunicaQueryParams): ComunicaQueryOutput => {
   const [results, setResults] = useState<Bindings[]>([]);
-  const [lastSubmittedQuery, setLastSubmittedQuery] = useState<string | null>(
-    null
-  );
+  const [lastSubmittedQuery, setLastSubmittedQuery] = useState<{
+    query: string;
+    sources: Source[];
+  } | null>(null);
   const [columns, setColumns] = useState<Variable[]>([]);
   const [bindingsStream, setBindingsStream] = useState<BindingsStream>(
     new ArrayIterator<Bindings>([])
@@ -105,19 +109,19 @@ export const useComunicaQuery = ({
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    let finished = false
+    let finished = false;
 
     const _results: Bindings[] = [];
 
     const updateResults = () => {
-      setResults([..._results])
+      setResults([..._results]);
     };
 
     const readData = async () => {
       for await (const item of bindingsStream) {
-        if (finished) return
+        if (finished) return;
 
-        _results.push(item)
+        _results.push(item);
 
         if (_results.length < 100) {
           // Synchronously update results at the beginning to prevent a delay in
@@ -125,10 +129,10 @@ export const useComunicaQuery = ({
           updateResults();
         } else {
           // Otherwise, call the throttled update function.
-          throttledUpdateResults()
+          throttledUpdateResults();
         }
       }
-    }
+    };
 
     const throttledUpdateResults = throttle(() => {
       // `finished` will be true in one of three scenarios:
@@ -139,14 +143,14 @@ export const useComunicaQuery = ({
       // need to call this debounced function. In the first case, the remaining
       // non-rendered results are just tossed.
       if (finished) return;
-      updateResults()
-    }, 250)
+      updateResults();
+    }, 250);
 
-    throttledUpdateResults()
+    throttledUpdateResults();
 
     const handleEnd = () => {
       finished = true;
-      updateResults()
+      updateResults();
       setIsRunning(false);
       onStop?.();
       setPossiblyIncomplete(false);
@@ -154,7 +158,7 @@ export const useComunicaQuery = ({
 
     const handleError = (error: unknown) => {
       finished = true;
-      updateResults()
+      updateResults();
       setIsRunning(false);
       onStop?.();
       setPossiblyIncomplete(true);
@@ -166,7 +170,7 @@ export const useComunicaQuery = ({
 
     bindingsStream.on("end", handleEnd);
     bindingsStream.on("error", handleError);
-    readData()
+    readData();
 
     return () => {
       finished = true;
@@ -186,8 +190,6 @@ export const useComunicaQuery = ({
       const sources = s ?? propsSources;
       const query = q ?? propsQuery;
 
-      setLastSubmittedQuery(query ?? null);
-
       if (!query) {
         throw new Error(
           "No query provided. A query must be either provided in the hook or passed to the runQuery function."
@@ -198,6 +200,11 @@ export const useComunicaQuery = ({
           "No sources array provided. A sources array must be either provided in the hook or passed to the runQuery function."
         );
       }
+
+      setLastSubmittedQuery({
+        sources,
+        query,
+      });
 
       const queryContext = (() => {
         const useTpf = sources.length > 1;
