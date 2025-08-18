@@ -18,7 +18,7 @@ function extractSparqlFrontMatter(
   frontmatter: unknown;
 } {
   const frontMatterRegex = /^#\+ (?<value>.*)$/;
-  let frontmatterLines = [];
+  const frontmatterLines = [];
   let splitLineNumber = 0;
 
   for (const [lineNumber, line] of Object.entries(sparql.split("\n"))) {

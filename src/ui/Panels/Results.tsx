@@ -24,14 +24,6 @@ export function Results() {
 
   const searchParams = indexRouteApi.useSearch();
 
-  if (msElapsed === 0 && !isRunning) {
-    return (
-      <CenteredMessage>
-        <p>Please run a query to view the results here.</p>
-      </CenteredMessage>
-    );
-  }
-
   const queryHasBeenEdited = useMemo(
     () =>
       searchParams.query !== lastSubmittedQuery?.query ||
@@ -41,6 +33,14 @@ export function Results() {
         .every((s) => searchParams.sources.includes(s)),
     [searchParams, lastSubmittedQuery]
   );
+
+  if (msElapsed === 0 && !isRunning) {
+    return (
+      <CenteredMessage>
+        <p>Please run a query to view the results here.</p>
+      </CenteredMessage>
+    );
+  }
 
   return (
     <Wrapper>
