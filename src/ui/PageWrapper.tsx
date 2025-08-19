@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { styled } from "@mui/joy";
 
 interface PageWrapperProps {
   title?: string;
