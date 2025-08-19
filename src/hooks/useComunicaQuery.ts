@@ -102,7 +102,7 @@ export const useComunicaQuery = ({
   } | null>(null);
   const [columns, setColumns] = useState<Variable[]>([]);
   const [bindingsStream, setBindingsStream] = useState<BindingsStream>(
-    new ArrayIterator<Bindings>([])
+    new ArrayIterator<Bindings>([]),
   );
   const [isRunning, setIsRunning] = useState(false);
   const [possiblyIncomplete, setPossiblyIncomplete] = useState(false);
@@ -164,7 +164,7 @@ export const useComunicaQuery = ({
       setPossiblyIncomplete(true);
       setErrorMessage(
         error?.toLocaleString() ??
-          "An unknown error occurred while streaming data."
+          "An unknown error occurred while streaming data.",
       );
     };
 
@@ -192,12 +192,12 @@ export const useComunicaQuery = ({
 
       if (!query) {
         throw new Error(
-          "No query provided. A query must be either provided in the hook or passed to the runQuery function."
+          "No query provided. A query must be either provided in the hook or passed to the runQuery function.",
         );
       }
       if (!sources) {
         throw new Error(
-          "No sources array provided. A sources array must be either provided in the hook or passed to the runQuery function."
+          "No sources array provided. A sources array must be either provided in the hook or passed to the runQuery function.",
         );
       }
 
@@ -243,15 +243,15 @@ export const useComunicaQuery = ({
           case "quads":
             setColumns(
               ["subject", "predicate", "object", "graph"].map((v) =>
-                DF.variable(v)
-              )
+                DF.variable(v),
+              ),
             );
             setBindingsStream((await result.execute()).map(asBindings));
             break;
           case "boolean":
             setColumns([DF.variable("result")]);
             setBindingsStream(
-              new ArrayIterator<Bindings>([asBindings(await result.execute())])
+              new ArrayIterator<Bindings>([asBindings(await result.execute())]),
             );
             break;
         }
@@ -259,7 +259,7 @@ export const useComunicaQuery = ({
         onStart?.();
       }
     },
-    [onStart, onStop, propsQuery, propsSources]
+    [onStart, onStop, propsQuery, propsSources],
   );
 
   useEffect(() => {
@@ -285,10 +285,10 @@ export const useComunicaQuery = ({
             `${variables
               .map((v) =>
                 ActorQueryResultSerializeSparqlCsv.bindingToCsvBindings(
-                  result.get(v)
-                )
+                  result.get(v),
+                ),
               )
-              .join(",")}\r\n`
+              .join(",")}\r\n`,
         )
         .join("");
       downloadTextAsFile([header, body], "sparql-results.csv", "text/csv");

@@ -24,11 +24,7 @@ export const Route = createRootRouteWithContext<{
   pendingComponent: () => <div>Loading...</div>,
   notFoundComponent: () => (
     <PageWrapper title="404 Not Found">
-      This route does not exist or was moved.{" "}
-      <Link to="/">
-        Go Home
-      </Link>
-      .
+      This route does not exist or was moved. <Link to="/">Go Home</Link>.
     </PageWrapper>
   ),
 });

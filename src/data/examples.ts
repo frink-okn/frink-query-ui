@@ -12,7 +12,7 @@ import * as v from "valibot";
  */
 function extractSparqlFrontMatter(
   sparql: string,
-  removeFrontmatter = true
+  removeFrontmatter = true,
 ): {
   sparql: string;
   frontmatter: unknown;
@@ -62,22 +62,22 @@ export type ExampleNode = {
 
 export async function fetchExamples(): Promise<ExampleNode[]> {
   const fileTree = await getFilesFromGithub(
-    import.meta.env.VITE_GH_EXAMPLES_DIRECTORY
+    import.meta.env.VITE_GH_EXAMPLES_DIRECTORY,
   );
 
   const traverse = (files: FileNode[]): ExampleNode[] => {
     return files.map((fileNode) => {
       if (fileNode.type === "file") {
         const { frontmatter, sparql } = extractSparqlFrontMatter(
-          fileNode.contents
+          fileNode.contents,
         );
         const validatorResult = v.safeParse(
           examplesFrontmatterSchema,
-          frontmatter
+          frontmatter,
         );
         if (!validatorResult.success) {
           throw new Error(
-            `Error validating example frontmatter: \n${validatorResult.issues}`
+            `Error validating example frontmatter: \n${validatorResult.issues}`,
           );
         }
         const { summary, tags } = validatorResult.output;

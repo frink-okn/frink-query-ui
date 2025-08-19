@@ -31,7 +31,7 @@ export function Results() {
       !lastSubmittedQuery.sources
         .map((s) => s.shortname)
         .every((s) => searchParams.sources.includes(s)),
-    [searchParams, lastSubmittedQuery]
+    [searchParams, lastSubmittedQuery],
   );
 
   if (msElapsed === 0 && !isRunning) {
