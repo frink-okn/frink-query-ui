@@ -2,8 +2,8 @@ import React, { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 
@@ -36,7 +36,7 @@ const queryClient = new QueryClient({
 
 const persister = createSyncStoragePersister({
   storage: window.localStorage,
-})
+});
 
 // Create a new router instance
 const router = createRouter({
@@ -59,11 +59,18 @@ declare module "@tanstack/react-router" {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister }}
+    >
       <Suspense>
         <TanStackRouterDevtools router={router} position="bottom-right" />
       </Suspense>
-      <ReactQueryDevtools initialIsOpen={false} position="left" buttonPosition="top-right" />
+      <ReactQueryDevtools
+        initialIsOpen={false}
+        position="left"
+        buttonPosition="top-right"
+      />
       <RouterProvider router={router} />
     </PersistQueryClientProvider>
   </StrictMode>,

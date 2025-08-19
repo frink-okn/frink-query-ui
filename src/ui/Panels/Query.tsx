@@ -40,7 +40,7 @@ export function Query() {
 
   useEffect(() => {
     localStorage.setItem("sources", JSON.stringify(searchParams.sources));
-  }, [searchParams.sources])
+  }, [searchParams.sources]);
 
   const selectedSources = useMemo(
     () => sources.filter((s) => searchParams.sources.includes(s.shortname)),

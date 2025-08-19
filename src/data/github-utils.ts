@@ -9,7 +9,7 @@ const githubDirectorySchema = v.array(
     _links: v.looseObject({
       self: v.pipe(v.string(), v.url()),
     }),
-  })
+  }),
 );
 
 export type FileNode = {
@@ -40,7 +40,7 @@ export type FileNode = {
  */
 export const getFilesFromGithub = async (
   path: string,
-  maxDepth = 2
+  maxDepth = 2,
 ): Promise<FileNode[]> => {
   const apiBase = `https://api.github.com/repos/${import.meta.env.VITE_GH_REPO}/contents`;
 
@@ -64,11 +64,11 @@ export const getFilesFromGithub = async (
       throw new Error("Error fetching from Github API: " + res.statusText);
     const validatorResult = v.safeParse(
       githubDirectorySchema,
-      await res.json()
+      await res.json(),
     );
     if (!validatorResult.success) {
       throw new Error(
-        "Error validating Github API response: \n" + validatorResult.issues
+        "Error validating Github API response: \n" + validatorResult.issues,
       );
     }
     const data = validatorResult.output;
@@ -82,8 +82,8 @@ export const getFilesFromGithub = async (
             name: dir.name,
             sha: dir.sha,
             children,
-          }))
-        )
+          })),
+        ),
     );
 
     const files: Extract<FileNode, { type: "file" }>[] = await Promise.all(
@@ -93,7 +93,7 @@ export const getFilesFromGithub = async (
           fetch(fileEntry.download_url!).then(async (res) => {
             if (!res.ok)
               throw new Error(
-                "Error fetching from Github API: " + res.statusText
+                "Error fetching from Github API: " + res.statusText,
               );
             return res.text().then((contents) => ({
               type: "file" as const,
@@ -101,8 +101,8 @@ export const getFilesFromGithub = async (
               sha: fileEntry.sha,
               contents,
             }));
-          })
-        )
+          }),
+        ),
     );
 
     output.push(...directories, ...files);

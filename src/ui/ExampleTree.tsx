@@ -12,7 +12,7 @@ import { Link } from "@tanstack/react-router";
 export function ExampleTree({ rootNodes }: { rootNodes: ExampleNode[] }) {
   return (
     <StyledTree items={rootNodes}>
-      {/* @ts-ignore the styled component causes the renderItem function to throw a type warning */}
+      {/* @ts-expect-error the styled component causes the renderItem function to throw a type warning */}
       {function renderItem(item: ExampleNode) {
         return (
           <TreeItem textValue={item.title} id={item.sha}>

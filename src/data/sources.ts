@@ -86,10 +86,8 @@ export type Source = SPARQLSource | CompoundSource;
 export async function fetchSources(): Promise<Source[]> {
   const yamlSourcesUrl = `https://raw.githubusercontent.com/${
     import.meta.env.VITE_GH_REPO
-  }/refs/heads/main${
-    import.meta.env.VITE_GH_SOURCES
-  }`;
-  
+  }/refs/heads/main${import.meta.env.VITE_GH_SOURCES}`;
+
   // fetch yaml from frink-landing-zone Github. Ensure env var is set!
   const res = await fetch(yamlSourcesUrl, {
     method: "get",
