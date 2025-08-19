@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "scan": "npm run dev & npx react-scan@latest localhost:5173",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
