@@ -18,15 +18,12 @@ export function YasqeEditor({ value, onChange }: YasqeEditorProps) {
     }
 
     yasqeInstance.current = new Yasqe(divEl.current);
-    yasqeInstance.current.setValue(value);
 
     return () => {
       yasqeInstance.current?.destroy();
       yasqeInstance.current = null;
     };
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // `value` is handled by the following useEffect
+  }, []);
 
   useEffect(() => {
     if (yasqeInstance.current && yasqeInstance.current.getValue() !== value) {
