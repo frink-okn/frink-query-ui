@@ -8,6 +8,7 @@ import { styled, SvgIcon } from "@mui/joy";
 import { GitHub } from "@mui/icons-material";
 import * as v from "valibot";
 import { fetchExamples } from "../data/examples";
+import type { CustomSource } from "../ui/CustomSourcesModal";
 
 const DEFAULT_QUERY = `\
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -19,7 +20,17 @@ SELECT * WHERE {
 
 const DEFAULT_SOURCES = ["federation"];
 
-const getSourcesFromLocalStorage = (): string[] => {
+const sourcesSchema = v.array(
+  v.union([
+    v.string(),
+    v.object({
+      name: v.string(),
+      url: v.pipe(v.string(), v.url()),
+    }),
+  ])
+);
+
+const getSourcesFromLocalStorage = (): (string | CustomSource)[] => {
   const rawSources = localStorage.getItem("sources");
   if (!rawSources) return DEFAULT_SOURCES;
   let jsonParsedSources;
@@ -28,7 +39,7 @@ const getSourcesFromLocalStorage = (): string[] => {
   } catch {
     return DEFAULT_SOURCES;
   }
-  const parsedSources = v.safeParse(v.array(v.string()), jsonParsedSources);
+  const parsedSources = v.safeParse(sourcesSchema, jsonParsedSources);
   return parsedSources.success ? parsedSources.output : DEFAULT_SOURCES;
 };
 
@@ -36,18 +47,12 @@ const getSourcesFromLocalStorage = (): string[] => {
 const searchParamsSchema = v.pipe(
   v.object({
     query: v.optional(v.string()),
-    sources: v.optional(v.array(v.union([
-      v.string(),
-      v.object({
-        name: v.string(),
-        url: v.pipe(v.string(), v.url())
-      })
-    ]))),
+    sources: v.optional(sourcesSchema),
   }),
   v.transform((obj) => ({
     query: obj.query ?? localStorage.getItem("sparql-query") ?? DEFAULT_QUERY,
     sources: obj.sources ?? getSourcesFromLocalStorage(),
-  })),
+  }))
 );
 
 export const Route = createFileRoute("/")({

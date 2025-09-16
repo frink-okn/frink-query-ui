@@ -17,16 +17,20 @@ export function Query() {
   const searchParams = indexRouteApi.useSearch();
   const navigate = indexRouteApi.useNavigate();
 
-  const [customSources, setCustomSources] = useLocalStorage<CustomSource[]>("custom-sources", [])
+  const [customSources, setCustomSources] = useLocalStorage<CustomSource[]>(
+    "custom-sources",
+    []
+  );
 
-  const { runQuery, stopQuery, isRunning } = useQueryContext()!;
+  const { runQuery, stopQuery, isRunning, selectedCustomSources } =
+    useQueryContext()!;
 
   const [saveQueryDialogOpen, setSaveQueryDialogOpen] = useState(false);
   const [customSourcesModalOpen, setCustomSourcesModalOpen] = useState(false);
 
   const [isSparqlValid, setIsSparqlValid] = useState(true);
   const [fastUpdatingSparql, setFastUpdatingSparql] = useState(
-    searchParams.query,
+    searchParams.query
   );
   const debouncedSparql = useDebounce(fastUpdatingSparql, 250);
 
@@ -48,16 +52,27 @@ export function Query() {
 
   const selectedSources = useMemo(
     () => sources.filter((s) => searchParams.sources.includes(s.shortname)),
-    [searchParams, sources],
+    [searchParams, sources]
   );
 
   return (
     <Wrapper>
       <LabelContainer>
         <h3>Sources</h3>
-        <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "stretch", gap: "0.5rem" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "stretch",
+            gap: "0.5rem",
+          }}
+        >
           <SourceSelect customSources={customSources} />
-          <Button color="neutral" variant="outlined" onClick={() => setCustomSourcesModalOpen(true)}>
+          <Button
+            color="neutral"
+            variant="outlined"
+            onClick={() => setCustomSourcesModalOpen(true)}
+          >
             Custom Sources
           </Button>
         </Box>
@@ -98,9 +113,17 @@ export function Query() {
               color={"primary"}
               variant={"solid"}
               endDecorator={<ArrowForwardRounded />}
-              disabled={!isSparqlValid || selectedSources.length < 1}
+              disabled={!isSparqlValid || (selectedSources.length + selectedCustomSources.length) < 1}
               onClick={() => {
-                runQuery(searchParams.query, selectedSources);
+                runQuery(searchParams.query, [
+                  ...selectedSources,
+                  ...selectedCustomSources.map((cs) => ({
+                    category: "custom" as const,
+                    name: cs.name,
+                    shortname: cs.name,
+                    endpoint: cs.url,
+                  })),
+                ]);
               }}
             >
               Run Query
