@@ -19,7 +19,7 @@ export function Query() {
 
   const [customSources, setCustomSources] = useLocalStorage<CustomSource[]>(
     "custom-sources",
-    []
+    [],
   );
 
   const { runQuery, stopQuery, isRunning, selectedCustomSources } =
@@ -30,7 +30,7 @@ export function Query() {
 
   const [isSparqlValid, setIsSparqlValid] = useState(true);
   const [fastUpdatingSparql, setFastUpdatingSparql] = useState(
-    searchParams.query
+    searchParams.query,
   );
   const debouncedSparql = useDebounce(fastUpdatingSparql, 250);
 
@@ -52,7 +52,7 @@ export function Query() {
 
   const selectedSources = useMemo(
     () => sources.filter((s) => searchParams.sources.includes(s.shortname)),
-    [searchParams, sources]
+    [searchParams, sources],
   );
 
   return (
@@ -113,7 +113,10 @@ export function Query() {
               color={"primary"}
               variant={"solid"}
               endDecorator={<ArrowForwardRounded />}
-              disabled={!isSparqlValid || (selectedSources.length + selectedCustomSources.length) < 1}
+              disabled={
+                !isSparqlValid ||
+                selectedSources.length + selectedCustomSources.length < 1
+              }
               onClick={() => {
                 runQuery(searchParams.query, [
                   ...selectedSources,

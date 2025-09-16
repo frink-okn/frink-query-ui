@@ -24,7 +24,7 @@ const SOURCE_LABELS: Record<string, string> = {
 const getLabelString = (
   selectedOptions: SelectOption<string>[],
   cutoff: number,
-  idToLabel: Record<string, string>
+  idToLabel: Record<string, string>,
 ) => {
   if (selectedOptions.length > cutoff)
     return `${selectedOptions.length} sources selected`;
@@ -68,7 +68,7 @@ export const SourceSelect = React.memo(
 
     const isFederatedSparqlSelected = useMemo(
       () => selectedIds.includes("federation"),
-      [selectedIds]
+      [selectedIds],
     );
 
     return (
@@ -110,17 +110,17 @@ export const SourceSelect = React.memo(
           .concat(
             customSources.length
               ? [
-                [
-                  "custom",
-                  customSources.map((cs) => ({
-                    category: "custom" as const,
-                    name: cs.name,
-                    shortname: cs.name,
-                    endpoint: cs.url,
-                  })),
-                ],
-              ]
-              : []
+                  [
+                    "custom",
+                    customSources.map((cs) => ({
+                      category: "custom" as const,
+                      name: cs.name,
+                      shortname: cs.name,
+                      endpoint: cs.url,
+                    })),
+                  ],
+                ]
+              : [],
           )
           .sort(([groupA], [groupB]) => {
             const indexA = Object.keys(SOURCE_LABELS).indexOf(groupA);
@@ -160,5 +160,5 @@ export const SourceSelect = React.memo(
           ))}
       </Select>
     );
-  }
+  },
 );

@@ -9,7 +9,7 @@ const BF = new BindingsFactory();
 function downloadTextAsFile(
   text: string | Array<string>,
   filename: string,
-  contentType: string
+  contentType: string,
 ) {
   const content = typeof text === "string" ? [text] : text;
   const blob = new Blob(content);
@@ -33,7 +33,7 @@ function downloadTextAsFile(
     false,
     false,
     0,
-    null
+    null,
   );
   a.dispatchEvent(e);
 }
@@ -44,11 +44,11 @@ function asBindings(result: RDF.Quad | boolean): Bindings {
       result: result
         ? DF.literal(
             "true",
-            DF.namedNode("http://www.w3.org/2001/XMLSchema#boolean")
+            DF.namedNode("http://www.w3.org/2001/XMLSchema#boolean"),
           )
         : DF.literal(
             "false",
-            DF.namedNode("http://www.w3.org/2001/XMLSchema#boolean")
+            DF.namedNode("http://www.w3.org/2001/XMLSchema#boolean"),
           ),
     });
   } else {

@@ -53,10 +53,10 @@ export const CustomSourcesModal = ({
 
   const handleInlineSourceEditComplete = (
     updatedSource: CustomSource,
-    index: number
+    index: number,
   ) => {
     setCustomSources((prev) =>
-      prev.map((s, i) => (i === index ? updatedSource : s))
+      prev.map((s, i) => (i === index ? updatedSource : s)),
     );
     setInlineSourceEdit({
       value: { name: "", url: "" },
@@ -92,7 +92,7 @@ export const CustomSourcesModal = ({
                   onEdit={() => handleEditRow(index)}
                   onDelete={() => handleDeleteRow(index)}
                 />
-              )
+              ),
             )}
 
             <SourceForm
@@ -102,7 +102,12 @@ export const CustomSourcesModal = ({
           </SourcesEditorContainer>
         </DialogContent>
 
-        <Button fullWidth onClick={() => setOpen(false)} color="neutral" variant="soft">
+        <Button
+          fullWidth
+          onClick={() => setOpen(false)}
+          color="neutral"
+          variant="soft"
+        >
           Close
         </Button>
       </ModalDialog>
@@ -207,7 +212,7 @@ const SourceForm = ({
       setCustomSources((prev) => [...prev, { name, url }]);
     } else {
       throw new Error(
-        "`setCustomSources` is required if `source` is not provided"
+        "`setCustomSources` is required if `source` is not provided",
       );
     }
 

@@ -22,7 +22,9 @@ const QueryContext = createContext<{
   secondsString: string;
   msElapsed: number;
   selectedCustomSources: CustomSource[];
-  setSelectedCustomSources: React.Dispatch<React.SetStateAction<CustomSource[]>>
+  setSelectedCustomSources: React.Dispatch<
+    React.SetStateAction<CustomSource[]>
+  >;
 } | null>(null);
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -39,7 +41,9 @@ interface QueryProviderProps {
 
 export const QueryProvider = ({ children }: QueryProviderProps) => {
   const timer = useTimer();
-  const [selectedCustomSources, setSelectedCustomSources] = useState<CustomSource[]>([]);
+  const [selectedCustomSources, setSelectedCustomSources] = useState<
+    CustomSource[]
+  >([]);
 
   const {
     runQuery,

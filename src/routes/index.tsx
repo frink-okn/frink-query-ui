@@ -27,7 +27,7 @@ const sourcesSchema = v.array(
       name: v.string(),
       url: v.pipe(v.string(), v.url()),
     }),
-  ])
+  ]),
 );
 
 const getSourcesFromLocalStorage = (): (string | CustomSource)[] => {
@@ -52,7 +52,7 @@ const searchParamsSchema = v.pipe(
   v.transform((obj) => ({
     query: obj.query ?? localStorage.getItem("sparql-query") ?? DEFAULT_QUERY,
     sources: obj.sources ?? getSourcesFromLocalStorage(),
-  }))
+  })),
 );
 
 export const Route = createFileRoute("/")({

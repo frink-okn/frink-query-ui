@@ -57,17 +57,17 @@ const allCompoundSourcesSchema = v.pipe(
       .filter(
         // Bio-Health KG doesn't have these values we need, so filter it
         (
-          source
+          source,
         ): source is Required<v.InferOutput<typeof compoundSourceSchema>> =>
-          source.sparql !== undefined && source.tpf !== undefined
+          source.sparql !== undefined && source.tpf !== undefined,
       )
       .map((source) => ({
         name: source.title,
         shortname: source.shortname,
         sparqlEndpoint: source.sparql,
         tpfEndpoint: source.tpf,
-      }))
-  )
+      })),
+  ),
 );
 
 type SPARQLSource = {
@@ -112,7 +112,7 @@ export async function fetchSources(): Promise<Source[]> {
     (source) => ({
       ...source,
       category: sourceCategories.get(source.shortname) ?? "other",
-    })
+    }),
   );
 
   return combinedSources;
@@ -129,6 +129,6 @@ export function groupSources(sources: Source[]): {
       (obj[curr.category] ??= []).push(curr);
       return obj;
     },
-    {} as Record<SourceCategory, Source[]>
+    {} as Record<SourceCategory, Source[]>,
   );
 }
