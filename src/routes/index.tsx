@@ -36,7 +36,13 @@ const getSourcesFromLocalStorage = (): string[] => {
 const searchParamsSchema = v.pipe(
   v.object({
     query: v.optional(v.string()),
-    sources: v.optional(v.array(v.string())),
+    sources: v.optional(v.array(v.union([
+      v.string(),
+      v.object({
+        name: v.string(),
+        url: v.pipe(v.string(), v.url())
+      })
+    ]))),
   }),
   v.transform((obj) => ({
     query: obj.query ?? localStorage.getItem("sparql-query") ?? DEFAULT_QUERY,

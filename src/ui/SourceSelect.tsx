@@ -10,8 +10,10 @@ import {
 import React, { useMemo } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { groupSources, type Source } from "../data/sources";
+import type { CustomSource } from "./CustomSourcesModal";
 
 const SOURCE_LABELS: Record<string, string> = {
+  custom: "Custom Sources",
   federation: "Federation",
   frink: "Frink graphs",
   "theme-1": "Theme 1 graphs",
@@ -30,7 +32,10 @@ const getLabelString = (
 const rootRouteApi = getRouteApi("__root__");
 const indexRouteApi = getRouteApi("/");
 
-export const SourceSelect = React.memo(() => {
+interface SourceSelectProps {
+  customSources: CustomSource[]
+}
+export const SourceSelect = React.memo(({ customSources }: SourceSelectProps) => {
   const { sources } = rootRouteApi.useLoaderData();
   const searchParams = indexRouteApi.useSearch();
   const navigate = indexRouteApi.useNavigate();
@@ -38,7 +43,16 @@ export const SourceSelect = React.memo(() => {
   const groupedSources = useMemo(() => groupSources(sources), [sources]);
 
   const selectedSources = useMemo(
-    () => sources.filter((s) => searchParams.sources.includes(s.shortname)),
+    () => {
+      const selectedCustomSources: Source[] = searchParams.sources.filter((cs) => typeof cs !== "string").map((cs) => ({
+        category: "other",
+        name: cs.name,
+        shortname: cs.name,
+        endpoint: cs.url
+      }))
+      const selectedNormalSources = sources.filter((s) => searchParams.sources.includes(s.shortname));
+      return selectedNormalSources.concat(selectedCustomSources);
+    },
     [searchParams, sources],
   );
 
@@ -57,12 +71,22 @@ export const SourceSelect = React.memo(() => {
         navigate({
           search: (prev) => ({
             ...prev,
-            sources: newValue.map((s) => s.shortname),
+            // TODO: fix source type cast
+            sources: newValue.map((s) => s.category === "custom" ? ({ name: s.name, url: (s as { endpoint: string }).endpoint }) : s.shortname),
           }),
         });
       }}
+      sx={{ flex: 1 }}
     >
       {Object.entries(groupedSources)
+        .concat(customSources.length ? [["custom",
+          customSources.map((cs) => ({
+            category: "custom" as const,
+            name: cs.name,
+            shortname: cs.name,
+            endpoint: cs.url,
+          }))
+        ]] : [])
         .sort(([groupA], [groupB]) => {
           // sort by order of appearance in SOURCE_LABELS
           const indexA = Object.keys(SOURCE_LABELS).indexOf(groupA);
