@@ -51,6 +51,19 @@ export const CustomSourcesModal = ({
     });
   };
 
+  const handleInlineSourceEditComplete = (
+    updatedSource: CustomSource,
+    index: number
+  ) => {
+    setCustomSources((prev) =>
+      prev.map((s, i) => (i === index ? updatedSource : s))
+    );
+    setInlineSourceEdit({
+      value: { name: "", url: "" },
+      indexBeingEdited: -1,
+    });
+  };
+
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
       <ModalDialog>
@@ -64,21 +77,13 @@ export const CustomSourcesModal = ({
 
             {customSources.map((source, index) =>
               inlineSourceEdit.indexBeingEdited === index ? (
-                <EditSourceForm
+                <SourceForm
                   key={source.name}
                   customSources={customSources.filter((_, i) => i !== index)}
                   source={source}
-                  onChangeSource={(updatedSource) => {
-                    setCustomSources((prev) =>
-                      prev.map((s, i) =>
-                        i === index ? updatedSource : s
-                      )
-                    );
-                    setInlineSourceEdit({
-                      value: { name: "", url: "" },
-                      indexBeingEdited: -1,
-                    });
-                  }}
+                  onChangeSource={(updatedSource) =>
+                    handleInlineSourceEditComplete(updatedSource, index)
+                  }
                 />
               ) : (
                 <SourceRow
@@ -90,23 +95,16 @@ export const CustomSourcesModal = ({
               )
             )}
 
-            <NewSourceForm
+            <SourceForm
               customSources={customSources}
               setCustomSources={setCustomSources}
             />
           </SourcesEditorContainer>
         </DialogContent>
 
-        <form
-          onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            setOpen(false);
-          }}
-        >
-          <Button type="submit" fullWidth>
-            Save
-          </Button>
-        </form>
+        <Button fullWidth onClick={() => setOpen(false)}>
+          Close
+        </Button>
       </ModalDialog>
     </Modal>
   );
@@ -139,112 +137,32 @@ const SourceRow = ({ source, onEdit, onDelete }: SourceRowProps) => (
   </Fragment>
 );
 
-interface NewSourceFormProps {
+interface SourceFormProps {
+  /**
+   * This prop is always provided for validation that the proposed name isn't in use already.
+   */
   customSources: CustomSource[];
-  setCustomSources: React.Dispatch<React.SetStateAction<CustomSource[]>>;
+  /**
+   * If provided, we're adding a new source
+   */
+  setCustomSources?: React.Dispatch<React.SetStateAction<CustomSource[]>>;
+  /**
+   * If provided, we're editing an existing source
+   */
+  source?: CustomSource;
+  /**
+   * If provided, we're editing an existing source (will always need this prop if `source` is provided)
+   */
+  onChangeSource?: (updatedSource: CustomSource) => void;
 }
-const NewSourceForm = ({
+const SourceForm = ({
   customSources,
   setCustomSources,
-}: NewSourceFormProps) => {
-  const [name, setName] = useState("");
-  const [url, setUrl] = useState("");
-
-  const [nameError, setNameError] = useState<string | null>(null);
-  const [urlError, setUrlError] = useState<string | null>(null);
-
-  const formId = `source-form-${useId()}`;
-
-  const handleChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-    setNameError(null);
-  };
-
-  const handleChangeUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUrl(e.target.value);
-    setUrlError(null);
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get("name")!.toString().trim();
-    const url = formData.get("url")!.toString().trim();
-
-    let _nameError: string | null = null;
-    let _urlError: string | null = null;
-
-    if (name.length === 0) _nameError = "Name is required";
-    if (customSources.find((s) => s.name === name))
-      _nameError = "This name already exists";
-    if (!isUrl(url)) _urlError = "Enter a valid URL";
-    if (url.length === 0) _urlError = "URL is required";
-
-    setNameError(_nameError);
-    setUrlError(_urlError);
-
-    if (_nameError || _urlError) return;
-
-    setCustomSources((prev) => [...prev, { name, url }]);
-    setName("");
-    setUrl("");
-    setNameError(null);
-    setUrlError(null);
-  };
-
-  return (
-    <>
-      <form style={{ display: "none" }} onSubmit={handleSubmit} id={formId} />
-      <FormControl required error={Boolean(nameError)}>
-        <Input
-          name="name"
-          slotProps={{ input: { form: formId } }}
-          value={name}
-          onChange={handleChangeName}
-          placeholder="Name"
-        />
-        {Boolean(nameError) && (
-          <FormHelperText sx={{ pl: "12px" }}>{nameError}</FormHelperText>
-        )}
-      </FormControl>
-      <FormControl required error={Boolean(urlError)}>
-        <Input
-          name="url"
-          slotProps={{ input: { form: formId } }}
-          value={url}
-          onChange={handleChangeUrl}
-          placeholder="URL"
-        />
-        {Boolean(urlError) && (
-          <FormHelperText sx={{ pl: "12px" }}>{urlError}</FormHelperText>
-        )}
-      </FormControl>
-      <IconButton
-        form={formId}
-        type="submit"
-        size="sm"
-        variant="soft"
-        disabled={name.length === 0 || url.length === 0}
-      >
-        <Check />
-      </IconButton>
-      <div></div> {/* empty element to fill grid cell */}
-    </>
-  );
-};
-
-interface EditSourceFormProps {
-  customSources: CustomSource[];
-  source: CustomSource;
-  onChangeSource: (updatedSource: CustomSource) => void;
-}
-const EditSourceForm = ({
-  customSources,
   source,
   onChangeSource,
-}: EditSourceFormProps) => {
-  const [name, setName] = useState(source.name);
-  const [url, setUrl] = useState(source.url);
+}: SourceFormProps) => {
+  const [name, setName] = useState(source?.name ?? "");
+  const [url, setUrl] = useState(source?.url ?? "");
 
   const [nameError, setNameError] = useState<string | null>(null);
   const [urlError, setUrlError] = useState<string | null>(null);
@@ -281,7 +199,18 @@ const EditSourceForm = ({
 
     if (_nameError || _urlError) return;
 
-    onChangeSource({ name, url });
+    if (source) {
+      if (!onChangeSource)
+        throw new Error("`onChangeSource` is required if `source` is provided");
+      onChangeSource({ name, url });
+    } else if (setCustomSources) {
+      setCustomSources((prev) => [...prev, { name, url }]);
+    } else {
+      throw new Error(
+        "`setCustomSources` is required if `source` is not provided"
+      );
+    }
+
     setName("");
     setUrl("");
     setNameError(null);
@@ -347,168 +276,3 @@ const SourcesEditorContainer = styled("div")`
   grid-template-columns: 1fr 1fr 32px 32px;
   align-items: start;
 `;
-
-// const Table = styled("table")`
-//   width: 100%;
-//   border-collapse: collapse;
-
-//   th,
-//   td {
-//     text-align: left;
-//     padding: 0.2rem;
-//   }
-
-//   td:first-of-type,
-//   td:nth-of-type(2) {
-//     padding-right: 2rem;
-//   }
-// `;
-
-// <Table>
-//   <thead>
-//     <tr>
-//       <th>Name</th>
-//       <th>Source</th>
-//       <th></th>
-//       <th></th>
-//     </tr>
-//   </thead>
-//   <tbody>
-//     {customSources.map((source, index) =>
-//       inlineSourceEdit.indexBeingEdited !== index ? (
-//         <tr key={index}>
-//           <td>{source.name}</td>
-//           <td>{source.url}</td>
-//           <td>
-//             <IconButton
-//               size="sm"
-//               onClick={() => {
-//                 setInlineSourceEdit({
-//                   value: source,
-//                   indexBeingEdited: index,
-//                 });
-//               }}
-//             >
-//               <Edit />
-//             </IconButton>
-//           </td>
-//           <td>
-//             <IconButton
-//               color="danger"
-//               size="sm"
-//               onClick={() => {
-//                 setCustomSources((prev) =>
-//                   prev.filter((_, i) => i !== index)
-//                 );
-//                 if (inlineSourceEdit.indexBeingEdited === index) {
-//                   setInlineSourceEdit({
-//                     value: { name: "", url: "" },
-//                     indexBeingEdited: -1,
-//                   });
-//                 }
-//               }}
-//             >
-//               <Delete />
-//             </IconButton>
-//           </td>
-//         </tr>
-//       ) : (
-//         <tr key={index}>
-//           <td>
-//             <Input
-//               placeholder="Name"
-//               value={inlineSourceEdit.value.name}
-//               onChange={(e) =>
-//                 setInlineSourceEdit((prev) => ({
-//                   ...prev,
-//                   value: {
-//                     ...prev.value,
-//                     name: e.target.value,
-//                   },
-//                 }))
-//               }
-//             />
-//           </td>
-//           <td>
-//             <Input
-//               placeholder="Source"
-//               value={inlineSourceEdit.value.url}
-//               onChange={(e) =>
-//                 setInlineSourceEdit((prev) => ({
-//                   ...prev,
-//                   value: {
-//                     ...prev.value,
-//                     url: e.target.value,
-//                   },
-//                 }))
-//               }
-//             />
-//           </td>
-//           <td>
-//             <IconButton
-//               size="sm"
-//               onClick={() => {
-//                 if (inlineSourceEdit.value.name && inlineSourceEdit.value.url) {
-//                   setCustomSources((prev) =>
-//                     prev.map((source, i) =>
-//                       i === index
-//                         ? inlineSourceEdit.value
-//                         : source
-//                     )
-//                   );
-//                   setInlineSourceEdit({
-//                     value: { name: "", url: "" },
-//                     indexBeingEdited: -1,
-//                   });
-//                 }
-//               }}
-//             >
-//               <Check />
-//             </IconButton>
-//           </td>
-//           <td>{/* unused column */}</td>
-//         </tr>
-//       )
-//     )}
-//     <tr>
-//       <td>
-//         <Input
-//           placeholder="Name"
-//           value={newSourceEdit.name}
-//           onChange={(e) =>
-//             setNewSourceEdit((prev) => ({
-//               ...prev,
-//               name: e.target.value,
-//             }))
-//           }
-//         />
-//       </td>
-//       <td>
-//         <Input
-//           placeholder="Source"
-//           value={newSourceEdit.url}
-//           onChange={(e) =>
-//             setNewSourceEdit((prev) => ({
-//               ...prev,
-//               url: e.target.value,
-//             }))
-//           }
-//         />
-//       </td>
-//       <td>
-//         <IconButton
-//           size="sm"
-//           onClick={() => {
-//             if (newSourceEdit.name && newSourceEdit.url) {
-//               setCustomSources((prev) => [...prev, newSourceEdit]);
-//               setNewSourceEdit({ name: "", url: "" });
-//             }
-//           }}
-//         >
-//           <Check />
-//         </IconButton>
-//       </td>
-//       <td>{/* unused column */}</td>
-//     </tr>
-//   </tbody>
-// </Table>
