@@ -102,7 +102,7 @@ export const CustomSourcesModal = ({
           </SourcesEditorContainer>
         </DialogContent>
 
-        <Button fullWidth onClick={() => setOpen(false)}>
+        <Button fullWidth onClick={() => setOpen(false)} color="neutral" variant="soft">
           Close
         </Button>
       </ModalDialog>
