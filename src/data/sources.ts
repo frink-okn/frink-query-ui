@@ -9,10 +9,15 @@ const federationSource = {
   endpoint: "https://frink.apps.renci.org/federation/sparql",
 };
 
-type SourceCategory = "theme-1" | "frink" | "federation" | "other";
+export type SourceCategory =
+  | "theme-1"
+  | "frink"
+  | "federation"
+  | "other"
+  | "custom";
 
 // prettier-ignore
-const sourceCategories: Map<string, SourceCategory> = new Map([
+export const sourceCategories: Map<string, SourceCategory> = new Map([
   ["biobricks-ice",   "theme-1"],
   ["biohealth",       "theme-1"],
   ["nasa-gesdisc-kg", "theme-1"],

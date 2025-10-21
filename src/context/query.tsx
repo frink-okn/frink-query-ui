@@ -1,9 +1,10 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 import type { Source } from "../data/sources";
 import type { Bindings } from "@comunica/types";
 import type { Variable } from "@rdfjs/types";
 import { useTimer } from "../hooks/useTimer";
 import { useComunicaQuery } from "../hooks/useComunicaQuery";
+import type { CustomSource } from "../ui/CustomSourcesModal";
 
 const QueryContext = createContext<{
   runQuery: (query: string, sources: Source[]) => Promise<void>;
@@ -20,6 +21,10 @@ const QueryContext = createContext<{
   downloadResultsAsCSV: () => void;
   secondsString: string;
   msElapsed: number;
+  selectedCustomSources: CustomSource[];
+  setSelectedCustomSources: React.Dispatch<
+    React.SetStateAction<CustomSource[]>
+  >;
 } | null>(null);
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -36,6 +41,9 @@ interface QueryProviderProps {
 
 export const QueryProvider = ({ children }: QueryProviderProps) => {
   const timer = useTimer();
+  const [selectedCustomSources, setSelectedCustomSources] = useState<
+    CustomSource[]
+  >([]);
 
   const {
     runQuery,
@@ -66,6 +74,8 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
         downloadResultsAsCSV,
         secondsString: timer.secondsString,
         msElapsed: timer.msElapsed,
+        selectedCustomSources,
+        setSelectedCustomSources,
       }}
     >
       {children}

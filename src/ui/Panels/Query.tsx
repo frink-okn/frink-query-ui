@@ -1,12 +1,13 @@
 import { ArrowForwardRounded, SaveRounded, Stop } from "@mui/icons-material";
-import { Button, ButtonGroup, styled } from "@mui/joy";
+import { Box, Button, ButtonGroup, styled } from "@mui/joy";
 import { SourceSelect } from "../SourceSelect";
 import { YasqeEditor } from "../YasqeEditor";
 import { useEffect, useMemo, useState } from "react";
 import { getRouteApi } from "@tanstack/react-router";
-import { useDebounce } from "@uidotdev/usehooks";
+import { useDebounce, useLocalStorage } from "@uidotdev/usehooks";
 import { useQueryContext } from "../../context/query";
 import { SaveQueryDialog } from "../SaveQueryDialog";
+import { CustomSourcesModal, type CustomSource } from "../CustomSourcesModal";
 
 const rootRouteApi = getRouteApi("__root__");
 const indexRouteApi = getRouteApi("/");
@@ -16,9 +17,16 @@ export function Query() {
   const searchParams = indexRouteApi.useSearch();
   const navigate = indexRouteApi.useNavigate();
 
-  const { runQuery, stopQuery, isRunning } = useQueryContext()!;
+  const [customSources, setCustomSources] = useLocalStorage<CustomSource[]>(
+    "custom-sources",
+    [],
+  );
+
+  const { runQuery, stopQuery, isRunning, selectedCustomSources } =
+    useQueryContext()!;
 
   const [saveQueryDialogOpen, setSaveQueryDialogOpen] = useState(false);
+  const [customSourcesModalOpen, setCustomSourcesModalOpen] = useState(false);
 
   const [isSparqlValid, setIsSparqlValid] = useState(true);
   const [fastUpdatingSparql, setFastUpdatingSparql] = useState(
@@ -51,7 +59,23 @@ export function Query() {
     <Wrapper>
       <LabelContainer>
         <h3>Sources</h3>
-        <SourceSelect />
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "stretch",
+            gap: "0.5rem",
+          }}
+        >
+          <SourceSelect customSources={customSources} />
+          <Button
+            color="neutral"
+            variant="outlined"
+            onClick={() => setCustomSourcesModalOpen(true)}
+          >
+            Custom Sources
+          </Button>
+        </Box>
       </LabelContainer>
 
       <LabelContainer className="query">
@@ -89,9 +113,20 @@ export function Query() {
               color={"primary"}
               variant={"solid"}
               endDecorator={<ArrowForwardRounded />}
-              disabled={!isSparqlValid || selectedSources.length < 1}
+              disabled={
+                !isSparqlValid ||
+                selectedSources.length + selectedCustomSources.length < 1
+              }
               onClick={() => {
-                runQuery(searchParams.query, selectedSources);
+                runQuery(searchParams.query, [
+                  ...selectedSources,
+                  ...selectedCustomSources.map((cs) => ({
+                    category: "custom" as const,
+                    name: cs.name,
+                    shortname: cs.name,
+                    endpoint: cs.url,
+                  })),
+                ]);
               }}
             >
               Run Query
@@ -105,6 +140,12 @@ export function Query() {
         setOpen={setSaveQueryDialogOpen}
         query={fastUpdatingSparql}
         sources={selectedSources.map((s) => s.shortname)}
+      />
+      <CustomSourcesModal
+        customSources={customSources}
+        setCustomSources={setCustomSources}
+        open={customSourcesModalOpen}
+        setOpen={setCustomSourcesModalOpen}
       />
     </Wrapper>
   );

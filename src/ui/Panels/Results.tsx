@@ -27,12 +27,18 @@ export function Results() {
   const queryHasBeenEdited = useMemo(
     () =>
       searchParams.query !== lastSubmittedQuery?.query ||
-      searchParams.sources.length !== lastSubmittedQuery.sources.length ||
+      searchParams.sources.length !==
+      lastSubmittedQuery.sources.filter(
+        ({ category }) => category !== "custom"
+      ).length ||
       !lastSubmittedQuery.sources
+        .filter(({ category }) => category !== "custom")
         .map((s) => s.shortname)
         .every((s) => searchParams.sources.includes(s)),
-    [searchParams, lastSubmittedQuery],
+    [searchParams, lastSubmittedQuery]
   );
+
+  console.log(lastSubmittedQuery?.sources);
 
   if (msElapsed === 0 && !isRunning) {
     return (

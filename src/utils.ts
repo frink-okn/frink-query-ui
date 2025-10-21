@@ -61,4 +61,13 @@ function asBindings(result: RDF.Quad | boolean): Bindings {
   }
 }
 
-export { downloadTextAsFile, asBindings };
+function isUrl(url: string): boolean {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export { downloadTextAsFile, asBindings, isUrl };
