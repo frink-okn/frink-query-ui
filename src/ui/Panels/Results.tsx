@@ -38,8 +38,6 @@ export function Results() {
     [searchParams, lastSubmittedQuery]
   );
 
-  console.log(lastSubmittedQuery?.sources);
-
   if (msElapsed === 0 && !isRunning) {
     return (
       <CenteredMessage>
