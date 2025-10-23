@@ -13,12 +13,6 @@ body {
   --spacing: 10px;
   --line-width: 1px;
   --line-color: #eaeef2;
-  background-image: repeating-linear-gradient(
-    -45deg,
-    transparent 0 calc(var(--spacing) - 1px - var(--line-width)),
-    var(--line-color) calc(var(--spacing) - var(--line-width)) var(--spacing)
-  );
-
   line-height: 1.5;
 }
 
