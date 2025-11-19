@@ -10,6 +10,8 @@ import { styled } from "@mui/joy";
 import { Link } from "@tanstack/react-router";
 
 export function ExampleTree({ rootNodes }: { rootNodes: ExampleNode[] }) {
+  if (!rootNodes.every((node) => node.type)) return null;
+
   return (
     <StyledTree items={rootNodes}>
       {/* @ts-expect-error the styled component causes the renderItem function to throw a type warning */}
