@@ -28,5 +28,8 @@ export default defineConfig(({ mode }) => {
       }),
     ],
     base: process.env.VITE_BASE_URL,
+    build: {
+      sourcemap: true,
+    },
   };
 });
