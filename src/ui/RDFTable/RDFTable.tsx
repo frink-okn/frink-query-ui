@@ -10,7 +10,6 @@ const customTheme = themeQuartz.withParams({
   wrapperBorder: "none",
   headerBackgroundColor: "var(--p-slate-50)",
   fontFamily: "var(--font-family)",
-  rowHeight: 16 * 2,
 });
 
 interface RDFTableProps {
