@@ -16,9 +16,15 @@ interface RDFTableProps {
   columns: Variable[];
   rows: Bindings[];
   wrapText?: boolean;
+  resolveLabels?: boolean;
 }
 
-export function RDFTable({ columns, rows, wrapText = false }: RDFTableProps) {
+export function RDFTable({
+  columns,
+  rows,
+  wrapText = false,
+  resolveLabels = false,
+}: RDFTableProps) {
   const agGridColumns = useMemo(
     () =>
       columns.map((variable) => {
@@ -31,7 +37,7 @@ export function RDFTable({ columns, rows, wrapText = false }: RDFTableProps) {
             params.data?.get(variable.value)?.value ?? "",
           comparator: (
             a: Term | null | undefined,
-            b: Term | null | undefined,
+            b: Term | null | undefined
           ) => {
             if (a == null) return 1;
             if (b == null) return -1;
@@ -41,7 +47,7 @@ export function RDFTable({ columns, rows, wrapText = false }: RDFTableProps) {
 
         return col;
       }),
-    [columns],
+    [columns]
   );
 
   const defaultColDef: ColDef<Bindings, Term> = useMemo(
@@ -49,14 +55,16 @@ export function RDFTable({ columns, rows, wrapText = false }: RDFTableProps) {
       flex: 1,
       filter: true,
       cellRenderer: (props: { value: Term }) => {
-        return <RDFTermDisplay term={props.value} />;
+        return (
+          <RDFTermDisplay term={props.value} resolveLabels={resolveLabels} />
+        );
       },
       ...(wrapText && {
         wrapText: true,
         autoHeight: true,
       }),
     }),
-    [wrapText],
+    [wrapText, resolveLabels]
   );
 
   return (
