@@ -15,7 +15,9 @@ export type SourceCategory =
   | "other"
   | "custom";
 
-// prettier-ignore
+// Categories for sources. Most sources from the OKN registry YAML will
+// automatically be categorized as "registry". Only sources that need
+// special categorization (like hardcoded graphs or federation) are listed here.
 export const sourceCategories: Map<string, SourceCategory> = new Map([
   ["ubergraph",  "other"],
   ["wikidata",   "other"],
