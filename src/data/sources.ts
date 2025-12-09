@@ -17,29 +17,9 @@ export type SourceCategory =
 
 // prettier-ignore
 export const sourceCategories: Map<string, SourceCategory> = new Map([
-  ["biobricks-ice",   "registry"],
-  ["biohealth",       "registry"],
-  ["nasa-gesdisc-kg", "registry"],
-  ["climatemodelskg", "registry"],
-  ["dreamkg",         "registry"],
-  ["ruralkg",         "registry"],
-  ["sawgraph",        "registry"],
-  ["hydrologykg",     "registry"],
-  ["fiokg",           "registry"],
-  ["spatialkg",       "registry"],
-  ["scales",          "registry"],
-  ["securechainkg",   "registry"],
-  ["semopenalex",     "registry"],
-  ["sockg",           "registry"],
-  ["spoke",           "registry"],
-  ["sudokn",          "registry"],
-  ["ufokn",           "registry"],
-  ["wildlifekn",      "registry"],
-  ["nikg",            "registry"],
-  ["geoconnex",       "registry"],
-  ["ubergraph",       "registry"],
-  ["wikidata",        "registry"],
-  ["federation",      "federation"],
+  ["ubergraph",  "other"],
+  ["wikidata",   "other"],
+  ["federation", "federation"],
 ]);
 
 const compoundSourceSchema = v.object({
@@ -110,7 +90,7 @@ export async function fetchSources(): Promise<Source[]> {
   const combinedSources = [...validatedSources, federationSource].map(
     (source) => ({
       ...source,
-      category: sourceCategories.get(source.shortname) ?? "other",
+      category: sourceCategories.get(source.shortname) ?? "registry",
     }),
   );
 
