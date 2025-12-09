@@ -28,14 +28,14 @@ export function Results() {
     () =>
       searchParams.query !== lastSubmittedQuery?.query ||
       searchParams.sources.length !==
-      lastSubmittedQuery.sources.filter(
-        ({ category }) => category !== "custom"
-      ).length ||
+        lastSubmittedQuery.sources.filter(
+          ({ category }) => category !== "custom",
+        ).length ||
       !lastSubmittedQuery.sources
         .filter(({ category }) => category !== "custom")
         .map((s) => s.shortname)
         .every((s) => searchParams.sources.includes(s)),
-    [searchParams, lastSubmittedQuery]
+    [searchParams, lastSubmittedQuery],
   );
 
   if (msElapsed === 0 && !isRunning) {

@@ -15,11 +15,12 @@ const FEDERATION_URL = "https://frink.apps.renci.org/federation/sparql";
 
 export function RDFTermDisplay({ term, resolveLabels }: RDFTermDisplayProps) {
   if (term?.termType === "NamedNode")
-    return (
-      resolveLabels ? <LabeledIri term={term} /> :
-        <Link to="/term/$termId" params={{ termId: term.value }}>
-          {term.value}
-        </Link>
+    return resolveLabels ? (
+      <LabeledIri term={term} />
+    ) : (
+      <Link to="/term/$termId" params={{ termId: term.value }}>
+        {term.value}
+      </Link>
     );
 
   if (term?.termType === "BlankNode")
@@ -34,8 +35,8 @@ export function RDFTermDisplay({ term, resolveLabels }: RDFTermDisplayProps) {
         )}
         {term.datatype.value !==
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString" && (
-            <DataType>^^{term.datatype.value}</DataType>
-          )}
+          <DataType>^^{term.datatype.value}</DataType>
+        )}
       </Term>
     );
 
@@ -114,7 +115,9 @@ function LabeledIri({ term }: { term: Term }) {
   return (
     <Tooltip title={termId} placement="right">
       <Term>
-        {isLoading ? "…" : (
+        {isLoading ? (
+          "…"
+        ) : (
           <Link to="/term/$termId" params={{ termId }}>
             {label}
           </Link>

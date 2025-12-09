@@ -37,7 +37,7 @@ export function RDFTable({
             params.data?.get(variable.value)?.value ?? "",
           comparator: (
             a: Term | null | undefined,
-            b: Term | null | undefined
+            b: Term | null | undefined,
           ) => {
             if (a == null) return 1;
             if (b == null) return -1;
@@ -47,7 +47,7 @@ export function RDFTable({
 
         return col;
       }),
-    [columns]
+    [columns],
   );
 
   const defaultColDef: ColDef<Bindings, Term> = useMemo(
@@ -64,7 +64,7 @@ export function RDFTable({
         autoHeight: true,
       }),
     }),
-    [wrapText, resolveLabels]
+    [wrapText, resolveLabels],
   );
 
   return (
