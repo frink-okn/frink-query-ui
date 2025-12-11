@@ -10,37 +10,18 @@ const federationSource = {
 };
 
 export type SourceCategory =
-  | "theme-1"
-  | "frink"
+  | "registry"
   | "federation"
   | "other"
   | "custom";
 
-// prettier-ignore
+// Categories for sources. Most sources from the OKN registry YAML will
+// automatically be categorized as "registry". Only sources that need
+// special categorization (like hardcoded graphs or federation) are listed here.
 export const sourceCategories: Map<string, SourceCategory> = new Map([
-  ["biobricks-ice",   "theme-1"],
-  ["biohealth",       "theme-1"],
-  ["nasa-gesdisc-kg", "theme-1"],
-  ["climatemodelskg", "theme-1"],
-  ["dreamkg",         "theme-1"],
-  ["ruralkg",         "theme-1"],
-  ["sawgraph",        "theme-1"],
-  ["hydrologykg",     "theme-1"],
-  ["fiokg",           "theme-1"],
-  ["spatialkg",       "theme-1"],
-  ["scales",          "theme-1"],
-  ["securechainkg",   "theme-1"],
-  ["semopenalex",     "theme-1"],
-  ["sockg",           "theme-1"],
-  ["spoke",           "theme-1"],
-  ["sudokn",          "theme-1"],
-  ["ufokn",           "theme-1"],
-  ["wildlifekn",      "theme-1"],
-  ["nikg",            "theme-1"],
-  ["geoconnex",       "theme-1"],
-  ["ubergraph",       "frink"],
-  ["wikidata",        "frink"],
-  ["federation",      "federation"],
+  ["ubergraph",  "other"],
+  ["wikidata",   "other"],
+  ["federation", "federation"],
 ]);
 
 const compoundSourceSchema = v.object({
@@ -111,7 +92,7 @@ export async function fetchSources(): Promise<Source[]> {
   const combinedSources = [...validatedSources, federationSource].map(
     (source) => ({
       ...source,
-      category: sourceCategories.get(source.shortname) ?? "other",
+      category: sourceCategories.get(source.shortname) ?? "registry",
     }),
   );
 

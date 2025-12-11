@@ -14,10 +14,9 @@ import type { CustomSource } from "./CustomSourcesModal";
 import { useQueryContext } from "../context/query";
 
 const SOURCE_LABELS: Record<string, string> = {
-  custom: "Custom Sources",
+  custom: "Custom sources",
   federation: "Federation",
-  frink: "Frink graphs",
-  "theme-1": "Theme 1 graphs",
+  registry: "OKN registry",
   other: "Other graphs",
 };
 
