@@ -193,7 +193,12 @@ function TermPanel({ querySparql }: TermPanelProps) {
         </Link>
       </TableHeader>
       <TableWrapper>
-        <RDFTable columns={query.columns} rows={query.results} wrapText={true} />
+        <RDFTable
+          columns={query.columns}
+          rows={query.results}
+          wrapText={true}
+          resolveLabels={true}
+        />
       </TableWrapper>
     </PanelWrapper>
   );

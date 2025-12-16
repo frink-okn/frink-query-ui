@@ -16,6 +16,12 @@ body {
   line-height: 1.5;
 }
 
+.ag-cell {
+  line-height: 1.5;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
 .yasqe_buttons {
   display: none !important;
 }
