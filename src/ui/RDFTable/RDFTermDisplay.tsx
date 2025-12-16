@@ -31,11 +31,22 @@ export function RDFTermDisplay({ term, resolveLabels }: RDFTermDisplayProps) {
       <Term>
         {term.value}
         {term.language.length > 0 && (
-          <span className="lang">{term.language}</span>
+          <span className="lang">
+            <sup>@{term.language}</sup>
+          </span>
         )}
         {term.datatype.value !==
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString" && (
-          <DataType>^^{term.datatype.value}</DataType>
+          <DataType>
+            <sup>
+              ^^
+              {term.datatype.value.startsWith(
+                "http://www.w3.org/2001/XMLSchema#"
+              )
+                ? `xsd:${term.datatype.value.slice("http://www.w3.org/2001/XMLSchema#".length)}`
+                : term.datatype.value}
+            </sup>
+          </DataType>
         )}
       </Term>
     );
@@ -136,11 +147,9 @@ const Term = styled("span")`
 
   & .lang {
     color: gray;
-    font-size: x-small;
   }
 `;
 
 const DataType = styled("span")`
   color: gray;
-  font-size: x-small;
 `;
