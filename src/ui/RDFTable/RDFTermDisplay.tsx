@@ -12,6 +12,7 @@ interface RDFTermDisplayProps {
 
 const engine = new QueryEngine();
 const FEDERATION_URL = "https://frink.apps.renci.org/federation/sparql";
+const XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
 
 export function RDFTermDisplay({ term, resolveLabels }: RDFTermDisplayProps) {
   if (term?.termType === "NamedNode")
@@ -40,10 +41,8 @@ export function RDFTermDisplay({ term, resolveLabels }: RDFTermDisplayProps) {
           <DataType>
             <sup>
               ^^
-              {term.datatype.value.startsWith(
-                "http://www.w3.org/2001/XMLSchema#"
-              )
-                ? `xsd:${term.datatype.value.slice("http://www.w3.org/2001/XMLSchema#".length)}`
+              {term.datatype.value.startsWith(XSD_NAMESPACE)
+                ? `xsd:${term.datatype.value.slice(XSD_NAMESPACE.length)}`
                 : term.datatype.value}
             </sup>
           </DataType>
