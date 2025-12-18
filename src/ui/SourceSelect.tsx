@@ -136,25 +136,28 @@ export const SourceSelect = React.memo(
                   {SOURCE_LABELS[group]}
                 </Typography>
               </ListItem>
-              {sources.map((source) => (
-                <Option
-                  key={source.shortname}
-                  value={source.shortname}
-                  disabled={
-                    (isFederatedSparqlSelected &&
-                      source.shortname !== "federation") ||
-                    (!isFederatedSparqlSelected &&
-                      selectedIds.length > 0 &&
-                      source.shortname === "federation")
-                  }
-                >
-                  <Checkbox
-                    tabIndex={0}
-                    checked={selectedIds.includes(source.shortname)}
-                  />
-                  {source.name}
-                </Option>
-              ))}
+              {sources
+                .slice()
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((source) => (
+                  <Option
+                    key={source.shortname}
+                    value={source.shortname}
+                    disabled={
+                      (isFederatedSparqlSelected &&
+                        source.shortname !== "federation") ||
+                      (!isFederatedSparqlSelected &&
+                        selectedIds.length > 0 &&
+                        source.shortname === "federation")
+                    }
+                  >
+                    <Checkbox
+                      tabIndex={0}
+                      checked={selectedIds.includes(source.shortname)}
+                    />
+                    {source.name}
+                  </Option>
+                ))}
             </List>
           ))}
       </Select>
