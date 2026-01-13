@@ -231,7 +231,7 @@ export const useComunicaQuery = ({
           setIsRunning(false);
           onStop?.();
           setPossiblyIncomplete(true);
-          setErrorMessage(error.toLocalString());
+          setErrorMessage(error.toLocaleString());
         });
 
       if (result) {
