@@ -16,8 +16,16 @@ service:
   type: ClusterIP
   port: 8080
 
+host: frink.apps.renci.org
+path: /
+
 ingress:
-  host: frink.apps.renci.org
-  path: /
+  enabled: True
   tls: true
   public: true
+
+gateway:
+  enabled: False
+  parentRefs:
+    - name: ingress-gateway
+      namespace: ingress

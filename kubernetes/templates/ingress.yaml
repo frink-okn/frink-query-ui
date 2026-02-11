@@ -1,3 +1,4 @@
+{{ if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -6,26 +7,25 @@ metadata:
     # This line will automatically generate a Let's Encrypt TLS certificate which will be stored in the secretName below. See https://cert-manager.io/docs/usage/ingress/
     # This only works for DNS names in public zones like *.renci.org or *.apps.renci.org. See https://wiki.renci.org/index.php/Kubernetes_Cloud/Let%27s_Encrypt_Migration
     cert-manager.io/cluster-issuer: letsencrypt
-
     {{ if .Values.ingress.public }}
     nginx.ingress.kubernetes.io/whitelist-source-range: "0.0.0.0/0,::/0"
     {{ end }}
-  
 spec:
   {{ if .Values.ingress.tls }}
   tls:
   - hosts:
-      - {{ .Values.ingress.host }}
-    secretName: {{ .Values.ingress.host }}-tls
+      - {{ .Values.host }}
+    secretName: {{ .Values.host }}-tls
   {{ end }}
   rules:
-  - host: {{ .Values.ingress.host }}
+  - host: {{ .Values.host }}
     http:
       paths:
-      - path: {{ .Values.ingress.path }}
+      - path: {{ .Values.path }}
         pathType: Prefix
         backend:
           service:
             name: {{ .Chart.Name }}
             port:
               number: {{ .Values.service.port }}
+  {{ end }}
