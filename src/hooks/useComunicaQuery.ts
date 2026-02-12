@@ -242,6 +242,7 @@ export const useComunicaQuery = ({
       setResults([]);
       setErrorMessage("");
       setPossiblyIncomplete(false);
+      finishedRef.current = false;
 
       const result = await engine
         .query(query, { sources: queryContext } as QueryStringContext)
