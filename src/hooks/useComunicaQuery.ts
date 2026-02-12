@@ -107,10 +107,10 @@ export const useComunicaQuery = ({
   const [isRunning, setIsRunning] = useState(false);
   const [possiblyIncomplete, setPossiblyIncomplete] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const stoppedRef = useRef(false);
+  const finishedRef = useRef(false);
 
   useEffect(() => {
-    let finished = false;
+    finishedRef.current = false;
 
     const _results: Bindings[] = [];
 
@@ -119,7 +119,7 @@ export const useComunicaQuery = ({
     };
 
     const throttledUpdateResults = throttle(() => {
-      if (finished) return;
+      if (finishedRef.current) return;
       updateResults();
     }, 250);
 
@@ -133,7 +133,7 @@ export const useComunicaQuery = ({
       throttledUpdateResults();
       try {
         for await (const item of bindingsStream) {
-          if (finished) return;
+          if (finishedRef.current) return;
 
           _results.push(item);
 
@@ -147,14 +147,11 @@ export const useComunicaQuery = ({
           }
         }
       } catch (error: unknown) {
-        if (!finished) {
-          finished = true;
+        if (!finishedRef.current) {
+          finishedRef.current = true;
           updateResults();
           setIsRunning(false);
-          if (!stoppedRef.current) {
-            stoppedRef.current = true;
-            onStop?.();
-          }
+          onStop?.();
           setPossiblyIncomplete(true);
           setErrorMessage(
             error?.toLocaleString() ??
@@ -168,28 +165,22 @@ export const useComunicaQuery = ({
       // because stopQuery() destroyed it). By this point, all items that were
       // actually emitted by the stream have been yielded and pushed, but the
       // overall result set may be incomplete in the destroy() case.
-      if (!finished) {
-        finished = true;
+      if (!finishedRef.current) {
+        finishedRef.current = true;
         updateResults();
         setIsRunning(false);
-        if (!stoppedRef.current) {
-          stoppedRef.current = true;
-          onStop?.();
-        }
+        onStop?.();
       }
     };
 
     // Fallback error handler in case errors don't propagate through the
     // async iterator protocol for all stream implementations.
     const handleError = (error: unknown) => {
-      if (finished) return;
-      finished = true;
+      if (finishedRef.current) return;
+      finishedRef.current = true;
       updateResults();
       setIsRunning(false);
-      if (!stoppedRef.current) {
-        stoppedRef.current = true;
-        onStop?.();
-      }
+      onStop?.();
       setPossiblyIncomplete(true);
       setErrorMessage(
         error?.toLocaleString() ??
@@ -201,7 +192,7 @@ export const useComunicaQuery = ({
     readData();
 
     return () => {
-      finished = true;
+      finishedRef.current = true;
       bindingsStream.off("error", handleError);
     };
   }, [
@@ -251,14 +242,13 @@ export const useComunicaQuery = ({
       setResults([]);
       setErrorMessage("");
       setPossiblyIncomplete(false);
-      stoppedRef.current = false;
 
       const result = await engine
         .query(query, { sources: queryContext } as QueryStringContext)
         .catch((error) => {
           setIsRunning(false);
-          if (!stoppedRef.current) {
-            stoppedRef.current = true;
+          if (!finishedRef.current) {
+            finishedRef.current = true;
             onStop?.();
           }
           setPossiblyIncomplete(true);
@@ -303,8 +293,8 @@ export const useComunicaQuery = ({
     if (!bindingsStream.done) setPossiblyIncomplete(true);
     bindingsStream?.destroy();
     setIsRunning(false);
-    if (!stoppedRef.current) {
-      stoppedRef.current = true;
+    if (!finishedRef.current) {
+      finishedRef.current = true;
       onStop?.();
     }
   };
