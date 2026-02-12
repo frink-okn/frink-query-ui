@@ -58,6 +58,15 @@ export type ExampleNode = {
       type: "folder";
       children: ExampleNode[];
     }
+  | {
+      type: "error";
+      issues:
+        | [
+            v.StringIssue | v.ArrayIssue | v.ObjectIssue,
+            ...(v.StringIssue | v.ArrayIssue | v.ObjectIssue)[],
+          ]
+        | string;
+    }
 );
 
 export async function fetchExamples(): Promise<ExampleNode[]> {
@@ -68,17 +77,35 @@ export async function fetchExamples(): Promise<ExampleNode[]> {
   const traverse = (files: FileNode[]): ExampleNode[] => {
     return files.map((fileNode) => {
       if (fileNode.type === "file") {
-        const { frontmatter, sparql } = extractSparqlFrontMatter(
-          fileNode.contents,
-        );
+        let frontmatter, sparql;
+        try {
+          const extracted = extractSparqlFrontMatter(fileNode.contents);
+          frontmatter = extracted.frontmatter;
+          sparql = extracted.sparql;
+        } catch (e) {
+          let errorMessage =
+            "Error extracting frontmatter from query .rq file.";
+          if (e instanceof Error) {
+            errorMessage = e.message;
+          }
+          return {
+            type: "error",
+            title: fileNode.name,
+            sha: fileNode.sha,
+            issues: errorMessage,
+          };
+        }
         const validatorResult = v.safeParse(
           examplesFrontmatterSchema,
           frontmatter,
         );
         if (!validatorResult.success) {
-          throw new Error(
-            `Error validating example frontmatter: \n${validatorResult.issues}`,
-          );
+          return {
+            type: "error",
+            title: fileNode.name,
+            sha: fileNode.sha,
+            issues: validatorResult.issues,
+          };
         }
         const { summary, tags } = validatorResult.output;
 
