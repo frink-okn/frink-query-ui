@@ -117,46 +117,61 @@ export const useComunicaQuery = ({
       setResults([..._results]);
     };
 
-    const readData = async () => {
-      for await (const item of bindingsStream) {
-        if (finished) return;
-
-        _results.push(item);
-
-        if (_results.length < 100) {
-          // Synchronously update results at the beginning to prevent a delay in
-          // rendering results when they're available immediately.
-          updateResults();
-        } else {
-          // Otherwise, call the throttled update function.
-          throttledUpdateResults();
-        }
-      }
-    };
-
     const throttledUpdateResults = throttle(() => {
-      // `finished` will be true in one of three scenarios:
-      //   1. Component has unmounted
-      //   2. Stream has ended
-      //   3. Stream has errored
-      // In the latter two cases, we set the results one final time and don't
-      // need to call this debounced function. In the first case, the remaining
-      // non-rendered results are just tossed.
       if (finished) return;
       updateResults();
     }, 250);
 
-    throttledUpdateResults();
+    // Handle stream completion and errors within readData rather than using
+    // separate event handlers. This avoids a race condition where the "end"
+    // event fires synchronously during read() — before the for-await loop
+    // has a chance to yield and push the last item — causing an off-by-one
+    // in the results.
+    const readData = async () => {
+      try {
+        for await (const item of bindingsStream) {
+          if (finished) return;
 
-    const handleEnd = () => {
-      finished = true;
-      updateResults();
-      setIsRunning(false);
-      onStop?.();
-      setPossiblyIncomplete(false);
+          _results.push(item);
+
+          if (_results.length < 100) {
+            // Synchronously update results at the beginning to prevent a delay
+            // in rendering results when they're available immediately.
+            updateResults();
+          } else {
+            // Otherwise, call the throttled update function.
+            throttledUpdateResults();
+          }
+        }
+      } catch (error: unknown) {
+        if (!finished) {
+          finished = true;
+          updateResults();
+          setIsRunning(false);
+          onStop?.();
+          setPossiblyIncomplete(true);
+          setErrorMessage(
+            error?.toLocaleString() ??
+              "An unknown error occurred while streaming data.",
+          );
+        }
+        return;
+      }
+
+      // Stream ended (naturally, or via stopQuery's destroy). All items have
+      // been yielded and pushed by this point.
+      if (!finished) {
+        finished = true;
+        updateResults();
+        setIsRunning(false);
+        onStop?.();
+      }
     };
 
+    // Fallback error handler in case errors don't propagate through the
+    // async iterator protocol for all stream implementations.
     const handleError = (error: unknown) => {
+      if (finished) return;
       finished = true;
       updateResults();
       setIsRunning(false);
@@ -168,13 +183,11 @@ export const useComunicaQuery = ({
       );
     };
 
-    bindingsStream.on("end", handleEnd);
     bindingsStream.on("error", handleError);
     readData();
 
     return () => {
       finished = true;
-      bindingsStream.off("end", handleEnd);
       bindingsStream.off("error", handleError);
     };
   }, [
