@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DataFactory } from "rdf-data-factory";
 import type { Source } from "../data/sources";
 import { QueryEngine } from "@comunica/query-sparql";
@@ -107,9 +107,10 @@ export const useComunicaQuery = ({
   const [isRunning, setIsRunning] = useState(false);
   const [possiblyIncomplete, setPossiblyIncomplete] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const finishedRef = useRef(false);
 
   useEffect(() => {
-    let finished = false;
+    finishedRef.current = false;
 
     const _results: Bindings[] = [];
 
@@ -118,19 +119,21 @@ export const useComunicaQuery = ({
     };
 
     const throttledUpdateResults = throttle(() => {
-      if (finished) return;
+      if (finishedRef.current) return;
       updateResults();
     }, 250);
 
     // Handle stream completion and errors within readData rather than using
-    // separate event handlers. This avoids a race condition where the "end"
-    // event fires synchronously during read() — before the for-await loop
-    // has a chance to yield and push the last item — causing an off-by-one
-    // in the results.
+    // separate event handlers. Prior to this approach, a separate "end" event
+    // listener was used, which could fire synchronously during read() — before
+    // the for-await loop had a chance to yield and push the last item — causing
+    // an off-by-one in the results.
     const readData = async () => {
+      // Immediately set results to empty list before processing starts
+      throttledUpdateResults();
       try {
         for await (const item of bindingsStream) {
-          if (finished) return;
+          if (finishedRef.current) return;
 
           _results.push(item);
 
@@ -144,8 +147,8 @@ export const useComunicaQuery = ({
           }
         }
       } catch (error: unknown) {
-        if (!finished) {
-          finished = true;
+        if (!finishedRef.current) {
+          finishedRef.current = true;
           updateResults();
           setIsRunning(false);
           onStop?.();
@@ -158,10 +161,12 @@ export const useComunicaQuery = ({
         return;
       }
 
-      // Stream ended (naturally, or via stopQuery's destroy). All items have
-      // been yielded and pushed by this point.
-      if (!finished) {
-        finished = true;
+      // Stream processing has stopped (either because it ended naturally or
+      // because stopQuery() destroyed it). By this point, all items that were
+      // actually emitted by the stream have been yielded and pushed, but the
+      // overall result set may be incomplete in the destroy() case.
+      if (!finishedRef.current) {
+        finishedRef.current = true;
         updateResults();
         setIsRunning(false);
         onStop?.();
@@ -171,8 +176,8 @@ export const useComunicaQuery = ({
     // Fallback error handler in case errors don't propagate through the
     // async iterator protocol for all stream implementations.
     const handleError = (error: unknown) => {
-      if (finished) return;
-      finished = true;
+      if (finishedRef.current) return;
+      finishedRef.current = true;
       updateResults();
       setIsRunning(false);
       onStop?.();
@@ -187,7 +192,7 @@ export const useComunicaQuery = ({
     readData();
 
     return () => {
-      finished = true;
+      finishedRef.current = true;
       bindingsStream.off("error", handleError);
     };
   }, [
@@ -237,12 +242,16 @@ export const useComunicaQuery = ({
       setResults([]);
       setErrorMessage("");
       setPossiblyIncomplete(false);
+      finishedRef.current = false;
 
       const result = await engine
         .query(query, { sources: queryContext } as QueryStringContext)
         .catch((error) => {
           setIsRunning(false);
-          onStop?.();
+          if (!finishedRef.current) {
+            finishedRef.current = true;
+            onStop?.();
+          }
           setPossiblyIncomplete(true);
           setErrorMessage(error.toLocaleString());
         });
@@ -285,7 +294,10 @@ export const useComunicaQuery = ({
     if (!bindingsStream.done) setPossiblyIncomplete(true);
     bindingsStream?.destroy();
     setIsRunning(false);
-    onStop?.();
+    if (!finishedRef.current) {
+      finishedRef.current = true;
+      onStop?.();
+    }
   };
 
   const downloadResultsAsCSV = () => {
