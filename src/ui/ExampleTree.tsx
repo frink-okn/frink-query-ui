@@ -78,12 +78,26 @@ const ErrorItem = ({ item }: ErrorItemProps) => {
         ? item.issues.map((issue) => JSON.stringify(issue)).join("\n")
         : "Unknown error in this example file.";
 
-  return <Tooltip title={errorMessage} placement="top-start" enterDelay={500}>
-    <Box sx={{ display: "flex", alignItems: "center", gap: "4px", fontStyle: "italic", color: "var(--p-red-800)" }}>
-      <ErrorOutline fontSize="small" sx={{ transform: "translateY(1px)" }} color="inherit" />
-      {item.title}
-    </Box>
-  </Tooltip>
+  return (
+    <Tooltip title={errorMessage} placement="top-start" enterDelay={500}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "4px",
+          fontStyle: "italic",
+          color: "var(--p-red-800)",
+        }}
+      >
+        <ErrorOutline
+          fontSize="small"
+          sx={{ transform: "translateY(1px)" }}
+          color="inherit"
+        />
+        {item.title}
+      </Box>
+    </Tooltip>
+  );
 };
 
 const StyledTree = styled(Tree)`
