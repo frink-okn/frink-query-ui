@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DataFactory } from "rdf-data-factory";
 import type { Source } from "../data/sources";
 import { QueryEngine } from "@comunica/query-sparql";
@@ -107,6 +107,7 @@ export const useComunicaQuery = ({
   const [isRunning, setIsRunning] = useState(false);
   const [possiblyIncomplete, setPossiblyIncomplete] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const stoppedRef = useRef(false);
 
   useEffect(() => {
     let finished = false;
@@ -123,11 +124,13 @@ export const useComunicaQuery = ({
     }, 250);
 
     // Handle stream completion and errors within readData rather than using
-    // separate event handlers. This avoids a race condition where the "end"
-    // event fires synchronously during read() — before the for-await loop
-    // has a chance to yield and push the last item — causing an off-by-one
-    // in the results.
+    // separate event handlers. Prior to this approach, a separate "end" event
+    // listener was used, which could fire synchronously during read() — before
+    // the for-await loop had a chance to yield and push the last item — causing
+    // an off-by-one in the results.
     const readData = async () => {
+      // Immediately set results to empty list before processing starts
+      throttledUpdateResults();
       try {
         for await (const item of bindingsStream) {
           if (finished) return;
@@ -148,7 +151,10 @@ export const useComunicaQuery = ({
           finished = true;
           updateResults();
           setIsRunning(false);
-          onStop?.();
+          if (!stoppedRef.current) {
+            stoppedRef.current = true;
+            onStop?.();
+          }
           setPossiblyIncomplete(true);
           setErrorMessage(
             error?.toLocaleString() ??
@@ -158,13 +164,18 @@ export const useComunicaQuery = ({
         return;
       }
 
-      // Stream ended (naturally, or via stopQuery's destroy). All items have
-      // been yielded and pushed by this point.
+      // Stream processing has stopped (either because it ended naturally or
+      // because stopQuery() destroyed it). By this point, all items that were
+      // actually emitted by the stream have been yielded and pushed, but the
+      // overall result set may be incomplete in the destroy() case.
       if (!finished) {
         finished = true;
         updateResults();
         setIsRunning(false);
-        onStop?.();
+        if (!stoppedRef.current) {
+          stoppedRef.current = true;
+          onStop?.();
+        }
       }
     };
 
@@ -175,7 +186,10 @@ export const useComunicaQuery = ({
       finished = true;
       updateResults();
       setIsRunning(false);
-      onStop?.();
+      if (!stoppedRef.current) {
+        stoppedRef.current = true;
+        onStop?.();
+      }
       setPossiblyIncomplete(true);
       setErrorMessage(
         error?.toLocaleString() ??
@@ -237,12 +251,16 @@ export const useComunicaQuery = ({
       setResults([]);
       setErrorMessage("");
       setPossiblyIncomplete(false);
+      stoppedRef.current = false;
 
       const result = await engine
         .query(query, { sources: queryContext } as QueryStringContext)
         .catch((error) => {
           setIsRunning(false);
-          onStop?.();
+          if (!stoppedRef.current) {
+            stoppedRef.current = true;
+            onStop?.();
+          }
           setPossiblyIncomplete(true);
           setErrorMessage(error.toLocaleString());
         });
@@ -285,7 +303,10 @@ export const useComunicaQuery = ({
     if (!bindingsStream.done) setPossiblyIncomplete(true);
     bindingsStream?.destroy();
     setIsRunning(false);
-    onStop?.();
+    if (!stoppedRef.current) {
+      stoppedRef.current = true;
+      onStop?.();
+    }
   };
 
   const downloadResultsAsCSV = () => {
