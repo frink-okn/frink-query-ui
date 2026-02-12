@@ -9,18 +9,14 @@ const federationSource = {
   endpoint: "https://frink.apps.renci.org/federation/sparql",
 };
 
-export type SourceCategory =
-  | "registry"
-  | "federation"
-  | "other"
-  | "custom";
+export type SourceCategory = "registry" | "federation" | "other" | "custom";
 
 // Categories for sources. Most sources from the OKN registry YAML will
 // automatically be categorized as "registry". Only sources that need
 // special categorization (like hardcoded graphs or federation) are listed here.
 export const sourceCategories: Map<string, SourceCategory> = new Map([
-  ["ubergraph",  "other"],
-  ["wikidata",   "other"],
+  ["ubergraph", "other"],
+  ["wikidata", "other"],
   ["federation", "federation"],
 ]);
 

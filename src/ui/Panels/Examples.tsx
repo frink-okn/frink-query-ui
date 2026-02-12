@@ -16,12 +16,16 @@ export function Examples() {
     refetchOnMount: false,
   });
 
+  if (isError) {
+    console.error(error);
+  }
+
   return (
     <Wrapper>
-      {isLoading || !examples ? (
-        <div>Loading...</div>
-      ) : isError ? (
+      {isError ? (
         <div>{error.message}</div>
+      ) : isLoading || !examples ? (
+        <div>Loading...</div>
       ) : (
         <>
           <p>

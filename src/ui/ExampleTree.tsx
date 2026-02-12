@@ -1,4 +1,4 @@
-import { Folder, FolderOpen } from "@mui/icons-material";
+import { ErrorOutline, Folder, FolderOpen } from "@mui/icons-material";
 import type { ExampleNode } from "../data/examples";
 import {
   Collection,
@@ -6,7 +6,7 @@ import {
   TreeItem,
   TreeItemContent,
 } from "react-aria-components";
-import { styled } from "@mui/joy";
+import { Box, styled, Tooltip } from "@mui/joy";
 import { Link } from "@tanstack/react-router";
 
 export function ExampleTree({ rootNodes }: { rootNodes: ExampleNode[] }) {
@@ -22,8 +22,10 @@ export function ExampleTree({ rootNodes }: { rootNodes: ExampleNode[] }) {
               {({ isExpanded }) =>
                 item.type === "folder" ? (
                   <FolderItem item={item} isExpanded={isExpanded} />
-                ) : (
+                ) : item.type === "example" ? (
                   <ExampleItem item={item} />
+                ) : (
+                  <ErrorItem item={item} />
                 )
               }
             </TreeItemContent>
@@ -64,6 +66,39 @@ const ExampleItem = ({ item }: ExampleItemProps) => (
     ))}
   </Link>
 );
+
+interface ErrorItemProps {
+  item: Extract<ExampleNode, { type: "error" }>;
+}
+const ErrorItem = ({ item }: ErrorItemProps) => {
+  const errorMessage =
+    typeof item.issues === "string"
+      ? item.issues
+      : Array.isArray(item.issues)
+        ? item.issues.map((issue) => JSON.stringify(issue)).join("\n")
+        : "Unknown error in this example file.";
+
+  return (
+    <Tooltip title={errorMessage} placement="top-start" enterDelay={500}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "4px",
+          fontStyle: "italic",
+          color: "var(--p-red-800)",
+        }}
+      >
+        <ErrorOutline
+          fontSize="small"
+          sx={{ transform: "translateY(1px)" }}
+          color="inherit"
+        />
+        {item.title}
+      </Box>
+    </Tooltip>
+  );
+};
 
 const StyledTree = styled(Tree)`
   display: flex;
