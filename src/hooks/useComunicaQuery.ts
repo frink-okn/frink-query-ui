@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DataFactory } from "rdf-data-factory";
 import type { Source } from "../data/sources";
 import { QueryEngine } from "@comunica/query-sparql";
@@ -107,9 +107,10 @@ export const useComunicaQuery = ({
   const [isRunning, setIsRunning] = useState(false);
   const [possiblyIncomplete, setPossiblyIncomplete] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const finishedRef = useRef(false);
 
   useEffect(() => {
-    let finished = false;
+    finishedRef.current = false;
 
     const _results: Bindings[] = [];
 
@@ -117,47 +118,66 @@ export const useComunicaQuery = ({
       setResults([..._results]);
     };
 
-    const readData = async () => {
-      for await (const item of bindingsStream) {
-        if (finished) return;
-
-        _results.push(item);
-
-        if (_results.length < 100) {
-          // Synchronously update results at the beginning to prevent a delay in
-          // rendering results when they're available immediately.
-          updateResults();
-        } else {
-          // Otherwise, call the throttled update function.
-          throttledUpdateResults();
-        }
-      }
-    };
-
     const throttledUpdateResults = throttle(() => {
-      // `finished` will be true in one of three scenarios:
-      //   1. Component has unmounted
-      //   2. Stream has ended
-      //   3. Stream has errored
-      // In the latter two cases, we set the results one final time and don't
-      // need to call this debounced function. In the first case, the remaining
-      // non-rendered results are just tossed.
-      if (finished) return;
+      if (finishedRef.current) return;
       updateResults();
     }, 250);
 
-    throttledUpdateResults();
+    // Handle stream completion and errors within readData rather than using
+    // separate event handlers. Prior to this approach, a separate "end" event
+    // listener was used, which could fire synchronously during read() — before
+    // the for-await loop had a chance to yield and push the last item — causing
+    // an off-by-one in the results.
+    const readData = async () => {
+      // Immediately set results to empty list before processing starts
+      throttledUpdateResults();
+      try {
+        for await (const item of bindingsStream) {
+          if (finishedRef.current) return;
 
-    const handleEnd = () => {
-      finished = true;
-      updateResults();
-      setIsRunning(false);
-      onStop?.();
-      setPossiblyIncomplete(false);
+          _results.push(item);
+
+          if (_results.length < 100) {
+            // Synchronously update results at the beginning to prevent a delay
+            // in rendering results when they're available immediately.
+            updateResults();
+          } else {
+            // Otherwise, call the throttled update function.
+            throttledUpdateResults();
+          }
+        }
+      } catch (error: unknown) {
+        if (!finishedRef.current) {
+          finishedRef.current = true;
+          updateResults();
+          setIsRunning(false);
+          onStop?.();
+          setPossiblyIncomplete(true);
+          setErrorMessage(
+            error?.toLocaleString() ??
+              "An unknown error occurred while streaming data.",
+          );
+        }
+        return;
+      }
+
+      // Stream processing has stopped (either because it ended naturally or
+      // because stopQuery() destroyed it). By this point, all items that were
+      // actually emitted by the stream have been yielded and pushed, but the
+      // overall result set may be incomplete in the destroy() case.
+      if (!finishedRef.current) {
+        finishedRef.current = true;
+        updateResults();
+        setIsRunning(false);
+        onStop?.();
+      }
     };
 
+    // Fallback error handler in case errors don't propagate through the
+    // async iterator protocol for all stream implementations.
     const handleError = (error: unknown) => {
-      finished = true;
+      if (finishedRef.current) return;
+      finishedRef.current = true;
       updateResults();
       setIsRunning(false);
       onStop?.();
@@ -168,13 +188,11 @@ export const useComunicaQuery = ({
       );
     };
 
-    bindingsStream.on("end", handleEnd);
     bindingsStream.on("error", handleError);
     readData();
 
     return () => {
-      finished = true;
-      bindingsStream.off("end", handleEnd);
+      finishedRef.current = true;
       bindingsStream.off("error", handleError);
     };
   }, [
@@ -224,12 +242,16 @@ export const useComunicaQuery = ({
       setResults([]);
       setErrorMessage("");
       setPossiblyIncomplete(false);
+      finishedRef.current = false;
 
       const result = await engine
         .query(query, { sources: queryContext } as QueryStringContext)
         .catch((error) => {
           setIsRunning(false);
-          onStop?.();
+          if (!finishedRef.current) {
+            finishedRef.current = true;
+            onStop?.();
+          }
           setPossiblyIncomplete(true);
           setErrorMessage(error.toLocaleString());
         });
@@ -272,7 +294,10 @@ export const useComunicaQuery = ({
     if (!bindingsStream.done) setPossiblyIncomplete(true);
     bindingsStream?.destroy();
     setIsRunning(false);
-    onStop?.();
+    if (!finishedRef.current) {
+      finishedRef.current = true;
+      onStop?.();
+    }
   };
 
   const downloadResultsAsCSV = () => {
