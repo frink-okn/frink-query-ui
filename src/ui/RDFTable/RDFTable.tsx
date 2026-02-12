@@ -12,6 +12,39 @@ const customTheme = themeQuartz.withParams({
   fontFamily: "var(--font-family)",
 });
 
+const XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
+
+// XSD numeric datatypes that should be sorted numerically
+const NUMERIC_XSD_TYPES = new Set([
+  "integer",
+  "int",
+  "long",
+  "short",
+  "byte",
+  "decimal",
+  "float",
+  "double",
+  "positiveInteger",
+  "negativeInteger",
+  "nonPositiveInteger",
+  "nonNegativeInteger",
+  "unsignedLong",
+  "unsignedInt",
+  "unsignedShort",
+  "unsignedByte",
+]);
+
+/**
+ * Checks if a term is a literal with a numeric XSD datatype
+ */
+function isNumericLiteral(term: Term | null | undefined): boolean {
+  if (!term || term.termType !== "Literal") return false;
+  const datatypeUri = term.datatype.value;
+  if (!datatypeUri.startsWith(XSD_NAMESPACE)) return false;
+  const localName = datatypeUri.slice(XSD_NAMESPACE.length);
+  return NUMERIC_XSD_TYPES.has(localName);
+}
+
 interface RDFTableProps {
   columns: Variable[];
   rows: Bindings[];
@@ -41,6 +74,28 @@ export function RDFTable({
           ) => {
             if (a == null) return 1;
             if (b == null) return -1;
+
+            // If both terms are numeric literals, compare numerically
+            const aIsNumeric = isNumericLiteral(a);
+            const bIsNumeric = isNumericLiteral(b);
+
+            if (aIsNumeric && bIsNumeric) {
+              const aNum = parseFloat(a.value);
+              const bNum = parseFloat(b.value);
+
+              // Handle NaN cases (invalid numbers)
+              if (isNaN(aNum) && isNaN(bNum)) return 0;
+              if (isNaN(aNum)) return 1;
+              if (isNaN(bNum)) return -1;
+
+              return aNum - bNum;
+            }
+
+            // If only one is numeric, sort numerics before non-numerics
+            if (aIsNumeric) return -1;
+            if (bIsNumeric) return 1;
+
+            // For non-numeric values, use string comparison
             return a.value.localeCompare(b.value);
           },
         };
