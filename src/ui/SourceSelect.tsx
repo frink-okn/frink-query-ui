@@ -40,7 +40,10 @@ interface SourceSelectProps {
 export const SourceSelect = React.memo(
   ({ customSources }: SourceSelectProps) => {
     const { sources } = rootRouteApi.useLoaderData();
-    const searchParams = indexRouteApi.useSearch();
+
+    const sourceShortnames = indexRouteApi.useSearch({
+      select: (s) => s.sources,
+    });
     const navigate = indexRouteApi.useNavigate();
     const { selectedCustomSources, setSelectedCustomSources } =
       useQueryContext()!;
@@ -58,12 +61,12 @@ export const SourceSelect = React.memo(
     // Selected IDs for Joy Select
     const selectedIds = useMemo(() => {
       const urlSources = sources
-        .filter((s) => searchParams.sources.includes(s.shortname))
+        .filter((s) => sourceShortnames.includes(s.shortname))
         .map((s) => s.shortname);
 
       const customIds = selectedCustomSources.map((cs) => cs.name);
       return [...urlSources, ...customIds];
-    }, [searchParams, sources, selectedCustomSources]);
+    }, [sourceShortnames, sources, selectedCustomSources]);
 
     const isFederatedSparqlSelected = useMemo(
       () => selectedIds.includes("federation"),
@@ -109,16 +112,16 @@ export const SourceSelect = React.memo(
           .concat(
             customSources.length
               ? [
-                  [
-                    "custom",
-                    customSources.map((cs) => ({
-                      category: "custom" as const,
-                      name: cs.name,
-                      shortname: cs.name,
-                      endpoint: cs.url,
-                    })),
-                  ],
-                ]
+                [
+                  "custom",
+                  customSources.map((cs) => ({
+                    category: "custom" as const,
+                    name: cs.name,
+                    shortname: cs.name,
+                    endpoint: cs.url,
+                  })),
+                ],
+              ]
               : [],
           )
           .sort(([groupA], [groupB]) => {
