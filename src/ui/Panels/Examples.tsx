@@ -1,9 +1,10 @@
+import { memo } from "react";
 import { styled } from "@mui/joy";
 import { useQuery } from "@tanstack/react-query";
 import { fetchExamples } from "../../data/examples";
 import { ExampleTree } from "../ExampleTree";
 
-export function Examples() {
+export const Examples = memo(function Examples() {
   const {
     data: examples,
     isLoading,
@@ -38,7 +39,7 @@ export function Examples() {
       )}
     </Wrapper>
   );
-}
+});
 
 const Wrapper = styled("div")`
   & p {
