@@ -7,20 +7,92 @@ import {
 import { Panel } from "./Panel";
 import { TabsPanel } from "./TabsPanel";
 import { styled } from "@mui/joy";
+import { useState } from "react";
+import dedent from "dedent";
+import { TermPanel } from "./TermPanel";
 
-interface PanelsProps {
-  tabs: {
-    id: string;
-    label: string;
-    color: string;
-    jsx: React.ReactElement;
-  }[];
+interface TermPagePanelsProps {
+  termId: string;
 }
 
-export function TermPagePanels({ tabs }: PanelsProps) {
+export function TermPagePanels({ termId }: TermPagePanelsProps) {
   const { width } = useWindowSize();
 
+  const [selectedTab, setSelectedTab] = useState("as-subject")
+
   if (!width) return null;
+
+
+  const relationsTabs = {
+    "as-subject": {
+      label: "As Subject",
+      color: "var(--p-orange-400)",
+      jsx: (
+        <TermPanel
+          querySparql={dedent`
+            SELECT ?predicate ?object
+            WHERE {
+              <${termId}> ?predicate ?object
+              FILTER(!isLiteral(?object))
+            }
+            LIMIT 50
+          `}
+        />
+      ),
+    },
+
+    "as-object": {
+      label: "As Object",
+      color: "var(--p-cyan-400)",
+      jsx: (
+        <TermPanel
+          querySparql={dedent`
+            SELECT ?subject ?predicate
+            WHERE {
+              ?subject ?predicate <${termId}>
+              FILTER(!isLiteral(?subject))
+            }
+            LIMIT 50
+          `}
+        />
+      ),
+    },
+
+    "as-predicate": {
+      label: "As Predicate",
+      color: "var(--p-pink-400)",
+      jsx: (
+        <TermPanel
+          querySparql={dedent`
+            SELECT ?subject ?object
+            WHERE {
+              ?subject <${termId}> ?object
+            }
+            LIMIT 50
+          `}
+        />
+      ),
+    },
+  };
+
+  const attributesTabs = {
+    attributes: {
+      label: "Attributes",
+      color: "var(--p-indigo-300)",
+      jsx: (
+        <TermPanel
+          querySparql={dedent`
+            SELECT ?property ?value
+            WHERE {
+              <${termId}> ?property ?value
+              FILTER(isLiteral(?value))
+            }
+            LIMIT 50
+          `}
+        />
+      ),
+    },
+  };
 
   if (width > 700)
     return (
@@ -29,22 +101,31 @@ export function TermPagePanels({ tabs }: PanelsProps) {
         direction="vertical"
       >
         <ResizablePanel defaultSize={30} minSize={10} collapsible={true}>
-          <Panel tab={tabs.filter((t) => t.id === "attributes")[0]} />
+          <Panel tab={attributesTabs.attributes} />
         </ResizablePanel>
 
         <Handle horizontal={"true"} />
 
         <ResizablePanel defaultSize={80} minSize={10} collapsible={true}>
           <TabsPanel
-            tabs={tabs.filter((t) =>
-              ["as-subject", "as-predicate", "as-object"].includes(t.id),
-            )}
+            tabs={relationsTabs}
+            selectedTab={selectedTab}
+            handleTabSelect={(tabId) => setSelectedTab(tabId)}
           />
         </ResizablePanel>
       </WrapperPanelGroup>
     );
 
-  return <TabsPanel tabs={tabs} />;
+  return (
+    <TabsPanel
+      tabs={{
+        ...attributesTabs,
+        ...relationsTabs,
+      }}
+      selectedTab={selectedTab}
+      handleTabSelect={(tabId) => setSelectedTab(tabId)}
+    />
+  );
 }
 
 const WrapperPanelGroup = styled(PanelGroup)`
