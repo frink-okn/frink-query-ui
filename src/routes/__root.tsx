@@ -10,6 +10,7 @@ import { QueryProvider } from "../context/query";
 
 import "../styles.css";
 import { SavedQueriesProvider } from "../context/savedQueries";
+import { ExplicitQueryProvider } from "../context/explicitQuery";
 import type { QueryClient } from "@tanstack/react-query";
 import { PageWrapper } from "../ui/PageWrapper";
 
@@ -34,14 +35,16 @@ function RootComponent() {
     <CssVarsProvider>
       <QueryProvider>
         <SavedQueriesProvider>
-          <CssBaseline />
+          <ExplicitQueryProvider>
+            <CssBaseline />
 
-          <Wrapper>
-            <Sidebar />
-            <Main>
-              <Outlet />
-            </Main>
-          </Wrapper>
+            <Wrapper>
+              <Sidebar />
+              <Main>
+                <Outlet />
+              </Main>
+            </Wrapper>
+          </ExplicitQueryProvider>
         </SavedQueriesProvider>
       </QueryProvider>
     </CssVarsProvider>

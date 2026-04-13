@@ -12,13 +12,11 @@ import { Panel } from "./Panel";
 import { TabsPanel } from "./TabsPanel";
 import { styled } from "@mui/joy";
 import { useEffect, useState } from "react";
-import { getRouteApi } from "@tanstack/react-router";
-
-const indexRouteApi = getRouteApi("/");
+import { useExplicitQueryContext } from "../../../context/explicitQuery";
 
 export function IndexPagePanels() {
   const { width } = useWindowSize();
-  const search = indexRouteApi.useSearch()
+  const { explicitQuery } = useExplicitQueryContext()
 
   const queryTabs = {
     query: {
@@ -43,10 +41,10 @@ export function IndexPagePanels() {
   // When the query has changed (e.g. by selecting an example query), switch
   // to the query tab.
   useEffect(() => {
-    if (selectedQueryTab !== "query") {
+    if (explicitQuery && selectedQueryTab !== "query") {
       setSelectedQueryTab("query")
     }
-  }, [search.query])
+  }, [explicitQuery])
 
   const resultsTabs = {
     results: {
