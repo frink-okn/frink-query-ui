@@ -13,6 +13,9 @@ export function YasqeEditor({ initialValue, onChange }: YasqeEditorProps) {
   const yasqeInstance = useRef<Yasqe | null>(null);
   const { explicitQuery } = useExplicitQueryContext()
 
+  // Capture the initial value of the editor exactly once, on mount
+  const initialValueRef = useRef(initialValue)
+
   useEffect(() => {
     if (!divEl.current) {
       console.error("divEl.current is null in YasqeEditor");
@@ -20,12 +23,12 @@ export function YasqeEditor({ initialValue, onChange }: YasqeEditorProps) {
     }
 
     yasqeInstance.current = new Yasqe(divEl.current, {
-      value: initialValue,
       consumeShareLink: null,
       persistenceId: null,
     });
 
-    // yasqeInstance.current.setValue(initialValue)
+    yasqeInstance.current.setValue(initialValueRef.current);
+    yasqeInstance.current.refresh()
 
     return () => {
       yasqeInstance.current?.destroy();
