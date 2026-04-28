@@ -7,7 +7,7 @@ import {
 import { Panel } from "./Panel";
 import { TabsPanel } from "./TabsPanel";
 import { styled } from "@mui/joy";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import dedent from "dedent";
 import { TermPanel } from "./TermPanel";
 
@@ -20,10 +20,7 @@ export function TermPagePanels({ termId }: TermPagePanelsProps) {
 
   const [selectedTab, setSelectedTab] = useState("as-subject")
 
-  if (!width) return null;
-
-
-  const relationsTabs = {
+  const relationsTabs = useMemo(() => ({
     "as-subject": {
       label: "As Subject",
       color: "var(--p-orange-400)",
@@ -73,9 +70,9 @@ export function TermPagePanels({ termId }: TermPagePanelsProps) {
         />
       ),
     },
-  };
+  }), [termId]);
 
-  const attributesTabs = {
+  const attributesTabs = useMemo(() => ({
     attributes: {
       label: "Attributes",
       color: "var(--p-indigo-300)",
@@ -92,7 +89,9 @@ export function TermPagePanels({ termId }: TermPagePanelsProps) {
         />
       ),
     },
-  };
+  }), [termId]);
+
+  if (!width) return null;
 
   if (width > 700)
     return (
@@ -136,7 +135,7 @@ const WrapperPanelGroup = styled(PanelGroup)`
 interface HandleProps {
   horizontal: string;
 }
-const Handle = styled(PanelResizeHandle)<HandleProps>`
+const Handle = styled(PanelResizeHandle) <HandleProps>`
   align-self: center;
   width: 12px;
   border-radius: 6px;
