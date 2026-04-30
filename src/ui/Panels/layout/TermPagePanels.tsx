@@ -23,7 +23,7 @@ export function TermPagePanels({ termId }: TermPagePanelsProps) {
   const relationsTabs = useMemo(() => ({
     "as-subject": {
       label: "As Subject",
-      color: "var(--p-orange-400)",
+      color: "var(--p-purple-400)",
       jsx: (
         <TermPanel
           querySparql={dedent`
@@ -40,7 +40,7 @@ export function TermPagePanels({ termId }: TermPagePanelsProps) {
 
     "as-object": {
       label: "As Object",
-      color: "var(--p-cyan-400)",
+      color: "var(--p-violet-400)",
       jsx: (
         <TermPanel
           querySparql={dedent`
@@ -75,7 +75,7 @@ export function TermPagePanels({ termId }: TermPagePanelsProps) {
   const attributesTabs = useMemo(() => ({
     attributes: {
       label: "Attributes",
-      color: "var(--p-indigo-300)",
+      color: "var(--p-fuchsia-300)",
       jsx: (
         <TermPanel
           querySparql={dedent`
@@ -97,13 +97,13 @@ export function TermPagePanels({ termId }: TermPagePanelsProps) {
     return (
       <WrapperPanelGroup
         autoSaveId="localstorage-term-panels"
-        direction="vertical"
+        direction="horizontal"
       >
         <ResizablePanel defaultSize={30} minSize={10} collapsible={true}>
           <Panel tab={attributesTabs.attributes} />
         </ResizablePanel>
 
-        <Handle horizontal={"true"} />
+        <Handle horizontal={"false"} />
 
         <ResizablePanel defaultSize={80} minSize={10} collapsible={true}>
           <TabsPanel
@@ -142,13 +142,13 @@ const Handle = styled(PanelResizeHandle)<HandleProps>`
   height: 64px;
   margin: 0 4px;
   backdrop-filter: blur(2px);
-  background-color: color-mix(in srgb, var(--p-slate-200) 30%, transparent);
+  background-color: #664e96;
   border: 1px solid var(--p-slate-400);
   transition: all 250ms cubic-bezier(0.19, 1, 0.22, 1);
 
   &[data-resize-handle-active="pointer"],
   &:hover {
-    background-color: color-mix(in srgb, var(--p-slate-500) 20%, transparent);
+    background-color: #664e96;
     border-color: var(--p-slate-500);
     transition: all 250ms cubic-bezier(0.19, 1, 0.22, 1);
   }

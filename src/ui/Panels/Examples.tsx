@@ -46,7 +46,7 @@ const Wrapper = styled("div")`
 
     & mark {
       padding: 0.25rem 0.4rem;
-      background-color: var(--p-blue-400);
+      background-color: var(--p-pink-400);
       text-transform: uppercase;
       border-radius: 4px;
       font-size: 0.8rem;

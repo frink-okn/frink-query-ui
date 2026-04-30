@@ -102,6 +102,14 @@ function RouteComponent() {
             >
               Comunica
             </a>
+            {" "}and{" "}
+            <a
+              href="https://qlever.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              QLever
+            </a>
           </small>
         </AttributionText>
       </Footer>

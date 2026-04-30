@@ -18,6 +18,7 @@ This query service is built on open source software:
 
 - [Query UI](https://github.com/frink-okn/frink-query-ui/)
 - [Comunica](https://comunica.dev)
+- [QLever](https://qlever.dev)
 - [RDF HDT](https://www.rdfhdt.org) (and an [HDT Creator](https://github.com/frink-okn/hdtc))
 - [qEndpoint CLI tools](https://github.com/the-qa-company/qEndpoint)
 - [Apache Jena](https://jena.apache.org)
