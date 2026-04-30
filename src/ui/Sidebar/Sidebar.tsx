@@ -7,7 +7,7 @@ export function Sidebar() {
   return (
     <Nav>
       <HeaderBox>
-        <a target="_blank" href="https://proto-okn.net/"><LogoImage src="public/Purple-no-background-300x200.png"></LogoImage></a>
+        <a target="_blank" href="https://proto-okn.net/"><LogoImage src="/Purple-no-background-300x200.png"></LogoImage></a>
         <Logo><InvisibleA target="_blank" href="https://proto-okn.net/">Proto-OKN</InvisibleA></Logo>
         <Subtitle><InvisibleLink to={"/"}>Query the Graphs</InvisibleLink></Subtitle>
         <Divider sx={{ my: 2 }} />
