@@ -1,12 +1,8 @@
 import { styled } from "@mui/joy";
+import { Tab } from "./TabsPanel"
 
 interface PanelProps {
-  tab: {
-    id: string;
-    label: string;
-    color: string;
-    jsx: React.ReactElement;
-  };
+  tab: Tab
 }
 
 export function Panel({ tab: { color, label, jsx } }: PanelProps) {
