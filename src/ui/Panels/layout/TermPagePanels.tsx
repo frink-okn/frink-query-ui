@@ -135,7 +135,7 @@ const WrapperPanelGroup = styled(PanelGroup)`
 interface HandleProps {
   horizontal: string;
 }
-const Handle = styled(PanelResizeHandle) <HandleProps>`
+const Handle = styled(PanelResizeHandle)<HandleProps>`
   align-self: center;
   width: 12px;
   border-radius: 6px;
