@@ -44,7 +44,7 @@ export function IndexPagePanels() {
     if (explicitQuery && selectedQueryTab !== "query") {
       setSelectedQueryTab("query")
     }
-  }, [explicitQuery])
+  }, [explicitQuery, selectedQueryTab])
 
   const resultsTabs = {
     results: {
