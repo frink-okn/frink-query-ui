@@ -37,9 +37,15 @@ export function YasqeEditor({ initialValue, onChange }: YasqeEditorProps) {
   }, []);
 
   useEffect(() => {
-    if (explicitQuery !== null && yasqeInstance.current) {
-      yasqeInstance.current.setValue(explicitQuery)
-      yasqeInstance.current.refresh()
+    const editor = yasqeInstance.current;
+
+    if (explicitQuery === null || !editor) {
+      return;
+    }
+
+    if (editor.getValue() !== explicitQuery) {
+      editor.setValue(explicitQuery)
+      editor.refresh()
     }
   }, [explicitQuery])
 
