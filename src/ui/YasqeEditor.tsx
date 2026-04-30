@@ -1,15 +1,20 @@
 import { styled } from "@mui/joy";
 import Yasqe from "@triply/yasqe";
 import { useRef, useEffect } from "react";
+import { useExplicitQueryContext } from "../context/explicitQuery";
 
 interface YasqeEditorProps {
-  value: string;
+  initialValue: string;
   onChange: (newValue: string, isSyntaxValid: boolean) => void;
 }
 
-export function YasqeEditor({ value, onChange }: YasqeEditorProps) {
+export function YasqeEditor({ initialValue, onChange }: YasqeEditorProps) {
   const divEl = useRef(null);
   const yasqeInstance = useRef<Yasqe | null>(null);
+  const { explicitQuery } = useExplicitQueryContext()
+
+  // Capture the initial value of the editor exactly once, on mount
+  const initialValueRef = useRef(initialValue)
 
   useEffect(() => {
     if (!divEl.current) {
@@ -17,7 +22,13 @@ export function YasqeEditor({ value, onChange }: YasqeEditorProps) {
       return;
     }
 
-    yasqeInstance.current = new Yasqe(divEl.current);
+    yasqeInstance.current = new Yasqe(divEl.current, {
+      consumeShareLink: null,
+      persistenceId: null,
+    });
+
+    yasqeInstance.current.setValue(initialValueRef.current);
+    yasqeInstance.current.refresh()
 
     return () => {
       yasqeInstance.current?.destroy();
@@ -26,10 +37,17 @@ export function YasqeEditor({ value, onChange }: YasqeEditorProps) {
   }, []);
 
   useEffect(() => {
-    if (yasqeInstance.current && yasqeInstance.current.getValue() !== value) {
-      yasqeInstance.current.setValue(value);
+    const editor = yasqeInstance.current;
+
+    if (explicitQuery === null || !editor) {
+      return;
     }
-  }, [value]);
+
+    if (editor.getValue() !== explicitQuery) {
+      editor.setValue(explicitQuery)
+      editor.refresh()
+    }
+  }, [explicitQuery])
 
   useEffect(() => {
     const handleChange = () => {

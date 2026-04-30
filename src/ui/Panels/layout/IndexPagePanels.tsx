@@ -4,21 +4,55 @@ import {
   Panel as ResizablePanel,
   PanelResizeHandle,
 } from "react-resizable-panels";
+import { Saved } from "../Saved";
+import { Examples } from "../Examples";
+import { Query } from "../Query";
+import { Results } from "../Results";
 import { Panel } from "./Panel";
 import { TabsPanel } from "./TabsPanel";
 import { styled } from "@mui/joy";
+import { useEffect, useState } from "react";
+import { useExplicitQueryContext } from "../../../context/explicitQuery";
 
-interface PanelsProps {
-  tabs: {
-    id: string;
-    label: string;
-    color: string;
-    jsx: React.ReactElement;
-  }[];
-}
-
-export function IndexPagePanels({ tabs }: PanelsProps) {
+export function IndexPagePanels() {
   const { width } = useWindowSize();
+  const { explicitQuery } = useExplicitQueryContext()
+
+  const queryTabs = {
+    query: {
+      label: "Query",
+      color: "var(--p-blue-400)",
+      jsx: <Query />,
+    },
+    examples: {
+      label: "Examples",
+      color: "var(--p-teal-400)",
+      jsx: <Examples />,
+    },
+    saved: {
+      label: "Saved",
+      color: "var(--p-amber-400)",
+      jsx: <Saved />,
+    },
+  };
+
+  const [selectedQueryTab, setSelectedQueryTab] = useState("query");
+
+  // When the query has changed (e.g. by selecting an example query), switch
+  // to the query tab.
+  useEffect(() => {
+    if (explicitQuery && selectedQueryTab !== "query") {
+      setSelectedQueryTab("query")
+    }
+  }, [explicitQuery, selectedQueryTab])
+
+  const resultsTabs = {
+    results: {
+      label: "Results",
+      color: "var(--p-purple-400)",
+      jsx: <Results />,
+    },
+  };
 
   if (!width) return null;
 
@@ -29,38 +63,31 @@ export function IndexPagePanels({ tabs }: PanelsProps) {
         direction="horizontal"
       >
         <ResizablePanel defaultSize={50} minSize={10} collapsible={true}>
-          <PanelGroup
-            direction="vertical"
-            autoSaveId="localstorage-panels-vert"
-          >
-            <ResizablePanel defaultSize={60} minSize={10} order={1}>
-              <Panel tab={tabs.filter((t) => t.id === "query")[0]} />
-            </ResizablePanel>
-
-            <Handle horizontal={"true"} />
-
-            <ResizablePanel
-              defaultSize={40}
-              minSize={10}
-              order={2}
-              collapsible={true}
-            >
-              <TabsPanel
-                tabs={tabs.filter((t) => ["examples", "saved"].includes(t.id))}
-              />
-            </ResizablePanel>
-          </PanelGroup>
+          <TabsPanel
+            tabs={queryTabs}
+            selectedTab={selectedQueryTab}
+            handleTabSelect={(tabId) => setSelectedQueryTab(tabId)}
+          />
         </ResizablePanel>
 
         <Handle horizontal={"false"} />
 
         <ResizablePanel defaultSize={50} minSize={10} collapsible={true}>
-          <Panel tab={tabs.filter((t) => t.id === "results")[0]} />
+          <Panel tab={resultsTabs.results} />
         </ResizablePanel>
       </WrapperPanelGroup>
     );
 
-  return <TabsPanel tabs={tabs} />;
+  return (
+    <TabsPanel
+      tabs={{
+        ...queryTabs,
+        ...resultsTabs,
+      }}
+      selectedTab={selectedQueryTab}
+      handleTabSelect={(tabId) => setSelectedQueryTab(tabId)}
+    />
+  );
 }
 
 const WrapperPanelGroup = styled(PanelGroup)`
