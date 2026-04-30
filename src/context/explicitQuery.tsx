@@ -22,14 +22,14 @@ interface ExplicitQueryProviderProps {
 }
 
 export const ExplicitQueryProvider = ({ children }: ExplicitQueryProviderProps) => {
-  const [explicitQuery, setExplicityQuery] = useState<null | string>(null)
+  const [explicitQuery, setExplicitQuery] = useState<null | string>(null)
 
   return (
     <ExplicitQueryContext.Provider
       value={{
         explicitQuery: explicitQuery,
         setExplicitQuery: (query: string) => {
-          setExplicityQuery(query);
+          setExplicitQuery(query);
         },
       }}
     >
