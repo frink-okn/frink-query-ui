@@ -39,12 +39,13 @@ export function IndexPagePanels() {
   const [selectedQueryTab, setSelectedQueryTab] = useState("query");
 
   // When the query has changed (e.g. by selecting an example query), switch
-  // to the query tab.
+  // to the query tab. Depending only on explicitQuery ensures this fires on
+  // example selection but not when the user manually switches tabs afterward.
   useEffect(() => {
-    if (explicitQuery && selectedQueryTab !== "query") {
+    if (explicitQuery) {
       setSelectedQueryTab("query")
     }
-  }, [explicitQuery, selectedQueryTab])
+  }, [explicitQuery])
 
   const resultsTabs = {
     results: {
