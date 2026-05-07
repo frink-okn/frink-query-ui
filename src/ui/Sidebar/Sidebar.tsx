@@ -7,8 +7,8 @@ export function Sidebar() {
   return (
     <Nav>
       <HeaderBox>
-        <a target="_blank" href="https://proto-okn.net/"><LogoImage src={`${import.meta.env.BASE_URL}Purple-no-background-300x200.png`}></LogoImage></a>
-        <Logo><InvisibleA target="_blank" href="https://proto-okn.net/">Proto-OKN</InvisibleA></Logo>
+        <a target="_blank" href="https://okn.us/"><LogoImage src={`${import.meta.env.BASE_URL}frink.png`}></LogoImage></a>
+        <Logo><InvisibleA target="_blank" href="https://okn.us/">okn.us</InvisibleA></Logo>
         <Subtitle><InvisibleLink to={"/"}>Query the Graphs</InvisibleLink></Subtitle>
         <Divider sx={{ my: 2 }} />
       </HeaderBox>
@@ -31,11 +31,10 @@ const Nav = styled("nav")`
   flex: 0 0 auto;
   display: flex;
   min-width: max-content;
-  padding: 8px;
   border-right: 1px solid var(--p-slate-300);
   flex-direction: row;
   backdrop-filter: blur(2px);
-  background-color: color-mix(in srgb, var(--p-slate-50) 10%, transparent);
+  background-color: #2f204a;
   border-bottom: 0.2em solid #664e96;
 `;
 
@@ -89,10 +88,10 @@ const Subtitle = styled("div")`
 
 const InvisibleA = styled("a")`
   text-decoration: none;
-  color: #5f308c;
+  color: white;
 `
 
 const InvisibleLink = styled(Link)`
   text-decoration: none;
-  color: #5f308c;
+  color: white;
 `
