@@ -2,6 +2,7 @@ import { IconButton, styled } from "@mui/joy";
 import { useSavedQueriesContext } from "../../context/savedQueries";
 import { Link } from "@tanstack/react-router";
 import { Delete } from "@mui/icons-material";
+import { useExplicitQueryContext } from "../../context/explicitQuery";
 
 const formatDate = (timestamp: number) =>
   new Date(timestamp)
@@ -16,6 +17,7 @@ const formatDate = (timestamp: number) =>
 
 export function Saved() {
   const { savedQueries, deleteQuery } = useSavedQueriesContext()!;
+  const { setExplicitQuery } = useExplicitQueryContext();
 
   return (
     <Wrapper>
@@ -34,6 +36,9 @@ export function Saved() {
               <Link
                 to={"/"}
                 search={{ query: saved.query, sources: saved.sources }}
+                onClick={() => {
+                  setExplicitQuery(saved.query);
+                }}
               >
                 {saved.title}
                 {saved.sources.map((s) => (
@@ -57,7 +62,7 @@ const Wrapper = styled("div")`
 
     & mark {
       padding: 0.25rem 0.4rem;
-      background-color: var(--p-blue-400);
+      background-color: var(--p-violet-400);
       text-transform: uppercase;
       border-radius: 4px;
       font-size: 0.8rem;

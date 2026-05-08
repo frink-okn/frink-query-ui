@@ -4,7 +4,7 @@ import * as v from "valibot";
 // This info isn't currently in the yaml, so it needs to be manually
 // linked here. If that changes in the future, this file can be updated.
 const federationSource = {
-  name: "FRINK Federated SPARQL",
+  name: "Proto-OKN Federated SPARQL",
   shortname: "federation",
   endpoint: "https://frink.apps.renci.org/federation/sparql",
 };

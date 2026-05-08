@@ -1,12 +1,13 @@
-# FRINK Query UI
+# okn.us Query UI
 
-This repository contains the code for the FRINK Query UI web app, which can be used to query the Theme 1 [Proto-OKN](https://www.proto-okn.net/) knowledge graphs or the FRINK federated knowledge graph.
+This repository contains the code for the okn.us Query UI web app, which can be used to query the individual knowledge graphs or the Proto-OKN federated knowledge graph.
 
-- **[FRINK Query UI](https://frink.apps.renci.org)**
-- [FRINK website](https://frink.renci.org/)
-- [Proto-OKN website](https://www.proto-okn.net/)
+- **[okn.us Query UI](https://apps.okn.us)**
+- [okn.us main website](https://okn.us)
+- [okn.us Fabric website](https://registry.okn.us/)
+- [Proto-OKN main website](https://www.proto-okn.net/)
 
-![A screenshot of the FRINK Query UI](./docs/media/ui-screenshot.png)
+![A screenshot of the okn.us Query UI](./docs/media/ui-screenshot.png)
 
 # Development
 
@@ -80,7 +81,7 @@ The `source.ts` file exports a `fetchSources` function. This function is called 
 ### `queries/` (Examples):
 
 > [!IMPORTANT]
-> If you are a maintainer looking to add or update the example queries, follow the step-by-step guide [here](https://frink.renci.org/help/update-queries/).
+> If you are a maintainer looking to add or update the example queries, follow the step-by-step guide [here](https://registry.okn.us/help/update-queries/).
 
 This is a directory that contains arbitrary directories and `.rq` SPARQL files. It's used to store the sample SPARQL queries. Each `.rq` file contains a YAML frontmatter section at the start of the file, before the SPARQL code. It's formatted with `#+ ` before each line.
 

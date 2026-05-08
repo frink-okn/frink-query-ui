@@ -1,4 +1,5 @@
 import { Divider, styled } from "@mui/joy";
+import { Link } from "@tanstack/react-router";
 import { SidebarItem } from "./SidebarItem";
 import { HelpRounded, HomeRounded, Settings } from "@mui/icons-material";
 
@@ -6,8 +7,9 @@ export function Sidebar() {
   return (
     <Nav>
       <HeaderBox>
-        <Logo>FRINK</Logo>
-        <Subtitle>Query the Proto-OKN</Subtitle>
+        <a target="_blank" href="https://okn.us/"><LogoImage src={`${import.meta.env.BASE_URL}frink.png`} alt="okn.us logo"></LogoImage></a>
+        <Logo><InvisibleA target="_blank" href="https://okn.us/">okn.us</InvisibleA></Logo>
+        <Subtitle><InvisibleLink to={"/"}>Query the Graphs</InvisibleLink></Subtitle>
         <Divider sx={{ my: 2 }} />
       </HeaderBox>
 
@@ -29,32 +31,31 @@ const Nav = styled("nav")`
   flex: 0 0 auto;
   display: flex;
   min-width: max-content;
-  padding: 8px;
   border-right: 1px solid var(--p-slate-300);
-  flex-direction: column;
+  flex-direction: row;
   backdrop-filter: blur(2px);
-  background-color: color-mix(in srgb, var(--p-slate-50) 10%, transparent);
-  box-shadow: 0px 8px 8px 0px var(--p-slate-300);
+  background-color: #2f204a;
+  border-bottom: 0.2em solid #664e96;
 `;
 
 const LinksWrapper = styled("div")`
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
   margin-top: 5px;
 `;
 
 const LinksSpacer = styled("div")`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 0.5rem;
 `;
 
 const HeaderBox = styled("div")`
-  padding: 1rem 0 0 0;
+  padding: 0;
   text-align: center;
-
+  display: flex;
   @media (max-width: 600px) {
     display: none;
   }
@@ -62,13 +63,35 @@ const HeaderBox = styled("div")`
 
 const Logo = styled("div")`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
+  padding: 0rem 0.75rem;
   font-size: 1.5rem;
   font-weight: 700;
 `;
 
+const LogoImage = styled("img")`
+  width: 7em;
+  height: 3.3em;
+  padding: 0rem 0.75rem;
+`;
+
 const Subtitle = styled("div")`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 0rem 0.75rem;
+  align-items: center;
   font-style: italic;
 `;
+
+const InvisibleA = styled("a")`
+  text-decoration: none;
+  color: white;
+`
+
+const InvisibleLink = styled(Link)`
+  text-decoration: none;
+  color: white;
+`

@@ -1,9 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { IndexPagePanels } from "../ui/Panels/layout/IndexPagePanels";
-import { Saved } from "../ui/Panels/Saved";
-import { Examples } from "../ui/Panels/Examples";
-import { Query } from "../ui/Panels/Query";
-import { Results } from "../ui/Panels/Results";
 import { styled, SvgIcon } from "@mui/joy";
 import { GitHub } from "@mui/icons-material";
 import * as v from "valibot";
@@ -73,34 +69,7 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   return (
     <Wrapper>
-      <IndexPagePanels
-        tabs={[
-          {
-            id: "examples",
-            label: "Examples",
-            color: "var(--p-teal-400)",
-            jsx: <Examples />,
-          },
-          {
-            id: "saved",
-            label: "Saved",
-            color: "var(--p-amber-400)",
-            jsx: <Saved />,
-          },
-          {
-            id: "query",
-            label: "Query",
-            color: "var(--p-blue-400)",
-            jsx: <Query />,
-          },
-          {
-            id: "results",
-            label: "Results",
-            color: "var(--p-purple-400)",
-            jsx: <Results />,
-          },
-        ]}
-      />
+      <IndexPagePanels />
 
       <Footer>
         <AttributionText>
@@ -132,6 +101,14 @@ function RouteComponent() {
               rel="noopener noreferrer"
             >
               Comunica
+            </a>
+            {" "}and{" "}
+            <a
+              href="https://qlever.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              QLever
             </a>
           </small>
         </AttributionText>

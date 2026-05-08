@@ -33,7 +33,7 @@ function extractSparqlFrontMatter(
     sparql: removeFrontmatter
       ? sparql
           .split("\n")
-          .slice(splitLineNumber + 1, -1)
+          .slice(splitLineNumber + 1)
           .join("\n")
           .trim()
       : sparql.trim(),

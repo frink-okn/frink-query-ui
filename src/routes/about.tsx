@@ -7,17 +7,19 @@ export const Route = createFileRoute("/about")({
 });
 
 const content = `\
-Welcome to the FRINK query service for the NSF Prototype Open Knowledge Network (Proto-OKN). For more information, please see the following:
+Welcome to the SPARQL query service for okn.us (formerly the NSF Prototype Open Knowledge Network, or Proto-OKN). For more information, please see the following:
 
-- [FRINK documentation](https://frink.renci.org)
-- [NSF Proto-OKN](https://www.proto-okn.net)
-- FRINK is funded by [NSF award 2333810](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2333810&HistoricalAwards=false) to [RENCI](https://renci.org)
+- [okn.us Fabric website](https://registry.okn.us/) (technical documentation)
+- [NSF Proto-OKN main website](https://www.proto-okn.net/)
+    - The Fabric underlying okn.us is funded by [NSF award 2535091](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2535091&HistoricalAwards=false).
+    - [RENCI](https://renci.org)'s portion of the project was previously funded by [NSF award 2333810](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2333810&HistoricalAwards=false).
 
-The FRINK query service is built on open source software:
+This query service is built on open source software:
 
-- [FRINK query UI](https://github.com/frink-okn/frink-query-ui/)
+- [Query UI](https://github.com/frink-okn/frink-query-ui/)
 - [Comunica](https://comunica.dev)
-- [RDF HDT](https://www.rdfhdt.org)
+- [QLever](https://qlever.dev)
+- [RDF HDT](https://www.rdfhdt.org) (and an [HDT Creator](https://github.com/frink-okn/hdtc))
 - [qEndpoint CLI tools](https://github.com/the-qa-company/qEndpoint)
 - [Apache Jena](https://jena.apache.org)
 `;

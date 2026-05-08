@@ -1,49 +1,59 @@
 import { styled } from "@mui/joy";
-import React, { useState } from "react";
+import React from "react";
 
-type Tab = {
-  id: string;
+export type Tab = {
   label: string;
   color: string;
   jsx: React.ReactElement;
 };
+
 interface TabsPanelProps {
-  tabs: Tab[];
+  tabs: Record<string, Tab>;
+  selectedTab: string;
+  handleTabSelect: (tabId: string) => void;
 }
 
-export function TabsPanel({ tabs }: TabsPanelProps) {
-  const [selectedTab, setSelectedTab] = useState<Tab>(tabs[0]);
+export function TabsPanel({
+  tabs,
+  selectedTab,
+  handleTabSelect,
+}: TabsPanelProps) {
+  const _selectedTab = tabs[selectedTab];
+
+  if (!_selectedTab) {
+    throw new Error(`Tab ${selectedTab} is not a defined tab.`);
+  }
 
   return (
     <Panel
-      style={{ "--accent-color": selectedTab.color } as React.CSSProperties}
+      style={{ "--accent-color": _selectedTab.color } as React.CSSProperties}
     >
       <header>
-        {tabs.map((tab) => (
+        {Object.entries(tabs).map(([tabId, tab]) => (
           <Tab
-            key={tab.id}
+            key={tabId}
             tabIndex={0}
             role="button"
             style={
               { "--button-accent-color": tab.color } as React.CSSProperties
             }
-            className={tab.id === selectedTab.id ? "selected" : undefined}
+            className={tabId === selectedTab ? "selected" : undefined}
             onClick={() => {
-              setSelectedTab(tabs.filter((t) => t.id === tab.id)[0]);
+              handleTabSelect(tabId);
             }}
             onKeyDown={(e) => {
-              if (e.key === " " || e.key === "Enter")
-                setSelectedTab(tabs.filter((t) => t.id === tab.id)[0]);
+              if (e.key === " " || e.key === "Enter") handleTabSelect(tabId);
             }}
           >
             <h2>{tab.label}</h2>
           </Tab>
         ))}
       </header>
-      {tabs.map((tab) => (
+
+      {Object.entries(tabs).map(([tabId, tab]) => (
         <Content
-          key={tab.id}
-          style={{ display: selectedTab.id === tab.id ? "block" : "none" }}
+          key={tabId}
+          style={{ display: selectedTab === tabId ? "block" : "none" }}
         >
           {tab.jsx}
         </Content>

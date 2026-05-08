@@ -8,6 +8,7 @@ import {
 } from "react-aria-components";
 import { Box, styled, Tooltip } from "@mui/joy";
 import { Link } from "@tanstack/react-router";
+import { useExplicitQueryContext } from "../context/explicitQuery";
 
 export function ExampleTree({ rootNodes }: { rootNodes: ExampleNode[] }) {
   if (!rootNodes.every((node) => node.type)) return null;
@@ -58,14 +59,24 @@ const FolderItem = ({ item, isExpanded }: FolderItemProps) => (
 interface ExampleItemProps {
   item: Extract<ExampleNode, { type: "example" }>;
 }
-const ExampleItem = ({ item }: ExampleItemProps) => (
-  <Link to={"/"} search={{ query: item.query, sources: item.sources }}>
-    {item.title}
-    {item.sources.map((s) => (
-      <Chip key={s}>{s}</Chip>
-    ))}
-  </Link>
-);
+const ExampleItem = ({ item }: ExampleItemProps) => {
+  const { setExplicitQuery } = useExplicitQueryContext()
+
+  return (
+    <Link
+      to={"/"}
+      search={{ query: item.query, sources: item.sources }}
+      onClick={() => {
+        setExplicitQuery(item.query);
+      }}
+    >
+      {item.title}
+      {item.sources.map((s) => (
+        <Chip key={s}>{s}</Chip>
+      ))}
+    </Link>
+  )
+}
 
 interface ErrorItemProps {
   item: Extract<ExampleNode, { type: "error" }>;

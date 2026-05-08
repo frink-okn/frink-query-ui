@@ -91,7 +91,7 @@ export function Query() {
       <LabelContainer className="query">
         <h3>SPARQL Query</h3>
         <YasqeEditor
-          value={fastUpdatingSparql}
+          initialValue={fastUpdatingSparql}
           onChange={(newValue, isSyntaxValid) => {
             setFastUpdatingSparql(newValue);
             setIsSparqlValid(isSyntaxValid);
