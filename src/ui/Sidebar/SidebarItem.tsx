@@ -23,7 +23,7 @@ const StyledLink = styled(Link)`
   width: 100%;
   border-radius: 8px;
   padding: 0.6rem 0.75rem;
-  color: var(--p-slate-950);
+  color: white;
   border: 1px solid transparent;
 
   &:hover {
