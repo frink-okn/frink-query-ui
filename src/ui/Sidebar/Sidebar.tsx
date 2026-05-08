@@ -7,7 +7,7 @@ export function Sidebar() {
   return (
     <Nav>
       <HeaderBox>
-        <a target="_blank" href="https://okn.us/"><LogoImage src={`${import.meta.env.BASE_URL}frink.png`}></LogoImage></a>
+        <a target="_blank" href="https://okn.us/"><LogoImage src={`${import.meta.env.BASE_URL}frink.png`} alt="okn.us logo"></LogoImage></a>
         <Logo><InvisibleA target="_blank" href="https://okn.us/">okn.us</InvisibleA></Logo>
         <Subtitle><InvisibleLink to={"/"}>Query the Graphs</InvisibleLink></Subtitle>
         <Divider sx={{ my: 2 }} />
