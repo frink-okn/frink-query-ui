@@ -24,17 +24,18 @@ const StyledLink = styled(Link)`
   border-radius: 8px;
   padding: 0.6rem 0.75rem;
   color: white;
+  --Icon-color: white;
   border: 1px solid transparent;
 
   &:hover {
-    background-color: color-mix(in srgb, var(--p-slate-300) 30%, transparent);
-    color: inherit;
+    background-color: color-mix(in srgb, white 12%, transparent);
+    color: white;
     text-decoration: none;
   }
 
   &[data-status="active"] {
-    background-color: color-mix(in srgb, var(--p-slate-300) 50%, transparent);
-    border: 1px solid var(--p-slate-400);
+    background-color: color-mix(in srgb, white 20%, transparent);
+    border: 1px solid color-mix(in srgb, white 35%, transparent);
   }
 
   @media (max-width: 600px) {
