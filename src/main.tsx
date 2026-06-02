@@ -12,6 +12,10 @@ import "@triply/yasqe/build/yasqe.min.css";
 // This file is created automatically by Tanstack Router based
 // on the files in `./routes/`
 import { routeTree } from "./routeTree.gen";
+import {
+  parseSearchParams,
+  stringifySearchParams,
+} from "./searchParamSerialization";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -45,6 +49,8 @@ const router = createRouter({
     queryClient,
   },
   basepath: import.meta.env.VITE_BASE_URL,
+  parseSearch: parseSearchParams,
+  stringifySearch: stringifySearchParams,
 });
 
 // Register all Community features

@@ -2,7 +2,7 @@ import { ArrowForwardRounded, SaveRounded, Stop } from "@mui/icons-material";
 import { Box, Button, ButtonGroup, styled } from "@mui/joy";
 import { SourceSelect } from "../SourceSelect";
 import { YasqeEditor } from "../YasqeEditor";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { useDebounce, useLocalStorage } from "@uidotdev/usehooks";
 import { useQueryContext } from "../../context/query";
@@ -34,7 +34,13 @@ export function Query() {
   );
   const debouncedSparql = useDebounce(fastUpdatingSparql, 250);
 
+  // Tracks when a URL update was triggered by our own debounce, so the
+  // searchParams effect below doesn't echo it back into the editor (causing
+  // cursor jumps and lag during fast typing).
+  const isSelfNavigating = useRef(false);
+
   useEffect(() => {
+    isSelfNavigating.current = true;
     navigate({
       search: (prev) => ({ ...prev, query: debouncedSparql }),
       replace: true,
@@ -43,6 +49,10 @@ export function Query() {
   }, [debouncedSparql, navigate]);
 
   useEffect(() => {
+    if (isSelfNavigating.current) {
+      isSelfNavigating.current = false;
+      return;
+    }
     setFastUpdatingSparql(searchParams.query);
   }, [searchParams.query]);
 

@@ -34,6 +34,7 @@
     "ag-grid-react": "^34.1.1",
     "asynciterator": "^3.9.0",
     "dedent": "^1.6.0",
+    "fflate": "^0.8.2",
     "immer": "^10.1.1",
     "js-yaml": "^4.1.0",
     "rdf-data-factory": "^2.0.2",
