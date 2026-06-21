@@ -6,7 +6,7 @@ import * as v from "valibot";
 const federationSource = {
   name: "Proto-OKN Federated SPARQL",
   shortname: "federation",
-  endpoint: "https://frink.apps.renci.org/federation/sparql",
+  endpoint: "https://apps.okn.us/federation/sparql",
 };
 
 export type SourceCategory = "registry" | "federation" | "other" | "custom";
