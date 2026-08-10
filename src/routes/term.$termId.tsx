@@ -5,9 +5,9 @@ import { TermPagePanels } from "../ui/Panels/layout/TermPagePanels";
 import { useEffect, useState } from "react";
 import { QueryEngine } from "@comunica/query-sparql";
 import dedent from "dedent";
+import { FEDERATION_SPARQL_ENDPOINT } from "../config";
 
 const engine = new QueryEngine();
-const FEDERATION_URL = "https://frink.apps.renci.org/federation/sparql";
 
 export const Route = createFileRoute("/term/$termId")({
   component: RouteComponent,
@@ -65,7 +65,7 @@ function RouteComponent() {
       `;
       const labelBindings = await (
         await engine.queryBindings(labelSparql, {
-          sources: [{ type: "sparql", value: FEDERATION_URL }],
+          sources: [{ type: "sparql", value: FEDERATION_SPARQL_ENDPOINT }],
         })
       )
         .take(1)

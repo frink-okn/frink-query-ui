@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import dedent from "dedent";
 import { QueryEngine } from "@comunica/query-sparql";
+import { FEDERATION_SPARQL_ENDPOINT } from "../../config";
 
 interface RDFTermDisplayProps {
   term?: Term;
@@ -11,7 +12,6 @@ interface RDFTermDisplayProps {
 }
 
 const engine = new QueryEngine();
-const FEDERATION_URL = "https://frink.apps.renci.org/federation/sparql";
 const XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
 
 export function RDFTermDisplay({ term, resolveLabels }: RDFTermDisplayProps) {
@@ -109,7 +109,7 @@ function LabeledIri({ term }: { term: Term }) {
       try {
         const labelBindings = await (
           await engine.queryBindings(labelSparql, {
-            sources: [{ type: "sparql", value: FEDERATION_URL }],
+            sources: [{ type: "sparql", value: FEDERATION_SPARQL_ENDPOINT }],
           })
         )
           .take(1)
