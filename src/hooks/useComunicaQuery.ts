@@ -135,6 +135,17 @@ export const useComunicaQuery = ({
         for await (const item of bindingsStream) {
           if (finishedRef.current) return;
 
+          // Some complex queries can return bindings even when Comunica's
+          // result metadata contains no variables. Fall back to the first
+          // binding's keys so those rows still have columns to render.
+          if (_results.length === 0) {
+            setColumns((currentColumns) =>
+              currentColumns.length > 0
+                ? currentColumns
+                : Array.from(item.keys()),
+            );
+          }
+
           _results.push(item);
 
           if (_results.length < 100) {
@@ -240,6 +251,7 @@ export const useComunicaQuery = ({
       if (queryContext.length < 1) return;
 
       setResults([]);
+      setColumns([]);
       setErrorMessage("");
       setPossiblyIncomplete(false);
       finishedRef.current = false;
