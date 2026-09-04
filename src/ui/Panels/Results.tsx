@@ -82,7 +82,12 @@ export function Results() {
             <Tooltip title="Download results" placement="top">
               <MenuButton
                 slots={{ root: IconButton }}
-                slotProps={{ root: { variant: "soft" } }}
+                slotProps={{
+                  root: {
+                    variant: "soft",
+                    "aria-label": "Download results",
+                  },
+                }}
               >
                 <Download />
               </MenuButton>

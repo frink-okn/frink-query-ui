@@ -320,11 +320,13 @@ export const useComunicaQuery = ({
 
   const downloadResultsAsCSV = () => {
     if (results && results.length > 0) {
-      const header = `${columns.map((v) => v.value).join(",")}\r\n`;
+      const variables =
+        columns.length > 0 ? columns : Array.from(results[0].keys());
+      const header = `${variables.map((v) => v.value).join(",")}\r\n`;
       const body = results
         .map(
           (result) =>
-            `${columns
+            `${variables
               .map((v) =>
                 ActorQueryResultSerializeSparqlCsv.bindingToCsvBindings(
                   result.get(v),
@@ -339,11 +341,13 @@ export const useComunicaQuery = ({
 
   const downloadResultsAsTSV = () => {
     if (results && results.length > 0) {
-      const header = `${columns.map((v) => `?${v.value}`).join("\t")}\n`;
+      const variables =
+        columns.length > 0 ? columns : Array.from(results[0].keys());
+      const header = `${variables.map((v) => `?${v.value}`).join("\t")}\n`;
       const body = results
         .map(
           (result) =>
-            `${columns
+            `${variables
               .map((v) =>
                 ActorQueryResultSerializeSparqlTsv.bindingToTsvBindings(
                   result.get(v),
