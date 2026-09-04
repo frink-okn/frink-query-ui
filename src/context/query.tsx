@@ -19,6 +19,7 @@ const QueryContext = createContext<{
   possiblyIncomplete: boolean;
   errorMessage: string;
   downloadResultsAsCSV: () => void;
+  downloadResultsAsTSV: () => void;
   secondsString: string;
   msElapsed: number;
   selectedCustomSources: CustomSource[];
@@ -55,6 +56,7 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
     possiblyIncomplete,
     errorMessage,
     downloadResultsAsCSV,
+    downloadResultsAsTSV,
   } = useComunicaQuery({
     onStart: timer.start,
     onStop: timer.stop,
@@ -72,6 +74,7 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
         possiblyIncomplete,
         errorMessage,
         downloadResultsAsCSV,
+        downloadResultsAsTSV,
         secondsString: timer.secondsString,
         msElapsed: timer.msElapsed,
         selectedCustomSources,

@@ -1,5 +1,13 @@
 import { useQueryContext } from "../../context/query";
-import { IconButton, styled, Tooltip } from "@mui/joy";
+import {
+  Dropdown,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  styled,
+  Tooltip,
+} from "@mui/joy";
 import { WrapText, Download } from "@mui/icons-material";
 import { RDFTable } from "../RDFTable/RDFTable";
 import { useMemo, useState } from "react";
@@ -17,6 +25,7 @@ export function Results() {
     possiblyIncomplete,
     errorMessage,
     downloadResultsAsCSV,
+    downloadResultsAsTSV,
     msElapsed,
   } = useQueryContext()!;
 
@@ -69,11 +78,29 @@ export function Results() {
               <WrapText />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Download results as CSV" placement="top">
-            <IconButton variant="soft" onClick={downloadResultsAsCSV}>
-              <Download />
-            </IconButton>
-          </Tooltip>
+          <Dropdown>
+            <Tooltip title="Download results" placement="top">
+              <MenuButton
+                slots={{ root: IconButton }}
+                slotProps={{
+                  root: {
+                    variant: "soft",
+                    "aria-label": "Download results",
+                  },
+                }}
+              >
+                <Download />
+              </MenuButton>
+            </Tooltip>
+            <Menu placement="bottom-end">
+              <MenuItem onClick={downloadResultsAsTSV}>
+                TSV (preserves RDF term details)
+              </MenuItem>
+              <MenuItem onClick={downloadResultsAsCSV}>
+                CSV (plain values)
+              </MenuItem>
+            </Menu>
+          </Dropdown>
         </ButtonWrapper>
       </Toolbar>
       <TableWrapper>
