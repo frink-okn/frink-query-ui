@@ -11,6 +11,7 @@ import { ArrayIterator } from "asynciterator";
 import type { Variable } from "@rdfjs/types";
 import { asBindings, downloadTextAsFile } from "../utils";
 import { ActorQueryResultSerializeSparqlCsv } from "@comunica/actor-query-result-serialize-sparql-csv";
+import { ActorQueryResultSerializeSparqlTsv } from "@comunica/actor-query-result-serialize-sparql-tsv";
 import throttle from "throttleit";
 
 interface ComunicaQueryParams {
@@ -83,6 +84,11 @@ interface ComunicaQueryOutput {
    * Immediately downloads the results as a CSV file.
    */
   downloadResultsAsCSV: () => void;
+  /**
+   * Immediately downloads the results as a SPARQL TSV file, preserving RDF
+   * term details such as literal language tags and datatypes.
+   */
+  downloadResultsAsTSV: () => void;
 }
 
 const DF = new DataFactory();
@@ -314,12 +320,11 @@ export const useComunicaQuery = ({
 
   const downloadResultsAsCSV = () => {
     if (results && results.length > 0) {
-      const variables = Array.from(results[0].keys());
-      const header = `${variables.map((v) => v.value).join(",")}\r\n`;
+      const header = `${columns.map((v) => v.value).join(",")}\r\n`;
       const body = results
         .map(
           (result) =>
-            `${variables
+            `${columns
               .map((v) =>
                 ActorQueryResultSerializeSparqlCsv.bindingToCsvBindings(
                   result.get(v),
@@ -329,6 +334,29 @@ export const useComunicaQuery = ({
         )
         .join("");
       downloadTextAsFile([header, body], "sparql-results.csv", "text/csv");
+    }
+  };
+
+  const downloadResultsAsTSV = () => {
+    if (results && results.length > 0) {
+      const header = `${columns.map((v) => `?${v.value}`).join("\t")}\n`;
+      const body = results
+        .map(
+          (result) =>
+            `${columns
+              .map((v) =>
+                ActorQueryResultSerializeSparqlTsv.bindingToTsvBindings(
+                  result.get(v),
+                ),
+              )
+              .join("\t")}\n`,
+        )
+        .join("");
+      downloadTextAsFile(
+        [header, body],
+        "sparql-results.tsv",
+        "text/tab-separated-values",
+      );
     }
   };
 
@@ -342,5 +370,6 @@ export const useComunicaQuery = ({
     possiblyIncomplete,
     errorMessage,
     downloadResultsAsCSV,
+    downloadResultsAsTSV,
   };
 };

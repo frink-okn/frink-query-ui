@@ -12,30 +12,13 @@ function downloadTextAsFile(
   contentType: string,
 ) {
   const content = typeof text === "string" ? [text] : text;
-  const blob = new Blob(content);
+  const blob = new Blob(content, { type: contentType });
+  const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.download = filename;
-  a.href = window.URL.createObjectURL(blob);
-  a.dataset.downloadurl = [contentType, a.download, a.href].join(":");
-  const e = document.createEvent("MouseEvents");
-  e.initMouseEvent(
-    "click",
-    true,
-    false,
-    window,
-    0,
-    0,
-    0,
-    0,
-    0,
-    false,
-    false,
-    false,
-    false,
-    0,
-    null,
-  );
-  a.dispatchEvent(e);
+  a.href = url;
+  a.click();
+  window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
 }
 
 function asBindings(result: RDF.Quad | boolean): Bindings {
