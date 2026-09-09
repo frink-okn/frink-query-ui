@@ -21,38 +21,17 @@ export const sourceCategories: Map<string, SourceCategory> = new Map([
   ["federation", "federation"],
 ]);
 
-const compoundSourceSchema = v.object({
-  title: v.string(),
-  shortname: v.string(),
-  // optional for Bio-Health KG, ideally made required when yaml file is fixed:
-  sparql: v.optional(v.pipe(v.string(), v.url())),
-  tpf: v.optional(v.pipe(v.string(), v.url())),
-});
-const allCompoundSourcesSchema = v.pipe(
-  v.object({ kgs: v.array(compoundSourceSchema) }),
-  v.transform(({ kgs }) =>
-    kgs
-      .filter(
-        // Bio-Health KG doesn't have these values we need, so filter it
-        (
-          source,
-        ): source is Required<v.InferOutput<typeof compoundSourceSchema>> =>
-          source.sparql !== undefined && source.tpf !== undefined,
-      )
-      .map((source) => ({
-        name: source.title,
-        shortname: source.shortname,
-        sparqlEndpoint: source.sparql,
-        tpfEndpoint: source.tpf,
-      })),
-  ),
-);
-
 type SPARQLSource = {
   category: SourceCategory;
   name: string;
   shortname: string;
   endpoint: string;
+};
+type TPFSource = {
+  category: SourceCategory;
+  name: string;
+  shortname: string;
+  tpfEndpoint: string;
 };
 type CompoundSource = {
   category: SourceCategory;
@@ -61,7 +40,48 @@ type CompoundSource = {
   sparqlEndpoint: string;
   tpfEndpoint: string;
 };
-export type Source = SPARQLSource | CompoundSource;
+export type Source = SPARQLSource | TPFSource | CompoundSource;
+
+type RegistrySource =
+  | Omit<SPARQLSource, "category">
+  | Omit<TPFSource, "category">
+  | Omit<CompoundSource, "category">;
+
+const registrySourceSchema = v.object({
+  title: v.string(),
+  shortname: v.string(),
+  sparql: v.optional(v.pipe(v.string(), v.url())),
+  tpf: v.optional(v.pipe(v.string(), v.url())),
+});
+const allRegistrySourcesSchema = v.pipe(
+  v.object({ kgs: v.array(registrySourceSchema) }),
+  v.transform(({ kgs }) =>
+    kgs.flatMap<RegistrySource>((source) => {
+      const common = {
+        name: source.title,
+        shortname: source.shortname,
+      };
+
+      if (source.sparql === undefined) {
+        return source.tpf === undefined
+          ? []
+          : [{ ...common, tpfEndpoint: source.tpf }];
+      }
+
+      // Keep both endpoints when possible so multi-source queries can prefer
+      // TPF, while single-source queries continue to use SPARQL.
+      return source.tpf === undefined
+        ? [{ ...common, endpoint: source.sparql }]
+        : [
+            {
+              ...common,
+              sparqlEndpoint: source.sparql,
+              tpfEndpoint: source.tpf,
+            },
+          ];
+    }),
+  ),
+);
 
 /**
  * fetches kg list yaml from github and constructs a json array of sources
@@ -78,10 +98,10 @@ export async function fetchSources(): Promise<Source[]> {
   });
   if (!res.ok) throw new Error(`HTTP Error: ${res.statusText}`);
 
-  // parse the compound kg sources from the yaml into JSON, and validate
-  // and transform with Valibot
+  // Parse the registry sources from the YAML, then select the endpoint shape
+  // that Comunica should use for single-source and federated queries.
   const sourcesJson = yaml.load(await res.text());
-  const validatedSources = v.parse(allCompoundSourcesSchema, sourcesJson);
+  const validatedSources = v.parse(allRegistrySourcesSchema, sourcesJson);
 
   // Apply information not in the yaml file (see top of file):
   //   - federation source

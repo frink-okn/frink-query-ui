@@ -71,8 +71,9 @@ This is an array of all the sources that is used to populate the [`SourceSelect.
 
 - title
 - shortname
-- sparql
-- tpf
+- at least one of `sparql` or `tpf`
+
+When several registry graphs are queried together, Comunica uses TPF for graphs that define it and SPARQL for graphs that do not. For a single graph with both endpoints, Comunica uses SPARQL; a TPF-only graph is queried through its TPF endpoint.
 
 Furthermore, the sources are grouped together by type in the dropdown, which is hardcoded in a map defined in the `sources.ts` file. If a source is in the `kgs.yaml` file but not in the map, it will be listed under the "Other Graphs" group.
 

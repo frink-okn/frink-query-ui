@@ -246,11 +246,13 @@ export const useComunicaQuery = ({
         return sources.map((s) => {
           if ("endpoint" in s) {
             return { type: "sparql", value: s.endpoint };
-          } else {
-            return useTpf
-              ? { type: "qpf", value: s.tpfEndpoint }
-              : { type: "sparql", value: s.sparqlEndpoint };
           }
+
+          if (useTpf || !("sparqlEndpoint" in s)) {
+            return { type: "qpf", value: s.tpfEndpoint };
+          }
+
+          return { type: "sparql", value: s.sparqlEndpoint };
         });
       })();
 
