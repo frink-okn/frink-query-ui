@@ -5,7 +5,7 @@ import { FEDERATION_SPARQL_ENDPOINT } from "../config";
 // This info isn't currently in the yaml, so it needs to be manually
 // linked here. If that changes in the future, this file can be updated.
 const federationSource = {
-  name: "Proto-OKN Federated SPARQL",
+  name: "OKN Consolidated SPARQL Endpoint",
   shortname: "federation",
   endpoint: FEDERATION_SPARQL_ENDPOINT,
 };
