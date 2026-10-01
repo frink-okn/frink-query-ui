@@ -71,6 +71,7 @@
   },
   "overrides": {
     "@kgf/actor-http-throttle": "file:vendor/kgf-sparql/kgf-actor-http-throttle-0.1.0.tgz",
+    "@kgf/actor-query-source-identify-hypermedia-sparql-bounded": "file:vendor/kgf-sparql/kgf-actor-query-source-identify-hypermedia-sparql-bounded-0.1.0.tgz",
     "@kgf/actor-query-source-identify-kgf": "file:vendor/kgf-sparql/kgf-actor-query-source-identify-kgf-0.1.0.tgz",
     "@kgf/actor-rdf-join-inner-multi-bind-block": "file:vendor/kgf-sparql/kgf-actor-rdf-join-inner-multi-bind-block-0.1.0.tgz",
     "@kgf/actor-rdf-join-inner-multi-bind-round-trip": "file:vendor/kgf-sparql/kgf-actor-rdf-join-inner-multi-bind-round-trip-0.1.0.tgz",
