@@ -32,6 +32,8 @@ type TPFSource = {
   name: string;
   shortname: string;
   tpfEndpoint: string;
+  /** The graph's native KGF fragment route, which kgf-sparql queries directly. */
+  kgfEndpoint?: string;
 };
 type CompoundSource = {
   category: SourceCategory;
@@ -39,6 +41,8 @@ type CompoundSource = {
   shortname: string;
   sparqlEndpoint: string;
   tpfEndpoint: string;
+  /** The graph's native KGF fragment route, which kgf-sparql queries directly. */
+  kgfEndpoint?: string;
 };
 export type Source = SPARQLSource | TPFSource | CompoundSource;
 
@@ -52,7 +56,21 @@ const registrySourceSchema = v.object({
   shortname: v.string(),
   sparql: v.optional(v.pipe(v.string(), v.url())),
   tpf: v.optional(v.pipe(v.string(), v.url())),
+  kgf: v.optional(v.pipe(v.string(), v.url())),
 });
+
+/**
+ * The native KGF route behind a KGF TPF link, `…/kgf/<graph>/latest/tpf` (or
+ * `…/v/<version>/tpf`) to `…/fragment`, for registry entries that do not yet
+ * carry a `kgf` property of their own. Other TPF links have none.
+ */
+export function kgfFromTpf(tpf: string | undefined): string | undefined {
+  const match = tpf?.match(
+    /^(https?:\/\/[^?#]*\/kgf\/[^/?#]+\/(?:latest|v\/[^/?#]+))\/tpf\/?$/u,
+  );
+  return match ? `${match[1]}/fragment` : undefined;
+}
+
 const allRegistrySourcesSchema = v.pipe(
   v.object({ kgs: v.array(registrySourceSchema) }),
   v.transform(({ kgs }) =>
@@ -61,11 +79,13 @@ const allRegistrySourcesSchema = v.pipe(
         name: source.title,
         shortname: source.shortname,
       };
+      const kgfEndpoint = source.kgf ?? kgfFromTpf(source.tpf);
+      const kgf = kgfEndpoint === undefined ? {} : { kgfEndpoint };
 
       if (source.sparql === undefined) {
         return source.tpf === undefined
           ? []
-          : [{ ...common, tpfEndpoint: source.tpf }];
+          : [{ ...common, tpfEndpoint: source.tpf, ...kgf }];
       }
 
       // Keep both endpoints when possible so multi-source queries can prefer
@@ -77,6 +97,7 @@ const allRegistrySourcesSchema = v.pipe(
               ...common,
               sparqlEndpoint: source.sparql,
               tpfEndpoint: source.tpf,
+              ...kgf,
             },
           ];
     }),

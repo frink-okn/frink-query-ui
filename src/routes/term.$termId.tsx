@@ -3,11 +3,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { TermPagePanels } from "../ui/Panels/layout/TermPagePanels";
 import { useEffect, useState } from "react";
-import { QueryEngine } from "@comunica/query-sparql";
+import { engine } from "../engine";
 import dedent from "dedent";
 import { FEDERATION_SPARQL_ENDPOINT } from "../config";
 
-const engine = new QueryEngine();
 
 export const Route = createFileRoute("/term/$termId")({
   component: RouteComponent,

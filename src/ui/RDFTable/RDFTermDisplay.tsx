@@ -3,7 +3,7 @@ import type { Term } from "@rdfjs/types";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import dedent from "dedent";
-import { QueryEngine } from "@comunica/query-sparql";
+import { engine } from "../../engine";
 import { FEDERATION_SPARQL_ENDPOINT } from "../../config";
 
 interface RDFTermDisplayProps {
@@ -11,7 +11,6 @@ interface RDFTermDisplayProps {
   resolveLabels: boolean;
 }
 
-const engine = new QueryEngine();
 const XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
 
 export function RDFTermDisplay({ term, resolveLabels }: RDFTermDisplayProps) {

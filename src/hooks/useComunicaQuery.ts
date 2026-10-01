@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DataFactory } from "rdf-data-factory";
 import type { Source } from "../data/sources";
-import { QueryEngine } from "@comunica/query-sparql";
+import { engine } from "../engine";
 import type {
   BindingsStream,
   Bindings,
@@ -92,7 +92,6 @@ interface ComunicaQueryOutput {
 }
 
 const DF = new DataFactory();
-const engine = new QueryEngine();
 
 export const useComunicaQuery = ({
   runOnMount = false,
@@ -242,14 +241,19 @@ export const useComunicaQuery = ({
       });
 
       const queryContext = (() => {
-        const useTpf = sources.length > 1;
+        // Several sources are federated pattern by pattern: through a graph's
+        // native KGF route when it has one, else its TPF interface. One source
+        // gets the whole query at its SPARQL endpoint when it has one.
+        const federated = sources.length > 1;
         return sources.map((s) => {
           if ("endpoint" in s) {
             return { type: "sparql", value: s.endpoint };
           }
 
-          if (useTpf || !("sparqlEndpoint" in s)) {
-            return { type: "qpf", value: s.tpfEndpoint };
+          if (federated || !("sparqlEndpoint" in s)) {
+            return s.kgfEndpoint === undefined
+              ? { type: "qpf", value: s.tpfEndpoint }
+              : { type: "kgf", value: s.kgfEndpoint };
           }
 
           return { type: "sparql", value: s.sparqlEndpoint };
