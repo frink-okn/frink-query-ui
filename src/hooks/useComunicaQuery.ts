@@ -7,7 +7,7 @@ import type {
   Bindings,
   QueryStringContext,
 } from "@comunica/types";
-import { ArrayIterator } from "asynciterator";
+import { ArrayIterator, wrap } from "asynciterator";
 import type { Variable } from "@rdfjs/types";
 import { asBindings, downloadTextAsFile } from "../utils";
 import { ActorQueryResultSerializeSparqlCsv } from "@comunica/actor-query-result-serialize-sparql-csv";
@@ -92,6 +92,35 @@ interface ComunicaQueryOutput {
 }
 
 const DF = new DataFactory();
+
+/**
+ * Plans a query, returning the variables of its results and a stream of them,
+ * with quads and a boolean answer given as bindings.
+ */
+const planQuery = async (
+  query: string,
+  context: QueryStringContext,
+): Promise<[Variable[], BindingsStream]> => {
+  const result = await engine.query(query, context);
+  switch (result.resultType) {
+    case "bindings":
+      return [(await result.metadata()).variables, await result.execute()];
+    case "quads":
+      return [
+        ["subject", "predicate", "object", "graph"].map((v) => DF.variable(v)),
+        (await result.execute()).map(asBindings),
+      ];
+    case "boolean":
+      return [
+        [DF.variable("result")],
+        new ArrayIterator<Bindings>([asBindings(await result.execute())]),
+      ];
+    default:
+      throw new Error(
+        "Only SELECT, CONSTRUCT, DESCRIBE and ASK queries are supported.",
+      );
+  }
+};
 
 export const useComunicaQuery = ({
   runOnMount = false,
@@ -269,44 +298,29 @@ export const useComunicaQuery = ({
       setPossiblyIncomplete(false);
       finishedRef.current = false;
 
-      const result = await engine
-        .query(query, { sources: queryContext } as QueryStringContext)
-        .catch((error) => {
-          setIsRunning(false);
-          if (!finishedRef.current) {
-            finishedRef.current = true;
-            onStop?.();
-          }
-          setPossiblyIncomplete(true);
-          setErrorMessage(error.toLocaleString());
-        });
-
-      if (result) {
-        switch (result.resultType) {
-          case "bindings":
-            setColumns((await result.metadata()).variables);
-            setBindingsStream(await result.execute());
-            break;
-          case "quads":
-            setColumns(
-              ["subject", "predicate", "object", "graph"].map((v) =>
-                DF.variable(v),
-              ),
-            );
-            setBindingsStream((await result.execute()).map(asBindings));
-            break;
-          case "boolean":
-            setColumns([DF.variable("result")]);
-            setBindingsStream(
-              new ArrayIterator<Bindings>([asBindings(await result.execute())]),
-            );
-            break;
-        }
-        setIsRunning(true);
-        onStart?.();
-      }
+      // Planning happens inside the results stream, so that it is timed and
+      // can be stopped like the rest of the query, and its errors are
+      // reported the same way.
+      const stream: BindingsStream = wrap(
+        planQuery(query, { sources: queryContext } as QueryStringContext).then(
+          // Planning can finish after the query was stopped, even after a
+          // newer query has started, and then its columns and errors no
+          // longer apply.
+          ([variables, results]) => {
+            if (!stream.done) setColumns(variables);
+            return results;
+          },
+          (error) => {
+            if (stream.done) return new ArrayIterator<Bindings>([]);
+            throw error;
+          },
+        ),
+      );
+      setBindingsStream(stream);
+      setIsRunning(true);
+      onStart?.();
     },
-    [onStart, onStop, propsQuery, propsSources],
+    [onStart, propsQuery, propsSources],
   );
 
   useEffect(() => {

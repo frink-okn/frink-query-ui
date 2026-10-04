@@ -8,7 +8,9 @@ export function useTimer(): {
 } {
   const [active, setActive] = useState(false);
   const [msElapsed, setMsElapsed] = useState(0);
-  const [startTime, setStartTime] = useState(new Date().getTime());
+  // The start of the running query, or null when none is running. A ref, so
+  // that stop can read it without start and stop changing on every query.
+  const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<number | null>(null);
   const secondsString = `${(msElapsed / 1000).toFixed(2)}s`;
 
@@ -22,12 +24,13 @@ export function useTimer(): {
   useEffect(() => {
     if (intervalRef.current === null && active) {
       intervalRef.current = window.setInterval(() => {
-        if (active) setMsElapsed(new Date().getTime() - startTime);
+        if (startTimeRef.current !== null)
+          setMsElapsed(new Date().getTime() - startTimeRef.current);
       }, 10);
     }
 
     return cleanup;
-  }, [active, startTime]);
+  }, [active]);
 
   // if component unmounts while timer is running
   useEffect(() => {
@@ -35,11 +38,18 @@ export function useTimer(): {
   }, []);
 
   const start = () => {
+    startTimeRef.current = new Date().getTime();
+    setMsElapsed(0);
     setActive(true);
-    setStartTime(new Date().getTime());
   };
 
+  // Record the final time here rather than relying on the interval, which
+  // may not have ticked yet if the query finished quickly.
   const stop = () => {
+    if (startTimeRef.current !== null) {
+      setMsElapsed(new Date().getTime() - startTimeRef.current);
+      startTimeRef.current = null;
+    }
     setActive(false);
   };
 
