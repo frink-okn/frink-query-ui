@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { DataFactory } from "rdf-data-factory";
 import type { Source } from "../data/sources";
 import { engine } from "../engine";
@@ -7,8 +13,9 @@ import type {
   Bindings,
   QueryStringContext,
 } from "@comunica/types";
-import { ArrayIterator, wrap } from "asynciterator";
+import { ArrayIterator } from "asynciterator";
 import type { Variable } from "@rdfjs/types";
+import { KeysHttp } from "@comunica/context-entries";
 import { asBindings, downloadTextAsFile } from "../utils";
 import { ActorQueryResultSerializeSparqlCsv } from "@comunica/actor-query-result-serialize-sparql-csv";
 import { ActorQueryResultSerializeSparqlTsv } from "@comunica/actor-query-result-serialize-sparql-tsv";
@@ -135,27 +142,81 @@ export const useComunicaQuery = ({
     sources: Source[];
   } | null>(null);
   const [columns, setColumns] = useState<Variable[]>([]);
-  const [bindingsStream, setBindingsStream] = useState<BindingsStream>(
-    new ArrayIterator<Bindings>([]),
-  );
+  const [planned, setPlanned] = useState<{
+    controller: AbortController;
+    bindings: BindingsStream;
+  } | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [possiblyIncomplete, setPossiblyIncomplete] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const finishedRef = useRef(false);
+
+  // The latest run, identified by its controller, whose abort cancels the
+  // run's requests and destroys its results stream. Only the latest run
+  // changes the hook's state.
+  const runRef = useRef<{ controller: AbortController; ended: boolean } | null>(
+    null,
+  );
+
+  // The latest callbacks, so that new ones don't restart a run's stream.
+  const onStartRef = useRef(onStart);
+  const onStopRef = useRef(onStop);
+  useLayoutEffect(() => {
+    onStartRef.current = onStart;
+    onStopRef.current = onStop;
+  });
+
+  // Ends a run, if it is the latest and hasn't already ended.
+  const endRun = useCallback((controller: AbortController): boolean => {
+    const run = runRef.current;
+    if (run?.controller !== controller || run.ended) return false;
+    run.ended = true;
+    setIsRunning(false);
+    onStopRef.current?.();
+    return true;
+  }, []);
+
+  const failRun = useCallback(
+    (controller: AbortController, error: unknown) => {
+      if (!endRun(controller)) return;
+      setPossiblyIncomplete(true);
+      setErrorMessage(
+        error?.toLocaleString() ??
+          "An unknown error occurred while running the query.",
+      );
+    },
+    [endRun],
+  );
 
   useEffect(() => {
-    finishedRef.current = false;
+    if (planned === null) return;
+    const { controller, bindings } = planned;
+
+    if (controller.signal.aborted) {
+      bindings.destroy();
+      return;
+    }
 
     const _results: Bindings[] = [];
 
     const updateResults = () => {
-      setResults([..._results]);
+      if (runRef.current?.controller === controller) {
+        setResults([..._results]);
+      }
     };
 
-    const throttledUpdateResults = throttle(() => {
-      if (finishedRef.current) return;
-      updateResults();
-    }, 250);
+    const throttledUpdateResults = throttle(updateResults, 250);
+
+    // Stopping the run, replacing it, or unmounting aborts it. Destroying
+    // its stream doesn't end the for-await below, so the rows read so far
+    // are shown here.
+    controller.signal.addEventListener(
+      "abort",
+      () => {
+        updateResults();
+        bindings.destroy();
+      },
+      { once: true },
+    );
 
     // Handle stream completion and errors within readData rather than using
     // separate event handlers. Prior to this approach, a separate "end" event
@@ -163,11 +224,9 @@ export const useComunicaQuery = ({
     // the for-await loop had a chance to yield and push the last item — causing
     // an off-by-one in the results.
     const readData = async () => {
-      // Immediately set results to empty list before processing starts
-      throttledUpdateResults();
       try {
-        for await (const item of bindingsStream) {
-          if (finishedRef.current) return;
+        for await (const item of bindings) {
+          if (controller.signal.aborted) return;
 
           // Some complex queries can return bindings even when Comunica's
           // result metadata contains no variables. Fall back to the first
@@ -192,61 +251,27 @@ export const useComunicaQuery = ({
           }
         }
       } catch (error: unknown) {
-        if (!finishedRef.current) {
-          finishedRef.current = true;
-          updateResults();
-          setIsRunning(false);
-          onStop?.();
-          setPossiblyIncomplete(true);
-          setErrorMessage(
-            error?.toLocaleString() ??
-              "An unknown error occurred while streaming data.",
-          );
-        }
+        updateResults();
+        failRun(controller, error);
         return;
       }
 
-      // Stream processing has stopped (either because it ended naturally or
-      // because stopQuery() destroyed it). By this point, all items that were
-      // actually emitted by the stream have been yielded and pushed, but the
-      // overall result set may be incomplete in the destroy() case.
-      if (!finishedRef.current) {
-        finishedRef.current = true;
-        updateResults();
-        setIsRunning(false);
-        onStop?.();
-      }
+      updateResults();
+      endRun(controller);
     };
 
     // Fallback error handler in case errors don't propagate through the
-    // async iterator protocol for all stream implementations.
-    const handleError = (error: unknown) => {
-      if (finishedRef.current) return;
-      finishedRef.current = true;
+    // async iterator protocol for all stream implementations. It stays
+    // attached, so that a stream no longer read doesn't throw its errors.
+    bindings.on("error", (error: unknown) => {
       updateResults();
-      setIsRunning(false);
-      onStop?.();
-      setPossiblyIncomplete(true);
-      setErrorMessage(
-        error?.toLocaleString() ??
-          "An unknown error occurred while streaming data.",
-      );
-    };
-
-    bindingsStream.on("error", handleError);
+      failRun(controller, error);
+    });
     readData();
+  }, [planned, endRun, failRun]);
 
-    return () => {
-      finishedRef.current = true;
-      bindingsStream.off("error", handleError);
-    };
-  }, [
-    bindingsStream,
-    setResults,
-    setPossiblyIncomplete,
-    setErrorMessage,
-    onStop,
-  ]);
+  // Unmounting cancels the latest run.
+  useEffect(() => () => runRef.current?.controller.abort(), []);
 
   const runQuery = useCallback<ComunicaQueryOutput["runQuery"]>(
     async (q, s) => {
@@ -263,11 +288,6 @@ export const useComunicaQuery = ({
           "No sources array provided. A sources array must be either provided in the hook or passed to the runQuery function.",
         );
       }
-
-      setLastSubmittedQuery({
-        sources,
-        query,
-      });
 
       const queryContext = (() => {
         // Several sources are federated pattern by pattern, each preferring
@@ -292,35 +312,45 @@ export const useComunicaQuery = ({
 
       if (queryContext.length < 1) return;
 
+      setLastSubmittedQuery({
+        sources,
+        query,
+      });
+
+      // A new run replaces any still under way, and cancels its requests.
+      const previous = runRef.current;
+      const controller = new AbortController();
+      runRef.current = { controller, ended: false };
+      previous?.controller.abort();
+
       setResults([]);
       setColumns([]);
       setErrorMessage("");
       setPossiblyIncomplete(false);
-      finishedRef.current = false;
-
-      // Planning happens inside the results stream, so that it is timed and
-      // can be stopped like the rest of the query, and its errors are
-      // reported the same way.
-      const stream: BindingsStream = wrap(
-        planQuery(query, { sources: queryContext } as QueryStringContext).then(
-          // Planning can finish after the query was stopped, even after a
-          // newer query has started, and then its columns and errors no
-          // longer apply.
-          ([variables, results]) => {
-            if (!stream.done) setColumns(variables);
-            return results;
-          },
-          (error) => {
-            if (stream.done) return new ArrayIterator<Bindings>([]);
-            throw error;
-          },
-        ),
-      );
-      setBindingsStream(stream);
       setIsRunning(true);
-      onStart?.();
+      onStartRef.current?.();
+
+      // Planning is part of the run: it is timed, and can be stopped.
+      let plan: [Variable[], BindingsStream];
+      try {
+        plan = await planQuery(query, {
+          sources: queryContext,
+          [KeysHttp.httpAbortSignal.name]: controller.signal,
+        } as QueryStringContext);
+      } catch (error: unknown) {
+        failRun(controller, error);
+        return;
+      }
+
+      const [variables, bindings] = plan;
+      if (controller.signal.aborted) {
+        bindings.destroy();
+        return;
+      }
+      setColumns(variables);
+      setPlanned({ controller, bindings });
     },
-    [onStart, propsQuery, propsSources],
+    [failRun, propsQuery, propsSources],
   );
 
   useEffect(() => {
@@ -330,13 +360,10 @@ export const useComunicaQuery = ({
   }, [runQuery, runOnMount]);
 
   const stopQuery = () => {
-    if (!bindingsStream.done) setPossiblyIncomplete(true);
-    bindingsStream?.destroy();
-    setIsRunning(false);
-    if (!finishedRef.current) {
-      finishedRef.current = true;
-      onStop?.();
-    }
+    const run = runRef.current;
+    if (run === null || !endRun(run.controller)) return;
+    setPossiblyIncomplete(true);
+    run.controller.abort();
   };
 
   const downloadResultsAsCSV = () => {

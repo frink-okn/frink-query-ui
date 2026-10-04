@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from "react";
 import type { Source } from "../data/sources";
 import type { Bindings } from "@comunica/types";
 import type { Variable } from "@rdfjs/types";
-import { useTimer } from "../hooks/useTimer";
+import { useTimer, type Timing } from "../hooks/useTimer";
 import { useComunicaQuery } from "../hooks/useComunicaQuery";
 import type { CustomSource } from "../ui/CustomSourcesModal";
 
@@ -20,8 +20,7 @@ const QueryContext = createContext<{
   errorMessage: string;
   downloadResultsAsCSV: () => void;
   downloadResultsAsTSV: () => void;
-  secondsString: string;
-  msElapsed: number;
+  timing: Timing | null;
   selectedCustomSources: CustomSource[];
   setSelectedCustomSources: React.Dispatch<
     React.SetStateAction<CustomSource[]>
@@ -75,8 +74,7 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
         errorMessage,
         downloadResultsAsCSV,
         downloadResultsAsTSV,
-        secondsString: timer.secondsString,
-        msElapsed: timer.msElapsed,
+        timing: timer.timing,
         selectedCustomSources,
         setSelectedCustomSources,
       }}

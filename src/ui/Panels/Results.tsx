@@ -46,8 +46,6 @@ export function Results() {
     [searchParams, lastSubmittedQuery],
   );
 
-  // A query can finish before the timer's first tick, leaving msElapsed at 0,
-  // so whether one has been submitted is what decides this.
   if (lastSubmittedQuery === null) {
     return (
       <CenteredMessage>
