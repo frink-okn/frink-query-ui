@@ -241,22 +241,23 @@ export const useComunicaQuery = ({
       });
 
       const queryContext = (() => {
-        // Several sources are federated pattern by pattern: through a graph's
-        // native KGF route when it has one, else its TPF interface. One source
-        // gets the whole query at its SPARQL endpoint when it has one.
+        // Several sources are federated pattern by pattern, each preferring
+        // its native KGF route, then its TPF interface, then its SPARQL
+        // endpoint. One source gets the whole query, preferring its SPARQL
+        // endpoint, then its KGF route, then its TPF interface.
         const federated = sources.length > 1;
         return sources.map((s) => {
           if ("endpoint" in s) {
             return { type: "sparql", value: s.endpoint };
           }
 
-          if (federated || !("sparqlEndpoint" in s)) {
-            return s.kgfEndpoint === undefined
-              ? { type: "qpf", value: s.tpfEndpoint }
-              : { type: "kgf", value: s.kgfEndpoint };
+          if (!federated && s.sparqlEndpoint !== undefined) {
+            return { type: "sparql", value: s.sparqlEndpoint };
           }
 
-          return { type: "sparql", value: s.sparqlEndpoint };
+          return s.kgfEndpoint === undefined
+            ? { type: "qpf", value: s.tpfEndpoint }
+            : { type: "kgf", value: s.kgfEndpoint };
         });
       })();
 

@@ -4,8 +4,6 @@ FROM base AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-# kgf-sparql and its actors, packed from the kgf-sparql repository until they are published.
-COPY vendor ./vendor
 RUN npm ci
 
 FROM base AS builder

@@ -1,4 +1,4 @@
-import { QueryEngine } from "kgf-sparql";
+import { QueryEngine } from "@frink-okn/kgf-sparql";
 
 /**
  * The page's one query engine: kgf-sparql, Comunica configured for KGF's native
