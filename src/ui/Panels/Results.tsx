@@ -26,7 +26,6 @@ export function Results() {
     errorMessage,
     downloadResultsAsCSV,
     downloadResultsAsTSV,
-    msElapsed,
   } = useQueryContext()!;
 
   const [isTextWrapped, setIsTextWrapped] = useState(false);
@@ -47,7 +46,7 @@ export function Results() {
     [searchParams, lastSubmittedQuery],
   );
 
-  if (msElapsed === 0 && !isRunning) {
+  if (lastSubmittedQuery === null) {
     return (
       <CenteredMessage>
         <p>Please run a query to view the results here.</p>

@@ -1,10 +1,10 @@
 import type * as RDF from "@rdfjs/types";
 import { DataFactory } from "rdf-data-factory";
-import { BindingsFactory } from "@comunica/bindings-factory";
+import { BindingsFactory } from "@comunica/utils-bindings-factory";
 import { type Bindings } from "@comunica/types";
 
 const DF = new DataFactory();
-const BF = new BindingsFactory();
+const BF = new BindingsFactory(DF);
 
 function downloadTextAsFile(
   text: string | Array<string>,

@@ -27,58 +27,58 @@ type SPARQLSource = {
   shortname: string;
   endpoint: string;
 };
-type TPFSource = {
+/**
+ * A registry graph with fragment interfaces, which federated queries use
+ * pattern by pattern: its native KGF route, which kgf-sparql queries directly,
+ * its TPF interface, or both. A single-source query goes to its SPARQL
+ * endpoint when it has one.
+ */
+type FragmentSource = {
   category: SourceCategory;
   name: string;
   shortname: string;
-  tpfEndpoint: string;
-};
-type CompoundSource = {
-  category: SourceCategory;
-  name: string;
-  shortname: string;
-  sparqlEndpoint: string;
-  tpfEndpoint: string;
-};
-export type Source = SPARQLSource | TPFSource | CompoundSource;
+  sparqlEndpoint?: string;
+} & (
+  | { kgfEndpoint: string; tpfEndpoint?: string }
+  | { kgfEndpoint?: undefined; tpfEndpoint: string }
+);
+export type Source = SPARQLSource | FragmentSource;
 
-type RegistrySource =
-  | Omit<SPARQLSource, "category">
-  | Omit<TPFSource, "category">
-  | Omit<CompoundSource, "category">;
+// Omits the category from each kind of source in turn; a plain Omit would
+// merge them into one.
+type WithoutCategory<S> = S extends unknown ? Omit<S, "category"> : never;
+type RegistrySource = WithoutCategory<Source>;
 
 const registrySourceSchema = v.object({
   title: v.string(),
   shortname: v.string(),
   sparql: v.optional(v.pipe(v.string(), v.url())),
   tpf: v.optional(v.pipe(v.string(), v.url())),
+  kgf: v.optional(v.pipe(v.string(), v.url())),
 });
+
 const allRegistrySourcesSchema = v.pipe(
   v.object({ kgs: v.array(registrySourceSchema) }),
   v.transform(({ kgs }) =>
-    kgs.flatMap<RegistrySource>((source) => {
-      const common = {
-        name: source.title,
-        shortname: source.shortname,
-      };
+    kgs.flatMap<RegistrySource>(({ title, shortname, sparql, tpf, kgf }) => {
+      const common = { name: title, shortname };
 
-      if (source.sparql === undefined) {
-        return source.tpf === undefined
-          ? []
-          : [{ ...common, tpfEndpoint: source.tpf }];
+      // Keep every endpoint, so that multi-source queries can prefer the
+      // fragment interfaces while single-source queries continue to use SPARQL.
+      if (kgf !== undefined) {
+        return [
+          {
+            ...common,
+            sparqlEndpoint: sparql,
+            kgfEndpoint: kgf,
+            tpfEndpoint: tpf,
+          },
+        ];
       }
-
-      // Keep both endpoints when possible so multi-source queries can prefer
-      // TPF, while single-source queries continue to use SPARQL.
-      return source.tpf === undefined
-        ? [{ ...common, endpoint: source.sparql }]
-        : [
-            {
-              ...common,
-              sparqlEndpoint: source.sparql,
-              tpfEndpoint: source.tpf,
-            },
-          ];
+      if (tpf !== undefined) {
+        return [{ ...common, sparqlEndpoint: sparql, tpfEndpoint: tpf }];
+      }
+      return sparql === undefined ? [] : [{ ...common, endpoint: sparql }];
     }),
   ),
 );
