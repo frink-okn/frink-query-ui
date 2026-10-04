@@ -15,7 +15,6 @@ import type {
 } from "@comunica/types";
 import { ArrayIterator } from "asynciterator";
 import type { Variable } from "@rdfjs/types";
-import { KeysHttp } from "@comunica/context-entries";
 import { asBindings, downloadTextAsFile } from "../utils";
 import { ActorQueryResultSerializeSparqlCsv } from "@comunica/actor-query-result-serialize-sparql-csv";
 import { ActorQueryResultSerializeSparqlTsv } from "@comunica/actor-query-result-serialize-sparql-tsv";
@@ -150,9 +149,8 @@ export const useComunicaQuery = ({
   const [possiblyIncomplete, setPossiblyIncomplete] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // The latest run, identified by its controller, whose abort cancels the
-  // run's requests and destroys its results stream. Only the latest run
-  // changes the hook's state.
+  // The latest run, identified by its controller, whose abort destroys the
+  // run's results stream. Only the latest run changes the hook's state.
   const runRef = useRef<{ controller: AbortController; ended: boolean } | null>(
     null,
   );
@@ -317,7 +315,7 @@ export const useComunicaQuery = ({
         query,
       });
 
-      // A new run replaces any still under way, and cancels its requests.
+      // A new run replaces any still under way.
       const previous = runRef.current;
       const controller = new AbortController();
       runRef.current = { controller, ended: false };
@@ -330,12 +328,16 @@ export const useComunicaQuery = ({
       setIsRunning(true);
       onStartRef.current?.();
 
-      // Planning is part of the run: it is timed, and can be stopped.
+      // Planning is part of the run: it is timed, and can be stopped, though
+      // its requests are not cancelled. The engine caches sources by URL,
+      // keeping the context of the query that first used them, and shares
+      // them between queries; an abort signal in this run's context would
+      // abort other queries' requests, and leave cached sources waiting on
+      // responses that never come.
       let plan: [Variable[], BindingsStream];
       try {
         plan = await planQuery(query, {
           sources: queryContext,
-          [KeysHttp.httpAbortSignal.name]: controller.signal,
         } as QueryStringContext);
       } catch (error: unknown) {
         failRun(controller, error);
